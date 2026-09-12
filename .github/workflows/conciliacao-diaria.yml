@@ -1,0 +1,51 @@
+name: Conciliação diária Advbox x Asaas
+
+on:
+  schedule:
+    # 07:00 UTC = 03:00 em Manaus (America/Manaus, UTC-4 o ano todo, sem
+    # horário de verão). Ajuste aqui se o fuso da conciliação mudar.
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Data pra conciliar (AAAA-MM-DD). Deixe em branco para usar 'ontem'."
+        required: false
+        default: ""
+      dry_run:
+        description: "true = só simula as correções (não grava nada de verdade). Use assim nos primeiros testes."
+        required: false
+        default: "true"
+
+jobs:
+  conciliar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar a conciliação (corrige sozinho só os casos seguros — ver README)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: python conciliar.py
+
+      - name: Guardar o PDF gerado (fica disponível pra baixar por 30 dias)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-conciliacao
+          path: conciliacao_*.pdf
+          retention-days: 30
