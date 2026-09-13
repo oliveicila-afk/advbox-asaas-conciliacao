@@ -46,6 +46,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 # --------------------------------------------------------------------------
 # Configuração
@@ -475,20 +476,41 @@ def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
     pdf.add_page()
 
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, f"Conciliacao Advbox x Asaas - {relatorio['data']}", ln=True)
+    pdf.cell(0, 10, f"Conciliacao Advbox x Asaas - {relatorio['data']}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font("Helvetica", "", 10)
     modo = " (DRY RUN - nada foi gravado de verdade)" if DRY_RUN else ""
-    pdf.cell(0, 6, f"Gerado automaticamente em {datetime.now().strftime('%d/%m/%Y %H:%M')}{modo}", ln=True)
+    pdf.cell(0, 6, f"Gerado automaticamente em {datetime.now().strftime('%d/%m/%Y %H:%M')}{modo}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(4)
 
     def titulo(txt):
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_fill_color(235, 235, 235)
-        pdf.cell(0, 8, txt, ln=True, fill=True)
+        pdf.cell(0, 8, txt, new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
         pdf.set_font("Helvetica", "", 10)
 
     def linha(txt):
-        pdf.multi_cell(0, 6, txt)
+        # Faz a quebra de linha manualmente (em vez de usar multi_cell direto)
+        # porque o fpdf2 tem um bug conhecido: quando o texto encosta quase
+        # exatamente na borda da largura disponível, ele lança
+        # "Not enough horizontal space to render a single character" em vez
+        # de quebrar a linha (https://github.com/py-pdf/fpdf2/issues/1582).
+        # Quebrando nós mesmos, com uma margem de segurança, evitamos cair
+        # nesse caso extremo e o relatório nunca falha por causa de layout.
+        largura_maxima = pdf.w - pdf.l_margin - pdf.r_margin - 2
+
+        def escreve(texto):
+            pdf.cell(0, 6, texto, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+        palavras = txt.split(" ")
+        linha_atual = ""
+        for palavra in palavras:
+            candidata = f"{linha_atual} {palavra}" if linha_atual else palavra
+            if not linha_atual or pdf.get_string_width(candidata) <= largura_maxima:
+                linha_atual = candidata
+            else:
+                escreve(linha_atual)
+                linha_atual = palavra
+        escreve(linha_atual)
 
     bateu_receita = abs(relatorio["diferenca_receita"]) < 0.02
     bateu_despesa = abs(relatorio["diferenca_despesa"]) < 0.02
