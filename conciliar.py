@@ -470,22 +470,41 @@ def aplicar_correcoes(relatorio: dict) -> dict:
 # PDF
 # --------------------------------------------------------------------------
 
+def sanitizar_texto_pdf(txt) -> str:
+    """Deixa qualquer texto seguro pra desenhar no PDF com a fonte Helvetica
+    (que só suporta Latin-1). Troca pontuação "esperta" comum (travessão,
+    aspas curvas, reticências) pelo equivalente simples e, por segurança,
+    qualquer caractere que ainda sobrar fora do Latin-1 — por exemplo um
+    emoji ou símbolo vindo de uma descrição de lançamento da Advbox/Asaas —
+    é substituído por "?" em vez de derrubar o relatório inteiro.
+    """
+    txt = str(txt)
+    substituicoes = {
+        "—": "-", "–": "-", "―": "-",
+        "“": '"', "”": '"', "‘": "'", "’": "'",
+        "…": "...", "\xa0": " ",
+    }
+    for de, para in substituicoes.items():
+        txt = txt.replace(de, para)
+    return txt.encode("latin-1", errors="replace").decode("latin-1")
+
+
 def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
 
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, f"Conciliacao Advbox x Asaas - {relatorio['data']}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(0, 10, sanitizar_texto_pdf(f"Conciliacao Advbox x Asaas - {relatorio['data']}"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_font("Helvetica", "", 10)
     modo = " (DRY RUN - nada foi gravado de verdade)" if DRY_RUN else ""
-    pdf.cell(0, 6, f"Gerado automaticamente em {datetime.now().strftime('%d/%m/%Y %H:%M')}{modo}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(0, 6, sanitizar_texto_pdf(f"Gerado automaticamente em {datetime.now().strftime('%d/%m/%Y %H:%M')}{modo}"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(4)
 
     def titulo(txt):
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_fill_color(235, 235, 235)
-        pdf.cell(0, 8, txt, new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
+        pdf.cell(0, 8, sanitizar_texto_pdf(txt), new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
         pdf.set_font("Helvetica", "", 10)
 
     def linha(txt):
@@ -496,6 +515,10 @@ def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
         # de quebrar a linha (https://github.com/py-pdf/fpdf2/issues/1582).
         # Quebrando nós mesmos, com uma margem de segurança, evitamos cair
         # nesse caso extremo e o relatório nunca falha por causa de layout.
+        # Também sanitiza o texto primeiro, porque descrições vindas da
+        # Advbox/Asaas podem trazer caracteres (travessão, emoji, etc.) que a
+        # fonte Helvetica não suporta e derrubariam o relatório inteiro.
+        txt = sanitizar_texto_pdf(txt)
         largura_maxima = pdf.w - pdf.l_margin - pdf.r_margin - 2
 
         def escreve(texto):
