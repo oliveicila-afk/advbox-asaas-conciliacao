@@ -30,8 +30,11 @@ O que este script faz sozinho, todo dia (v1.1):
      identificado: ... conferir Histórico > Tarefas no Advbox antes de
      lançar" — porque só olhando as tarefas do processo (campo que a API
      do Advbox não expõe) dá pra saber se o valor é honorário SUCUMBENCIAL
-     ou CONTRATUAL, e se tem repasse a fazer pro cliente. O robô nunca
-     decide isso sozinho nem lança nada a partir dessa identificação.
+     ou CONTRATUAL, e se tem repasse a fazer pro cliente. Também busca o
+     cadastro do cliente (Pessoas) e, pelo campo "Origem da pessoa", tenta
+     sugerir um centro de custo (mesmo padrão "GRUPO-CANAL" descoberto no
+     caso Weliton Lopes de Oliveira em 22/09/2026). O robô nunca decide
+     isso sozinho nem lança nada a partir dessa identificação — só aponta.
 
 Variáveis de ambiente esperadas (Secrets no GitHub):
   ADVBOX_TOKEN     -> token Bearer da API do Advbox
@@ -370,10 +373,64 @@ def identificar_processo_por_referencia(external_reference: str, lawsuits: list[
     return None
 
 
-def enriquecer_receita_faltando_com_processo(relatorio: dict, lawsuits: list[dict]) -> None:
+def advbox_get_customer(customer_id) -> dict | None:
+    try:
+        return advbox_get(f"/customers/{customer_id}")
+    except RuntimeError as exc:
+        log(f"Não consegui buscar cliente {customer_id} no Advbox: {exc}")
+        return None
+
+
+def sugerir_centro_custo_por_origem(origem_cliente: str, advbox_itens: list[dict]) -> str | None:
+    """Descoberto em 22/09/2026 (caso Weliton Lopes de Oliveira): os centros
+    de custo no Advbox seguem o padrão "GRUPO-CANAL" (ex: "PROFESSOR/PEDAGOGO
+    -PROSPECÇÃO ATIVA", "CONSUMIDOR-INDICAÇÃO") e costumam bater com palavras
+    do campo "Origem da pessoa" do cadastro do cliente em Pessoas no Advbox
+    (formato "CANAL | ... | GRUPO | ..." — ex: "PROSPECÇÃO | PROMOÇÃO
+    HORIZONTAL | PROFESSOR | SEDUC | AM").
+
+    Aqui a gente procura, entre os nomes de centro de custo que já aparecem
+    nos lançamentos que o robô buscou pra conciliação de hoje (advbox_itens
+    — não faz nenhuma chamada extra à API pra isso), um cujo GRUPO (antes do
+    hífen) e CANAL (depois do hífen) batam cada um com pelo menos uma palavra
+    do campo origem. Só sugere um NOME de centro de custo quando acha
+    exatamente 1 candidato — nunca decide/lança nada sozinho, e a Priscila
+    ainda confirma antes de qualquer lançamento."""
+    def _palavras(texto: str, tamanho_minimo: int = 4) -> set[str]:
+        # tamanho mínimo evita colisão boba tipo "AM" (Amazonas, no fim da
+        # origem) casando por substring com "instAGRAM" de um centro de
+        # custo qualquer — exige palavra inteira normalizada, não pedaço
+        return {p for p in normalizar_nome(texto).split(" ") if len(p) >= tamanho_minimo}
+
+    palavras_origem: set[str] = set()
+    for pedaco in re.split(r"[|,]", origem_cliente or ""):
+        palavras_origem |= _palavras(pedaco)
+    if not palavras_origem:
+        return None
+
+    nomes_centro_custo = {item.get("cost_center") for item in advbox_itens if item.get("cost_center")}
+    candidatos = []
+    for nome in nomes_centro_custo:
+        partes = nome.split("-", 1)
+        if len(partes) != 2:
+            continue
+        palavras_grupo, palavras_canal = _palavras(partes[0]), _palavras(partes[1])
+        if (palavras_origem & palavras_grupo) and (palavras_origem & palavras_canal):
+            candidatos.append(nome)
+    if len(candidatos) == 1:
+        return candidatos[0]
+    return None
+
+
+def enriquecer_receita_faltando_com_processo(
+    relatorio: dict, lawsuits: list[dict], advbox_itens: list[dict]
+) -> None:
     """Pra cada item de receita_faltando, tenta achar um processo candidato
     (ver identificar_processo_por_referencia) e guarda a info junto do item,
-    pra aparecer no PDF como pista — nunca lança nada sozinho."""
+    pra aparecer no PDF como pista — nunca lança nada sozinho. Quando acha o
+    processo, também busca o cadastro do cliente (Pessoas) pra sugerir um
+    centro de custo pelo campo "Origem da pessoa" (ver
+    sugerir_centro_custo_por_origem) — também só sugestão."""
     for item in relatorio["receita_faltando"]:
         ref = item.get("externalReference") or ""
         if not ref:
@@ -381,11 +438,20 @@ def enriquecer_receita_faltando_com_processo(relatorio: dict, lawsuits: list[dic
         lw = identificar_processo_por_referencia(ref, lawsuits)
         if lw:
             clientes = lw.get("customers") or []
+            customer_id = clientes[0].get("customer_id") if clientes else None
+            centro_custo_sugerido = None
+            if customer_id:
+                cliente = advbox_get_customer(customer_id)
+                if cliente and cliente.get("origin"):
+                    centro_custo_sugerido = sugerir_centro_custo_por_origem(
+                        cliente["origin"], advbox_itens
+                    )
             item["_processo_identificado"] = {
                 "processo": lw.get("process_number"),
                 "cliente": (clientes[0].get("name") if clientes else None),
                 "estagio": lw.get("stage"),
                 "lawsuits_id": lw.get("id"),
+                "centro_custo_sugerido": centro_custo_sugerido,
             }
 
 
@@ -659,6 +725,12 @@ def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
                 f"Historico > Tarefas desse processo no Advbox antes de lancar "
                 f"(sucumbencial ou contratual, e se tem repasse a fazer pro cliente)."
             )
+            if pid.get("centro_custo_sugerido"):
+                linha(
+                    f"    Centro de custo sugerido (pela Origem da pessoa no "
+                    f"cadastro do cliente): {pid['centro_custo_sugerido']} "
+                    f"- confirmar antes de usar."
+                )
     pdf.ln(2)
 
     titulo(f"Taxa bancaria por cliente faltando - precisa decisao manual ({len(relatorio['taxa_bancaria_faltando'])})")
@@ -770,7 +842,7 @@ def main() -> None:
         # dia à toa) — ver enriquecer_receita_faltando_com_processo
         try:
             lawsuits = advbox_get_all_lawsuits()
-            enriquecer_receita_faltando_com_processo(relatorio, lawsuits)
+            enriquecer_receita_faltando_com_processo(relatorio, lawsuits, advbox_itens)
         except RuntimeError as exc:
             log(f"Não consegui buscar processos do Advbox pra identificar receita faltando: {exc}")
 
