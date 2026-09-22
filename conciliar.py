@@ -422,15 +422,67 @@ def sugerir_centro_custo_por_origem(origem_cliente: str, advbox_itens: list[dict
     return None
 
 
+def sugerir_categoria_por_precedente_do_processo(
+    numero_processo: str, advbox_itens: list[dict]
+) -> dict | None:
+    """Descoberto em 22/09/2026, revisão multi-dia 10-21/09: quando o
+    processo identificado (via identificar_processo_por_referencia) JÁ tem
+    algum lançamento de honorário anterior no Advbox (outro pagamento do
+    mesmo processo, ex: o honorário inicial ou uma parcela anterior de
+    êxito/sucumbencial), a categoria e o centro de custo usados nesse
+    lançamento anterior são um sinal muito mais confiável do que tentar
+    adivinhar pela "Origem da pessoa" — na prática, de 8 casos reais
+    verificados nessa revisão, 5 bateram exato ou quase exato com o
+    lançamento anterior do mesmo processo (Axon, Stanley, Daniel, Jefferson,
+    e parcialmente Alessandro), contra só 1 de 8 em que a Origem da pessoa
+    sozinha dava um palpite utilizável (João Marcelo).
+
+    Procura, dentro dos lançamentos já lidos do Advbox (advbox_itens, sem
+    chamada extra à API), algum outro lançamento de RECEITA (entry_type
+    income) do mesmo número de processo cuja categoria contenha "ÊXITO",
+    "SUCUMBENCIAL" ou "HONORÁRIOS" (ou seja, é um honorário, não uma taxa/
+    despesa administrativa) — e devolve a categoria e o centro de custo
+    usados lá. Quando encontra mais de uma categoria diferente pro mesmo
+    processo, devolve None (ambíguo, evita palpite errado). Só uma
+    SUGESTÃO — nunca decide nem lança nada sozinho; ainda precisa confirmar
+    se esse pagamento novo é sucumbencial ou contratual (com repasse) antes
+    de usar essa categoria, porque a categoria de honorário de êxito e a de
+    sucumbencial do mesmo processo podem ser diferentes."""
+    digitos_alvo = extrair_digitos(numero_processo or "")
+    if len(digitos_alvo) < 15:
+        return None
+    palavras_honorario = ("ÊXITO", "EXITO", "SUCUMBENCIAL", "HONOR")
+    achados = {}
+    for item in advbox_itens:
+        if item.get("entry_type") != "income":
+            continue
+        if extrair_digitos(item.get("process_number") or "") != digitos_alvo:
+            continue
+        categoria = (item.get("category") or "").upper()
+        if not any(p in categoria for p in palavras_honorario):
+            continue
+        cost_center = item.get("cost_center")
+        achados[(item.get("category"), cost_center)] = item.get("category")
+    if len(achados) == 1:
+        (categoria, cost_center) = next(iter(achados.keys()))
+        return {"categoria": categoria, "cost_center": cost_center}
+    return None
+
+
 def enriquecer_receita_faltando_com_processo(
     relatorio: dict, lawsuits: list[dict], advbox_itens: list[dict]
 ) -> None:
     """Pra cada item de receita_faltando, tenta achar um processo candidato
     (ver identificar_processo_por_referencia) e guarda a info junto do item,
     pra aparecer no PDF como pista — nunca lança nada sozinho. Quando acha o
-    processo, também busca o cadastro do cliente (Pessoas) pra sugerir um
-    centro de custo pelo campo "Origem da pessoa" (ver
-    sugerir_centro_custo_por_origem) — também só sugestão."""
+    processo, tenta duas fontes de sugestão pra categoria/centro de custo,
+    nessa ordem de confiança: (1) precedente de outro lançamento de
+    honorário do mesmo processo (ver
+    sugerir_categoria_por_precedente_do_processo — mais confiável, testado
+    em 22/09/2026), e (2) busca o cadastro do cliente (Pessoas) pra sugerir
+    um centro de custo pelo campo "Origem da pessoa" (ver
+    sugerir_centro_custo_por_origem — usada só quando não achou precedente).
+    Ambas são só sugestão, nunca decidem/lançam nada sozinhas."""
     for item in relatorio["receita_faltando"]:
         ref = item.get("externalReference") or ""
         if not ref:
@@ -439,18 +491,28 @@ def enriquecer_receita_faltando_com_processo(
         if lw:
             clientes = lw.get("customers") or []
             customer_id = clientes[0].get("customer_id") if clientes else None
+            numero_processo = lw.get("process_number")
+
+            categoria_sugerida_por_precedente = None
             centro_custo_sugerido = None
-            if customer_id:
+            precedente = sugerir_categoria_por_precedente_do_processo(numero_processo, advbox_itens)
+            if precedente:
+                categoria_sugerida_por_precedente = precedente["categoria"]
+                centro_custo_sugerido = precedente["cost_center"]
+
+            if not centro_custo_sugerido and customer_id:
                 cliente = advbox_get_customer(customer_id)
                 if cliente and cliente.get("origin"):
                     centro_custo_sugerido = sugerir_centro_custo_por_origem(
                         cliente["origin"], advbox_itens
                     )
+
             item["_processo_identificado"] = {
-                "processo": lw.get("process_number"),
+                "processo": numero_processo,
                 "cliente": (clientes[0].get("name") if clientes else None),
                 "estagio": lw.get("stage"),
                 "lawsuits_id": lw.get("id"),
+                "categoria_sugerida_por_precedente": categoria_sugerida_por_precedente,
                 "centro_custo_sugerido": centro_custo_sugerido,
             }
 
@@ -725,10 +787,17 @@ def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
                 f"Historico > Tarefas desse processo no Advbox antes de lancar "
                 f"(sucumbencial ou contratual, e se tem repasse a fazer pro cliente)."
             )
+            if pid.get("categoria_sugerida_por_precedente"):
+                linha(
+                    f"    Categoria sugerida (por precedente de outro "
+                    f"lancamento de honorario do mesmo processo): "
+                    f"{pid['categoria_sugerida_por_precedente']} - confirmar "
+                    f"se este pagamento e do mesmo tipo (exito/sucumbencial) "
+                    f"antes de usar."
+                )
             if pid.get("centro_custo_sugerido"):
                 linha(
-                    f"    Centro de custo sugerido (pela Origem da pessoa no "
-                    f"cadastro do cliente): {pid['centro_custo_sugerido']} "
+                    f"    Centro de custo sugerido: {pid['centro_custo_sugerido']} "
                     f"- confirmar antes de usar."
                 )
     pdf.ln(2)
