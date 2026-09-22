@@ -21,6 +21,17 @@ O que este script faz sozinho, todo dia (v1.1):
      da Priscila — o robô não decide isso sozinho.
   5. Gera um PDF com o resultado (o que foi corrigido, o que ficou
      pendente) e manda por email.
+  6. (novo, 22/09/2026) Pra receita "faltando" que não bate por nome com
+     nada no Advbox — típico de TED recebido direto de tribunal/Caixa
+     Econômica, sem o CPF/nome do cliente — tenta IDENTIFICAR (não lançar!)
+     o processo/cliente batendo os dígitos do campo externalReference da
+     Asaas contra o número do processo (CNJ) de cada lawsuit no Advbox.
+     Quando acha um candidato único, mostra no PDF "Possível processo
+     identificado: ... conferir Histórico > Tarefas no Advbox antes de
+     lançar" — porque só olhando as tarefas do processo (campo que a API
+     do Advbox não expõe) dá pra saber se o valor é honorário SUCUMBENCIAL
+     ou CONTRATUAL, e se tem repasse a fazer pro cliente. O robô nunca
+     decide isso sozinho nem lança nada a partir dessa identificação.
 
 Variáveis de ambiente esperadas (Secrets no GitHub):
   ADVBOX_TOKEN     -> token Bearer da API do Advbox
@@ -235,6 +246,26 @@ def advbox_post(payload: dict) -> dict | None:
 # Asaas
 # --------------------------------------------------------------------------
 
+def advbox_get_all_lawsuits(limite_paginas: int = 20) -> list[dict]:
+    """Busca todos os processos (lawsuits) cadastrados no Advbox — usado só
+    pra tentar identificar, por número de processo, receitas que caíram
+    direto na Asaas sem bater por nome (ver identificar_processo_por_referencia).
+    """
+    todos, offset, limite = [], 0, 1000
+    for _ in range(limite_paginas):
+        pagina = advbox_get("/lawsuits", {"limit": limite, "offset": offset})
+        itens = pagina if isinstance(pagina, list) else pagina.get("data", [])
+        if not itens:
+            break
+        todos.extend(itens)
+        if len(itens) < limite:
+            break
+        offset += limite
+        time.sleep(0.3)
+    log(f"Advbox: {len(todos)} processos (lawsuits) no total")
+    return todos
+
+
 def asaas_get(path: str, params: dict | None = None, tentativas: int = 5) -> dict:
     url = f"{ASAAS_BASE}{path}"
     headers = {"access_token": ASAAS_TOKEN}
@@ -300,6 +331,63 @@ def encontrar_candidatos(nome_asaas: str, valor: float, advbox_itens: list[dict]
 # --------------------------------------------------------------------------
 # Análise
 # --------------------------------------------------------------------------
+
+def extrair_digitos(texto: str) -> str:
+    return re.sub(r"\D", "", texto or "")
+
+
+def identificar_processo_por_referencia(external_reference: str, lawsuits: list[dict]) -> dict | None:
+    """Descoberto em 22/09/2026 (casos Weliton Lopes de Oliveira e Lucas
+    Monteiro Gazel): um pagamento que cai direto na Asaas via TED de
+    tribunal/Caixa Econômica — sem CPF/nome do cliente batendo com nada no
+    Advbox — traz o número do processo (formato CNJ) embutido no campo
+    "externalReference" do evento financeiro, só que sem os tracinhos/pontos
+    e às vezes com zeros de preenchimento na frente.
+
+    Aqui a gente tenta casar os dígitos desse campo com os dígitos do
+    process_number de algum processo (lawsuit) no Advbox. Só retorna um
+    resultado quando encontra exatamente 1 candidato — 0 ou mais de 1 fica
+    ambíguo e não é reportado (evita falso positivo).
+
+    IMPORTANTE — isso só IDENTIFICA um candidato de processo/cliente. Nunca
+    decide sozinho se o valor é honorário SUCUMBENCIAL ou CONTRATUAL, nem se
+    tem repasse a fazer pro cliente — isso só dá pra confirmar abrindo
+    Histórico > Tarefas do processo no Advbox (a API não expõe esse dado),
+    então o robô nunca lança nada a partir disso, só aponta o caminho.
+    """
+    digitos_ref = extrair_digitos(external_reference)
+    if len(digitos_ref) < 15:
+        return None
+    achados = []
+    for lw in lawsuits:
+        digitos_processo = extrair_digitos(lw.get("process_number") or "")
+        if len(digitos_processo) < 15:
+            continue
+        if digitos_processo in digitos_ref or digitos_ref.endswith(digitos_processo):
+            achados.append(lw)
+    if len(achados) == 1:
+        return achados[0]
+    return None
+
+
+def enriquecer_receita_faltando_com_processo(relatorio: dict, lawsuits: list[dict]) -> None:
+    """Pra cada item de receita_faltando, tenta achar um processo candidato
+    (ver identificar_processo_por_referencia) e guarda a info junto do item,
+    pra aparecer no PDF como pista — nunca lança nada sozinho."""
+    for item in relatorio["receita_faltando"]:
+        ref = item.get("externalReference") or ""
+        if not ref:
+            continue
+        lw = identificar_processo_por_referencia(ref, lawsuits)
+        if lw:
+            clientes = lw.get("customers") or []
+            item["_processo_identificado"] = {
+                "processo": lw.get("process_number"),
+                "cliente": (clientes[0].get("name") if clientes else None),
+                "estagio": lw.get("stage"),
+                "lawsuits_id": lw.get("id"),
+            }
+
 
 def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list[dict]) -> dict:
     receita_asaas = [i for i in asaas_itens if i.get("type") in TIPOS_RECEITA]
@@ -562,6 +650,15 @@ def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
         linha("Nenhuma pendencia encontrada.")
     for item in relatorio["receita_faltando"]:
         linha(f"- R$ {float(item.get('value', 0)):.2f} | {item.get('type')} | {item.get('description', '')}")
+        pid = item.get("_processo_identificado")
+        if pid:
+            linha(
+                f"    Possivel processo identificado: {pid.get('processo')} "
+                f"- {pid.get('cliente') or 'nome do cliente nao encontrado'} "
+                f"(estagio: {pid.get('estagio') or 'n/d'}). CONFERIR em "
+                f"Historico > Tarefas desse processo no Advbox antes de lancar "
+                f"(sucumbencial ou contratual, e se tem repasse a fazer pro cliente)."
+            )
     pdf.ln(2)
 
     titulo(f"Taxa bancaria por cliente faltando - precisa decisao manual ({len(relatorio['taxa_bancaria_faltando'])})")
@@ -666,6 +763,17 @@ def main() -> None:
     asaas_itens = asaas_get_financial_transactions_do_dia(data_alvo)
 
     relatorio = montar_relatorio(data_alvo, advbox_itens, asaas_itens)
+
+    if relatorio["receita_faltando"]:
+        # só busca os ~8 mil processos do Advbox quando realmente tem
+        # receita faltando pra tentar identificar (evita esse custo todo
+        # dia à toa) — ver enriquecer_receita_faltando_com_processo
+        try:
+            lawsuits = advbox_get_all_lawsuits()
+            enriquecer_receita_faltando_com_processo(relatorio, lawsuits)
+        except RuntimeError as exc:
+            log(f"Não consegui buscar processos do Advbox pra identificar receita faltando: {exc}")
+
     correcoes = aplicar_correcoes(relatorio)
 
     log(
