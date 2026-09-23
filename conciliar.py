@@ -132,6 +132,81 @@ def centavos_iguais(a: float, b: float, tolerancia: float = 0.01) -> bool:
 
 
 def formatar_valor_advbox(valor: float) -> str:
+
+  def extrair_numero_fatura(item_asaas: dict) -> str:
+        """
+            Extrai o número da fatura/parcela de um item Asaas.
+                A Asaas coloca o número da fatura na description, no formato:
+                    "Antecipação - fatura nr. 904531355 NOME DO CLIENTE"
+                        "Cobrança recebida - fatura nr. 878442693 NOME DO CLIENTE"
+                            Retorna string vazia se não encontrar nada válido.
+                                """
+        desc = (item_asaas.get("description") or "").strip()
+        if not desc:
+                  return ""
+              # Procura padrão "fatura nr. XXXXXX" (com ou sem variações)
+      match = re.search(r'fatura\s+(?:nr\.?\s+)?(\d+)', desc, re.IGNORECASE)
+    if match:
+              return match.group(1)
+          return ""
+
+def extrair_nome_cliente_asaas(item_asaas: dict) -> str:
+      """
+          Extrai apenas o nome do cliente da description de um item Asaas.
+              Usa uma heurística: o nome do cliente é a última palavra ou sequência
+                  de palavras maiúsculas após a fatura/descrição.
+                      Exemplo:
+                          "Antecipação - fatura nr. 904531355 ELISABETH BRITTO DA COSTA" → "ELISABETH BRITTO DA COSTA"
+                              """
+      desc = (item_asaas.get("description") or "").strip()
+      if not desc:
+                return ""
+
+    # Tira a parte de fatura se houver
+    # Tenta encontrar "fatura nr. XXXXXX" e pega tudo depois
+    match = re.search(r'fatura\s+nr\.?\s+\d+\s+(.+)', desc, re.IGNORECASE)
+    if match:
+              return match.group(1).strip()
+
+    # Se não achou padrão de fatura, tenta outras estratégias
+    # Busca uma sequência de palavras maiúsculas no fim (nome tipicamente em caps)
+    match = re.search(r'([A-Z][A-Z\s]+)$', desc)
+    if match:
+              return match.group(1).strip()
+
+    # Fallback: toda a description
+    return desc
+
+def verificar_multiplas_parcelas_mesmo_cliente(nome_asaas: str, valor: float, asaas_itens: list[dict]) -> bool:
+      """
+          Double-check: verifica se há múltiplas transações do mesmo cliente
+              (mesmo nome normalizado e valor) na lista de items Asaas, mas com
+                  números de fatura DIFERENTES. Se houver, significa que são parcelas
+                      diferentes que devem ter lançamentos separados.
+
+                          Retorna True se há potencial de múltiplas parcelas diferentes.
+                              """
+      # Extrai apenas o nome do cliente da string de entrada
+    nome_cliente = normalizar_nome(extrair_nome_cliente_asaas({"description": nome_asaas}))
+    if not nome_cliente:
+              # Fallback: usa a normalização direta do nome passado
+              nome_cliente = normalizar_nome(nome_asaas)
+          if not nome_cliente:
+                    return False
+
+    # Encontra todos os items do mesmo cliente/valor
+    faturas_encontradas = set()
+    for item in asaas_itens:
+              nome_item = normalizar_nome(extrair_nome_cliente_asaas(item))
+              valor_item = float(item.get("value", 0))
+              # Compara: se os nomes normalizados têm match (substring) E valores batem
+        if nome_item and (nome_cliente in nome_item or nome_item in nome_cliente) and centavos_iguais(valor, valor_item):
+                      fatura = extrair_numero_fatura(item)
+                      if fatura:
+                                        faturas_encontradas.add(fatura)
+
+    # Se encontrou mais de uma fatura diferente, são múltiplas parcelas
+    return len(faturas_encontradas) > 1
     """
     BUG conhecido da API do Advbox: enviar amount com ponto decimal (ex:
     7.92 ou "7.92") faz o sistema salvar errado (vira 792). A forma
