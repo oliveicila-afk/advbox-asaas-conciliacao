@@ -18,6 +18,7 @@ Não aplica nenhuma correção — só lê e relata.
 """
 
 import json
+import os
 import re
 import sys
 import time
@@ -26,8 +27,8 @@ from datetime import datetime
 
 import requests
 
-ADVBOX_TOKEN = "FN01fkXyKtolS8GJMdtUiNQJfM6CWtRm7gxe2ZGacA6LGlsDOMMSvTmDo8Vn"
-ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjNTA3MGI0LWU2NjAtNDYxZS04MTRiLTkwMDdhZWZkNWM4ODo6JGFhY2hfMTIyYzZhY2ItMmFhYi00M2ZiLTgwMmUtZWUyNmQ0MmE4YTg5"
+ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "")
+ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "")
 
 ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
 ASAAS_BASE = "https://api.asaas.com/v3"
