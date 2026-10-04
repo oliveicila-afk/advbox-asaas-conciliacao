@@ -246,18 +246,18 @@ for lawsuit_id in lawsuit_ids:
 
 print()
 print("=" * 70)
-print("7) Procurar a tarefa de 02/10 do processo na LISTA GERAL /posts")
+print("7) Achar o protocolo do processo-alvo na LISTA GERAL /posts (sem expor outros)")
 print("=" * 70)
-# a) o /posts aceita filtro por data?
-for par in ("date", "start_date", "initial_date", "date_start"):
-    st, rr = tenta_get("/posts", {par: "2026-10-02", "limit": 1})
-    tc = rr.json().get("totalCount") if (st == 200 and hasattr(rr, "json") and isinstance(rr.json(), dict)) else "?"
-    print(f"   filtro {par}=2026-10-02 -> totalCount={tc}")
 
-# b) varre a lista geral e acha tarefas de 02/10 com conteúdo de protocolo
-achados = []
+def mascara(txt):
+    # mascara CPF/CNPJ e e-mails no texto do protocolo
+    txt = re.sub(r"\d{3}\.?\d{3}\.?\d{3}-?\d{2}", "[CPF]", txt)
+    txt = re.sub(r"[\w.+-]+@[\w-]+\.[\w.-]+", "[email]", txt)
+    return txt
+
+encontrados = 0
 offset = 0
-while offset < 10000:
+while offset < 11000:
     st, rr = tenta_get("/posts", {"limit": 1000, "offset": offset})
     if st != 200 or not hasattr(rr, "json"):
         break
@@ -265,15 +265,17 @@ while offset < 10000:
     if not pg:
         break
     for t in pg:
-        d = (t.get("date") or "") + (t.get("created_at") or "")
-        notes = (t.get("notes") or "")
-        if "2026-10-02" in d or any(p in notes.upper() for p in ("SETOR FINANCEIRO", "DISPOSITIVOS", "SUCUMBENC")):
-            achados.append(t)
+        lw = t.get("lawsuit") or {}
+        pnum = re.sub(r"\D", "", (lw.get("process_number") or "")).lstrip("0")
+        if pnum and pnum == alvo:
+            encontrados += 1
+            notes = (t.get("notes") or "")
+            print(f"\n   tarefa id={t.get('id')} | date={t.get('date')!r} | task={t.get('task')!r} | notes_len={len(notes)}")
+            for linha in notes.splitlines():
+                if linha.strip():
+                    print(f"      | {mascara(linha.strip())[:115]}")
     offset += 1000
-print(f"\n   tarefas candidatas (02/10 ou com protocolo): {len(achados)}")
-for t in achados[:20]:
-    notes = (t.get('notes') or '')
-    print(f"   id={t.get('id')} | date={t.get('date')!r} | lawsuits_id={t.get('lawsuits_id')!r} | lawsuit={t.get('lawsuit')!r} | task={t.get('task')!r} | notes_len={len(notes)}")
+print(f"\n   total de tarefas do processo {PROC_NUM} na lista geral: {encontrados}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
