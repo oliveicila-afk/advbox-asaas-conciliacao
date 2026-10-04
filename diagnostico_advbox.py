@@ -83,13 +83,11 @@ if status == 200:
         for caminho, n, chaves in achar_listas_com_id_e_nome(data):
             print(f"  {caminho}: {n} itens | campos: {chaves}")
 
-        print("\n-- categorias de HONORÁRIO (nome exato + id + tipo) --")
+        print("\n-- categorias de SUCUMBÊNCIA (nome exato + id + tipo) --")
         cats = (data.get("financial") or {}).get("categories") or []
         for c in cats:
-            nome = (c.get("category") or "")
-            nu = nome.upper()
-            if any(p in nu for p in ("HONOR", "EXITO", "ÊXITO", "SUCUMB", "CONTRAT", "INICIAL")):
-                print(f"   id={c.get('id')} | tipo={c.get('type')!r} | nome={nome!r}")
+            if "SUCUMB" in (c.get("category") or "").upper():
+                print(f"   id={c.get('id')} | tipo={c.get('type')!r} | nome={c.get('category')!r}")
 
         print("\n-- centros de custo (nome exato + id) --")
         for cc in ((data.get("financial") or {}).get("cost_centers") or []):
@@ -127,6 +125,37 @@ for path, params in candidatos:
             extra = " | (corpo não-JSON)"
     p = f"?{list(params.keys())}" if params else ""
     print(f"  {status}  GET {path}{p}{extra}")
+
+print()
+print("=" * 70)
+print(f"3) ESTRUTURA de uma tarefa (/posts?lawsuits_id={PROCESSO_EXEMPLO})")
+print("    A tarefa traz VALOR? Traz categoria/tipo? (campos sensíveis ocultos)")
+print("=" * 70)
+status, r = tenta_get("/posts", {"lawsuits_id": PROCESSO_EXEMPLO})
+SENS = ("name", "cpf", "cnpj", "customer", "cliente", "email", "phone", "mobile", "description", "comments", "observ")
+INTER = ("value", "valor", "amount", "categor", "exito", "êxito", "sucumb", "honor", "type", "tipo", "task", "title", "stage", "status")
+if status == 200:
+    d = r.json()
+    tarefas = d.get("data", []) if isinstance(d, dict) else (d if isinstance(d, list) else [])
+    print(f"status 200 | {len(tarefas)} tarefas no processo")
+    if tarefas:
+        print("\n-- campos de UMA tarefa --")
+        for k in sorted(tarefas[0].keys()):
+            v = tarefas[0][k]
+            kl = k.lower()
+            if any(s in kl for s in SENS):
+                print(f"   {k}: [oculto]")
+            elif any(s in kl for s in INTER):
+                print(f"   {k}: {v!r}   <== interessa (valor/categoria/tipo)")
+            else:
+                print(f"   {k}: ({type(v).__name__})")
+        print("\n-- resumo das tarefas: só campos de valor/categoria/tipo (texto oculto) --")
+        for i, t in enumerate(tarefas[:15], 1):
+            resumo = {k: t.get(k) for k in t.keys() if any(s in k.lower() for s in ("value", "valor", "amount", "categor", "exito", "sucumb", "honor", "type", "tipo", "stage", "status")) and not any(s in k.lower() for s in SENS)}
+            print(f"   {i:2d}. {resumo}")
+else:
+    print(f"status: {status}")
+    print((r.text[:400]) if hasattr(r, "text") else r)
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
