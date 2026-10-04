@@ -82,6 +82,18 @@ if status == 200:
         print("\n-- listas que parecem ser categorias/centros de custo (id + nome) --")
         for caminho, n, chaves in achar_listas_com_id_e_nome(data):
             print(f"  {caminho}: {n} itens | campos: {chaves}")
+
+        print("\n-- categorias de HONORÁRIO (nome exato + id + tipo) --")
+        cats = (data.get("financial") or {}).get("categories") or []
+        for c in cats:
+            nome = (c.get("category") or "")
+            nu = nome.upper()
+            if any(p in nu for p in ("HONOR", "EXITO", "ÊXITO", "SUCUMB", "CONTRAT", "INICIAL")):
+                print(f"   id={c.get('id')} | tipo={c.get('type')!r} | nome={nome!r}")
+
+        print("\n-- centros de custo (nome exato + id) --")
+        for cc in ((data.get("financial") or {}).get("cost_centers") or []):
+            print(f"   id={cc.get('id')} | nome={cc.get('cost_center')!r}")
     except Exception as e:
         print(f"erro ao ler JSON: {e}")
         print(r.text[:500])
