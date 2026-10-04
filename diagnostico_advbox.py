@@ -252,10 +252,31 @@ if lawsuit_id:
     print(f"\n   TOTAL de tarefas lidas (paginando): {len(todas)}")
     for i, t in enumerate(todas, 1):
         notes = (t.get("notes") or "")
-        print(f"\n   {i}. task={t.get('task')!r} | date={t.get('date')!r} | notes_len={len(notes)}")
+        tid = t.get("id")
+        print(f"\n   {i}. task={t.get('task')!r} | id={tid} | date={t.get('date')!r} | notes_len={len(notes)}")
         for linha in notes.splitlines():
             if linha.strip():
                 print(f"        | {linha.strip()[:110]}")
+
+        # procura o PROTOCOLO nos comentários da tarefa (endpoints candidatos)
+        print(f"      -- procurando comentários da tarefa {tid} --")
+        for cand in (f"/posts/{tid}", f"/posts/{tid}/comments", "/comments", "/post_comments"):
+            params = {"posts_id": tid} if cand in ("/comments", "/post_comments") else None
+            st2, rr2 = tenta_get(cand, params)
+            info = ""
+            if st2 == 200 and hasattr(rr2, "json"):
+                try:
+                    d2 = rr2.json()
+                    if isinstance(d2, dict):
+                        info = f"chaves={sorted(d2.keys())[:12]}"
+                        for campo in ("comments", "data", "replies", "history"):
+                            if isinstance(d2.get(campo), list):
+                                info += f" | {campo}={len(d2[campo])} itens"
+                    elif isinstance(d2, list):
+                        info = f"lista {len(d2)}"
+                except Exception:
+                    info = "(não-JSON)"
+            print(f"         {st2}  GET {cand}{'?posts_id' if params else ''}  {info}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
