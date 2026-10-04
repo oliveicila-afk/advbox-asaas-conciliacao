@@ -40,7 +40,8 @@ jobs:
           EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
           TARGET_DATE: ${{ github.event.inputs.target_date }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-        run: python conciliar.py
+          TIMEZONE: "America/Manaus"
+        run: python conciliar_v2.py
 
       - name: Guardar o PDF gerado (fica disponível pra baixar por 30 dias)
         if: always()
