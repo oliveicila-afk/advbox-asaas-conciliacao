@@ -256,20 +256,12 @@ def mascara(txt):
 
 lid = lawsuit_ids[0] if lawsuit_ids else PROCESSO_EXEMPLO
 candidatos = [
-    ("/history", {"lawsuit_id": lid}),
-    ("/histories", {"lawsuit_id": lid}),
-    ("/lawsuit_history", {"lawsuit_id": lid}),
-    ("/lawsuits_history", {"lawsuit_id": lid}),
-    ("/movements", {"lawsuit_id": lid}),
-    ("/andamentos", {"lawsuit_id": lid}),
-    ("/lawsuit_movements", {"lawsuit_id": lid}),
-    ("/publications", {"lawsuit_id": lid}),
-    (f"/lawsuits/{lid}/history", None),
-    (f"/lawsuits/{lid}/movements", None),
-    (f"/lawsuits/{lid}/history_tasks", None),
-    ("/history_tasks", {"lawsuit_id": lid}),
-    ("/tasks", {"lawsuit_id": lid}),
-    ("/posts/history", {"lawsuit_id": lid}),
+    (f"/history/{lid}/", None),
+    (f"/history/{lid}", None),
+    (f"/movements/{lid}", None),
+    (f"/movements/{lid}/", None),
+    (f"/publications/{lid}", None),
+    ("/last_movements", {"lawsuit_id": lid}),
 ]
 achou_200 = []
 for path, params in candidatos:
