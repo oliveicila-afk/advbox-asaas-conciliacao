@@ -246,36 +246,66 @@ for lawsuit_id in lawsuit_ids:
 
 print()
 print("=" * 70)
-print("7) Achar o protocolo do processo-alvo na LISTA GERAL /posts (sem expor outros)")
+print("7) Achar o endpoint certo do HISTÓRICO/ANDAMENTOS do processo")
 print("=" * 70)
 
 def mascara(txt):
-    # mascara CPF/CNPJ e e-mails no texto do protocolo
     txt = re.sub(r"\d{3}\.?\d{3}\.?\d{3}-?\d{2}", "[CPF]", txt)
     txt = re.sub(r"[\w.+-]+@[\w-]+\.[\w.-]+", "[email]", txt)
     return txt
 
-encontrados = 0
-offset = 0
-while offset < 11000:
-    st, rr = tenta_get("/posts", {"limit": 1000, "offset": offset})
+lid = lawsuit_ids[0] if lawsuit_ids else PROCESSO_EXEMPLO
+candidatos = [
+    ("/history", {"lawsuit_id": lid}),
+    ("/histories", {"lawsuit_id": lid}),
+    ("/lawsuit_history", {"lawsuit_id": lid}),
+    ("/lawsuits_history", {"lawsuit_id": lid}),
+    ("/movements", {"lawsuit_id": lid}),
+    ("/andamentos", {"lawsuit_id": lid}),
+    ("/lawsuit_movements", {"lawsuit_id": lid}),
+    ("/publications", {"lawsuit_id": lid}),
+    (f"/lawsuits/{lid}/history", None),
+    (f"/lawsuits/{lid}/movements", None),
+    (f"/lawsuits/{lid}/history_tasks", None),
+    ("/history_tasks", {"lawsuit_id": lid}),
+    ("/tasks", {"lawsuit_id": lid}),
+    ("/posts/history", {"lawsuit_id": lid}),
+]
+achou_200 = []
+for path, params in candidatos:
+    st, rr = tenta_get(path, params)
+    info = ""
+    if st == 200 and hasattr(rr, "json"):
+        try:
+            d = rr.json()
+            if isinstance(d, dict):
+                tc = d.get("totalCount")
+                n = len(d.get("data", [])) if isinstance(d.get("data"), list) else "?"
+                info = f"totalCount={tc} data={n}"
+            elif isinstance(d, list):
+                info = f"lista {len(d)}"
+            achou_200.append((path, params))
+        except Exception:
+            info = "(não-JSON)"
+    print(f"   {st}  GET {path} {params or ''}  {info}")
+
+# se achou algum 200 novo, mostra o conteúdo ligado ao processo (mascarado)
+for path, params in achou_200:
+    st, rr = tenta_get(path, params)
     if st != 200 or not hasattr(rr, "json"):
-        break
-    pg = rr.json().get("data", [])
-    if not pg:
-        break
-    for t in pg:
-        lw = t.get("lawsuit") or {}
-        pnum = re.sub(r"\D", "", (lw.get("process_number") or "")).lstrip("0")
-        if pnum and pnum == alvo:
-            encontrados += 1
-            notes = (t.get("notes") or "")
-            print(f"\n   tarefa id={t.get('id')} | date={t.get('date')!r} | task={t.get('task')!r} | notes_len={len(notes)}")
-            for linha in notes.splitlines():
-                if linha.strip():
-                    print(f"      | {mascara(linha.strip())[:115]}")
-    offset += 1000
-print(f"\n   total de tarefas do processo {PROC_NUM} na lista geral: {encontrados}")
+        continue
+    d = rr.json()
+    itens = d.get("data", []) if isinstance(d, dict) else (d if isinstance(d, list) else [])
+    print(f"\n   --- conteúdo de {path} ({len(itens)} itens) ---")
+    for it in itens[:10]:
+        if isinstance(it, dict):
+            texto = ""
+            for campo in ("notes", "description", "text", "comment", "content", "history"):
+                if it.get(campo):
+                    texto = str(it.get(campo)); break
+            print(f"      id={it.get('id')} | date={it.get('date') or it.get('created_at')!r} | campos={sorted(it.keys())[:10]}")
+            if texto:
+                print(f"         texto: {mascara(texto)[:200]}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
