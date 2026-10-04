@@ -532,6 +532,151 @@ def sugerir_categoria_por_precedente_do_processo(
     return None
 
 
+def advbox_get_tasks_do_processo(processo_id: str) -> list[dict]:
+    """Busca todas as tarefas de um processo no Advbox."""
+    try:
+        tarefas = advbox_get(f"/lawsuits/{processo_id}/tasks")
+        if isinstance(tarefas, list):
+            return tarefas
+        elif isinstance(tarefas, dict):
+            return tarefas.get("data", [])
+        return []
+    except RuntimeError as exc:
+        log(f"Não consegui buscar tarefas do processo {processo_id}: {exc}")
+        return []
+
+
+def analisar_descricoes_para_categoria(
+    cliente_nome: str, valor_pago: float, lawsuits: list[dict], advbox_itens: list[dict]
+) -> dict | None:
+    """
+    Analisa descrições de processos/tarefas para inferir categoria de honorário.
+
+    Retorna: {"categoria": "HONORÁRIOS DE ÊXITO", "confianca": "alta"|"media"|"baixa"}
+    ou None se não conseguir inferir.
+    """
+    # Palavras-chave para cada tipo de honorário
+    palavras_exito = {"êxito", "exito", "sucesso", "sentença", "condenado"}
+    palavras_inicial = {"inicial", "contratação", "manutenção", "manutencao", "consultoria", "renegociação", "renegociacao"}
+    palavras_multa = {"juros", "multa", "atraso", "mora", "penalidade"}
+
+    descricoes_encontradas = []
+
+    # Procura nas tarefas dos processos do cliente
+    for lawsuit in lawsuits:
+        if not lawsuit.get("customers"):
+            continue
+        cliente_process = next(
+            (c.get("name") for c in lawsuit.get("customers", []) if normalizar_nome(c.get("name", "")) == normalizar_nome(cliente_nome)),
+            None
+        )
+        if not cliente_process:
+            continue
+
+        # Coleta descrição do processo
+        descricoes_encontradas.append((lawsuit.get("subject") or "", "alta"))
+        descricoes_encontradas.append((lawsuit.get("description") or "", "media"))
+
+        # Busca tarefas do processo
+        tarefas = advbox_get_tasks_do_processo(lawsuit.get("id", ""))
+        for tarefa in tarefas:
+            descricoes_encontradas.append((tarefa.get("description") or "", "media"))
+            descricoes_encontradas.append((tarefa.get("title") or "", "media"))
+
+    # Procura também nos itens do Advbox para esse cliente
+    for item in advbox_itens:
+        if item.get("entry_type") != "income":
+            continue
+        if normalizar_nome(item.get("customer") or "") != normalizar_nome(cliente_nome):
+            continue
+        descricoes_encontradas.append((item.get("description") or "", "alta"))
+
+    # Analisa as descrições encontradas
+    categoria_votacao = {}
+    for descricao, peso_confianca in descricoes_encontradas:
+        desc_upper = (descricao or "").upper()
+        if not desc_upper:
+            continue
+
+        tem_exito = any(p in desc_upper for p in palavras_exito)
+        tem_inicial = any(p in desc_upper for p in palavras_inicial)
+
+        if tem_exito and not tem_inicial:
+            categoria = "HONORÁRIOS DE ÊXITO"
+        elif tem_inicial:
+            categoria = "HONORÁRIOS INICIAIS"
+        else:
+            continue
+
+        categoria_votacao[categoria] = categoria_votacao.get(categoria, 0) + (2 if peso_confianca == "alta" else 1)
+
+    if not categoria_votacao:
+        return None
+
+    categoria_vencedora = max(categoria_votacao.items(), key=lambda x: x[1])[0]
+    votos_total = sum(categoria_votacao.values())
+    confianca = "alta" if votos_total >= 3 else "media" if votos_total >= 2 else "baixa"
+
+    return {"categoria": categoria_vencedora, "confianca": confianca}
+
+
+def verificar_juros_multas_por_diferenca(
+    valor_pago: float, processo_id: str, lawsuits: list[dict], advbox_itens: list[dict]
+) -> dict | None:
+    """
+    Verifica se há juros/multas descritos comparando valor pago com esperado.
+
+    Retorna: {"tem_juros_multas": True|False, "valor_diferenca": float, "descricao": str}
+    ou None se não conseguir verificar.
+    """
+    # Procura o valor esperado (à vista) para esse processo
+    digitos_processo = extrair_digitos(processo_id or "")
+    if len(digitos_processo) < 15:
+        return None
+
+    valores_encontrados = []
+    for item in advbox_itens:
+        if item.get("entry_type") != "income":
+            continue
+        if extrair_digitos(item.get("process_number") or "") != digitos_processo:
+            continue
+        valores_encontrados.append(float(item.get("amount", 0)))
+
+    if not valores_encontrados:
+        return None
+
+    valor_esperado = max(valores_encontrados)  # pega o maior valor registrado
+    diferenca = valor_pago - valor_esperado
+
+    if abs(diferenca) < 0.01:
+        return {"tem_juros_multas": False, "valor_diferenca": 0, "descricao": ""}
+
+    # Procura na descrição do processo por menção a juros/multas
+    palavras_multa = {"juros", "multa", "atraso", "mora", "penalidade"}
+    descricoes = []
+
+    for lawsuit in lawsuits:
+        digitos_lawsuit = extrair_digitos(lawsuit.get("process_number") or "")
+        if digitos_lawsuit != digitos_processo:
+            continue
+        descricoes.append((lawsuit.get("description") or "", "alta"))
+
+        tarefas = advbox_get_tasks_do_processo(lawsuit.get("id", ""))
+        for tarefa in tarefas:
+            descricoes.append((tarefa.get("description") or "", "media"))
+
+    tem_mencao_multa = any(
+        any(p in (d[0] or "").upper() for p in palavras_multa)
+        for d in descricoes
+    )
+
+    return {
+        "tem_juros_multas": tem_mencao_multa or diferenca > 0,
+        "valor_diferenca": round(diferenca, 2),
+        "descricao": "Possível juros/multas por atraso" if diferenca > 0 else ""
+    }
+
+
 def enriquecer_receita_faltando_com_processo(
     relatorio: dict, lawsuits: list[dict], advbox_itens: list[dict]
 ) -> None:
@@ -544,14 +689,38 @@ def enriquecer_receita_faltando_com_processo(
             clientes = lw.get("customers") or []
             customer_id = clientes[0].get("customer_id") if clientes else None
             numero_processo = lw.get("process_number")
+            cliente_nome = clientes[0].get("name") if clientes else None
+            valor_receita = float(item.get("value", 0))
 
+            # CAMADA 1: Procura por precedente do processo
             categoria_sugerida_por_precedente = None
+            categoria_sugerida_por_tarefas = None
+            confianca_categoria = None
             centro_custo_sugerido = None
+
             precedente = sugerir_categoria_por_precedente_do_processo(numero_processo, advbox_itens)
             if precedente:
                 categoria_sugerida_por_precedente = precedente["categoria"]
                 centro_custo_sugerido = precedente["cost_center"]
+                confianca_categoria = "precedente"
 
+            # CAMADA 2: Se não encontrou por precedente, analisa tarefas/descrições
+            if not categoria_sugerida_por_precedente and cliente_nome:
+                analise_tarefas = analisar_descricoes_para_categoria(
+                    cliente_nome, valor_receita, lawsuits, advbox_itens
+                )
+                if analise_tarefas:
+                    categoria_sugerida_por_tarefas = analise_tarefas["categoria"]
+                    confianca_categoria = analise_tarefas["confianca"]
+
+            # CAMADA 3: Verifica juros/multas (validação adicional)
+            info_juros_multas = None
+            if numero_processo:
+                info_juros_multas = verificar_juros_multas_por_diferenca(
+                    valor_receita, numero_processo, lawsuits, advbox_itens
+                )
+
+            # CAMADA 4: Sugere centro de custo por origem se ainda não tiver
             if not centro_custo_sugerido and customer_id:
                 cliente = advbox_get_customer(customer_id)
                 if cliente and cliente.get("origin"):
@@ -559,13 +728,20 @@ def enriquecer_receita_faltando_com_processo(
                         cliente["origin"], advbox_itens
                     )
 
+            # Usa categoria de precedente ou tarefas (precedente tem prioridade)
+            categoria_final = categoria_sugerida_por_precedente or categoria_sugerida_por_tarefas
+
             item["_processo_identificado"] = {
                 "processo": numero_processo,
-                "cliente": (clientes[0].get("name") if clientes else None),
+                "cliente": cliente_nome,
                 "estagio": lw.get("stage"),
                 "lawsuits_id": lw.get("id"),
                 "categoria_sugerida_por_precedente": categoria_sugerida_por_precedente,
+                "categoria_sugerida_por_tarefas": categoria_sugerida_por_tarefas,
+                "categoria_final": categoria_final,
+                "confianca_categoria": confianca_categoria,
                 "centro_custo_sugerido": centro_custo_sugerido,
+                "info_juros_multas": info_juros_multas,
             }
 
 
@@ -727,11 +903,18 @@ def aplicar_correcoes(relatorio: dict) -> dict:
         if not enriquecimento:
             continue
 
-        categoria_id = enriquecimento.get("categoria_sugerida_por_precedente")
+        # Usa categoria_final (que pode ser precedente ou tarefas)
+        categoria_id = enriquecimento.get("categoria_final")
         centro_custo_id = enriquecimento.get("centro_custo_sugerido")
+        confianca = enriquecimento.get("confianca_categoria")
 
-        # Só posta se tem AMBAS as informações (categoria E centro de custo)
+        # Só posta se:
+        # 1. Tem AMBAS as informações (categoria E centro de custo)
+        # 2. Categoria tem confiança "alta" ou veio de "precedente"
         if not (categoria_id and centro_custo_id):
+            continue
+
+        if confianca not in ("alta", "precedente"):
             continue
 
         valor = float(receita.get("value", 0))
@@ -740,6 +923,13 @@ def aplicar_correcoes(relatorio: dict) -> dict:
 
         nome_cliente = enriquecimento.get("cliente", "?")
         numero_processo = enriquecimento.get("processo", "?")
+        info_multa = enriquecimento.get("info_juros_multas") or {}
+
+        # Monta descrição com nota sobre juros/multas se aplicável
+        descricao_base = f"Receita {numero_processo} - {nome_cliente}"
+        if info_multa.get("tem_juros_multas"):
+            descricao_base += f" [+R$ {info_multa.get('valor_diferenca', 0):.2f} juros/multas]"
+        descricao_base += " (conciliação automática)"
 
         payload = {
             "users_id": USERS_ID_PRISCILA,
@@ -749,11 +939,11 @@ def aplicar_correcoes(relatorio: dict) -> dict:
             "amount": formatar_valor_advbox(valor),
             "date_due": relatorio["data"],
             "date_payment": relatorio["data"],
-            "description": f"Receita {numero_processo} - {nome_cliente} (conciliação automática)",
+            "description": descricao_base,
         }
         resultado = advbox_post(payload)
         registro = {
-            "tipo": "criação de receita faltando",
+            "tipo": f"criação de receita faltando ({confianca})",
             "descricao": f"Proc. {numero_processo} ({nome_cliente}) — R$ {valor:.2f}",
             "id": (resultado or {}).get("id"),
         }
