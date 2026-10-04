@@ -461,18 +461,32 @@ def extrair_digitos(texto: str) -> str:
 
 
 def identificar_processo_por_referencia(external_reference: str, lawsuits: list[dict]) -> dict | None:
+    """Acha o processo pelo número que vem no externalReference do Asaas.
+
+    O externalReference costuma trazer o nº do processo, mas com zeros à
+    esquerda a mais/a menos (ex.: '000...5076164120248040001'). Por isso
+    comparamos o NÚCLEO dos dois (sem zeros à esquerda): casa se um contém o
+    outro. Exige correspondência ÚNICA — se bater em mais de um processo,
+    devolve None (deixa pra decisão manual, mais seguro).
+    """
     digitos_ref = extrair_digitos(external_reference)
     if len(digitos_ref) < 15:
         return None
-    achados = []
+    ref_norm = digitos_ref.lstrip("0")
+    if len(ref_norm) < 15:
+        return None
+    achados = {}
     for lw in lawsuits:
         digitos_processo = extrair_digitos(lw.get("process_number") or "")
         if len(digitos_processo) < 15:
             continue
-        if digitos_processo in digitos_ref or digitos_ref.endswith(digitos_processo):
-            achados.append(lw)
+        proc_norm = digitos_processo.lstrip("0")
+        if len(proc_norm) < 15:
+            continue
+        if proc_norm in ref_norm or ref_norm in proc_norm:
+            achados[lw.get("id")] = lw
     if len(achados) == 1:
-        return achados[0]
+        return next(iter(achados.values()))
     return None
 
 
