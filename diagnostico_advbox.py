@@ -224,20 +224,38 @@ while offset < 20000 and not lawsuit_id:
 print(f"   processo {PROC_NUM} -> lawsuit_id = {lawsuit_id}")
 
 if lawsuit_id:
-    st, rr = tenta_get("/posts", {"lawsuit_id": lawsuit_id})
-    if st == 200 and hasattr(rr, "json"):
-        tarefas = rr.json().get("data", [])
-        print(f"   /posts?lawsuit_id={lawsuit_id} -> {len(tarefas)} tarefas")
-        for i, t in enumerate(tarefas[:8], 1):
-            notes = (t.get("notes") or "")
-            tem_prot = any(p in notes.upper() for p in ("SUCUMBENC", "ÊXITO", "EXITO", "HONORÁRIOS", "ALVARÁ"))
-            print(f"   {i}. task={t.get('task')!r} | campos={sorted(t.keys())}")
-            print(f"      notes_len={len(notes)} | tem_protocolo={tem_prot}")
-            if tem_prot:
-                print("      --- PROTOCOLO COMPLETO (inclui 'Comandos para o setor financeiro') ---")
-                for linha in notes.splitlines():
-                    if linha.strip():
-                        print(f"        | {linha.strip()[:110]}")
+    # pagina TODAS as tarefas (tenta incluir concluídas via variações de parâmetro)
+    variacoes = [
+        {"lawsuit_id": lawsuit_id},
+        {"lawsuit_id": lawsuit_id, "completed": "true"},
+        {"lawsuit_id": lawsuit_id, "status": "concluded"},
+        {"lawsuit_id": lawsuit_id, "finished": "true"},
+    ]
+    for base in variacoes:
+        st, rr = tenta_get("/posts", {**base, "limit": 1})
+        tc = rr.json().get("totalCount") if (st == 200 and hasattr(rr, "json") and isinstance(rr.json(), dict)) else "?"
+        print(f"   params={base} -> totalCount={tc}")
+
+    todas = []
+    offset = 0
+    while True:
+        st, rr = tenta_get("/posts", {"lawsuit_id": lawsuit_id, "limit": 100, "offset": offset})
+        if st != 200 or not hasattr(rr, "json"):
+            break
+        pg = rr.json().get("data", [])
+        if not pg:
+            break
+        todas.extend(pg)
+        if len(pg) < 100:
+            break
+        offset += 100
+    print(f"\n   TOTAL de tarefas lidas (paginando): {len(todas)}")
+    for i, t in enumerate(todas, 1):
+        notes = (t.get("notes") or "")
+        print(f"\n   {i}. task={t.get('task')!r} | date={t.get('date')!r} | notes_len={len(notes)}")
+        for linha in notes.splitlines():
+            if linha.strip():
+                print(f"        | {linha.strip()[:110]}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
