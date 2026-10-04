@@ -9,6 +9,10 @@ on:
         description: "ID de um processo (lawsuit) para testar o caminho de tarefas."
         required: false
         default: "5836169"
+      processo_numero:
+        description: "Número do processo (CNJ) para ler o protocolo completo."
+        required: false
+        default: "0000929-79.2026.8.04.2800"
 
 jobs:
   diagnostico:
@@ -29,6 +33,7 @@ jobs:
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           PROCESSO_EXEMPLO: ${{ github.event.inputs.processo_exemplo }}
+          PROCESSO_NUMERO: ${{ github.event.inputs.processo_numero }}
         run: python diagnostico_advbox.py
 
       - name: Rodar o diagnóstico Asaas (só-leitura)
