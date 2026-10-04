@@ -721,6 +721,44 @@ def aplicar_correcoes(relatorio: dict) -> dict:
             }
             (aplicadas if resultado else falhas).append(registro)
 
+    # Auto-posting de receitas faltantes enriquecidas com categoria e centro de custo
+    for receita in relatorio.get("receita_faltando", []):
+        enriquecimento = receita.get("_processo_identificado")
+        if not enriquecimento:
+            continue
+
+        categoria_id = enriquecimento.get("categoria_sugerida_por_precedente")
+        centro_custo_id = enriquecimento.get("centro_custo_sugerido")
+
+        # Só posta se tem AMBAS as informações (categoria E centro de custo)
+        if not (categoria_id and centro_custo_id):
+            continue
+
+        valor = float(receita.get("value", 0))
+        if valor < 0.01:
+            continue
+
+        nome_cliente = enriquecimento.get("cliente", "?")
+        numero_processo = enriquecimento.get("processo", "?")
+
+        payload = {
+            "users_id": USERS_ID_PRISCILA,
+            "entry_type": "income",
+            "categories_id": categoria_id,
+            "cost_centers_id": centro_custo_id,
+            "amount": formatar_valor_advbox(valor),
+            "date_due": relatorio["data"],
+            "date_payment": relatorio["data"],
+            "description": f"Receita {numero_processo} - {nome_cliente} (conciliação automática)",
+        }
+        resultado = advbox_post(payload)
+        registro = {
+            "tipo": "criação de receita faltando",
+            "descricao": f"Proc. {numero_processo} ({nome_cliente}) — R$ {valor:.2f}",
+            "id": (resultado or {}).get("id"),
+        }
+        (aplicadas if resultado else falhas).append(registro)
+
     return {"aplicadas": aplicadas, "falhas": falhas}
 
 
