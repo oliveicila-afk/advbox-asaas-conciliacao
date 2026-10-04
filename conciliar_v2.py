@@ -533,9 +533,14 @@ def sugerir_categoria_por_precedente_do_processo(
 
 
 def advbox_get_tasks_do_processo(processo_id: str) -> list[dict]:
-    """Busca todas as tarefas de um processo no Advbox."""
+    """Busca todas as tarefas de um processo no Advbox.
+
+    O endpoint certo é GET /posts?lawsuits_id={id} (confirmado por diagnóstico
+    em 04/10/2026). O antigo /lawsuits/{id}/tasks devolvia 401 e deixava a
+    análise de tarefas (Camada 2) 100% quebrada.
+    """
     try:
-        tarefas = advbox_get(f"/lawsuits/{processo_id}/tasks")
+        tarefas = advbox_get("/posts", {"lawsuits_id": processo_id})
         if isinstance(tarefas, list):
             return tarefas
         elif isinstance(tarefas, dict):
@@ -544,6 +549,62 @@ def advbox_get_tasks_do_processo(processo_id: str) -> list[dict]:
     except RuntimeError as exc:
         log(f"Não consegui buscar tarefas do processo {processo_id}: {exc}")
         return []
+
+
+# ===== DE-PARA nome -> ID numérico (categorias e centros de custo) =====
+# A listagem /transactions do Advbox só devolve o NOME da categoria/centro de
+# custo (texto), mas a criação de lançamento exige o ID numérico. Buscamos o
+# mapa em /settings uma vez e traduzimos.
+
+@lru_cache(maxsize=1)
+def advbox_get_settings() -> dict:
+    try:
+        return advbox_get("/settings") or {}
+    except RuntimeError as exc:
+        log(f"Não consegui buscar /settings do Advbox: {exc}")
+        return {}
+
+
+@lru_cache(maxsize=1)
+def _mapa_categorias() -> dict:
+    cats = (advbox_get_settings().get("financial") or {}).get("categories") or []
+    mapa = {}
+    for c in cats:
+        nome = (c.get("category") or "").strip().upper()
+        cid = c.get("id")
+        if nome and cid is not None:
+            mapa[nome] = cid
+    return mapa
+
+
+@lru_cache(maxsize=1)
+def _mapa_centros_custo() -> dict:
+    ccs = (advbox_get_settings().get("financial") or {}).get("cost_centers") or []
+    mapa = {}
+    for c in ccs:
+        nome = (c.get("cost_center") or "").strip().upper()
+        cid = c.get("id")
+        if nome and cid is not None:
+            mapa[nome] = cid
+    return mapa
+
+
+def resolver_categoria_id(valor):
+    """Converte nome de categoria (texto) no ID numérico. Se já for número, mantém."""
+    if valor is None:
+        return None
+    if isinstance(valor, int):
+        return valor
+    return _mapa_categorias().get(str(valor).strip().upper())
+
+
+def resolver_centro_custo_id(valor):
+    """Converte nome de centro de custo (texto) no ID numérico. Se já for número, mantém."""
+    if valor is None:
+        return None
+    if isinstance(valor, int):
+        return valor
+    return _mapa_centros_custo().get(str(valor).strip().upper())
 
 
 def analisar_descricoes_para_categoria(
@@ -903,9 +964,11 @@ def aplicar_correcoes(relatorio: dict) -> dict:
         if not enriquecimento:
             continue
 
-        # Usa categoria_final (que pode ser precedente ou tarefas)
-        categoria_id = enriquecimento.get("categoria_final")
-        centro_custo_id = enriquecimento.get("centro_custo_sugerido")
+        # Usa categoria_final (que pode ser precedente ou tarefas). Esses
+        # valores vêm como NOME (texto); convertemos para o ID numérico que a
+        # API de criação exige, via /settings.
+        categoria_id = resolver_categoria_id(enriquecimento.get("categoria_final"))
+        centro_custo_id = resolver_centro_custo_id(enriquecimento.get("centro_custo_sugerido"))
         confianca = enriquecimento.get("confianca_categoria")
 
         # Só posta se:
