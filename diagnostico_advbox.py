@@ -234,11 +234,10 @@ if lawsuit_id:
             print(f"   {i}. task={t.get('task')!r} | campos={sorted(t.keys())}")
             print(f"      notes_len={len(notes)} | tem_protocolo={tem_prot}")
             if tem_prot:
-                # mostra SÓ as linhas de honorários/valores (mascara nomes)
+                print("      --- PROTOCOLO COMPLETO (inclui 'Comandos para o setor financeiro') ---")
                 for linha in notes.splitlines():
-                    lu = linha.upper()
-                    if any(p in lu for p in ("SUCUMBENC", "ÊXITO", "EXITO", "HONORÁRIOS", "VALOR")):
-                        print(f"        > {linha.strip()[:90]}")
+                    if linha.strip():
+                        print(f"        | {linha.strip()[:110]}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
