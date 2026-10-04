@@ -70,6 +70,12 @@ if status == 200:
         mostrar_campos(ex, "financialTransaction (receita)")
         payment_id = ex.get("paymentId")
         print(f"\n   paymentId capturado: {payment_id!r}")
+
+    print("\n-- TODAS as receitas: externalReference + description (pra ver onde está o nº do processo) --")
+    for i, rc in enumerate(receitas, 1):
+        ext = rc.get("externalReference")
+        desc = (rc.get("description") or "").replace("\n", " ")
+        print(f"   {i:2d}. valor=R$ {rc.get('value')} | externalReference={ext!r} | description={desc[:160]!r}")
 else:
     print(f"status: {status}")
     print((r.text[:400]) if hasattr(r, "text") else r)
