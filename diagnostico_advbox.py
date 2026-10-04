@@ -16,6 +16,7 @@ cliente). Usa a MESMA autenticação (Bearer) do conciliar_v2.py.
 """
 
 import os
+import re
 import json
 import requests
 
