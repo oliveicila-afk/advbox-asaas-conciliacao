@@ -158,4 +158,46 @@ else:
     print((r.text[:400]) if hasattr(r, "text") else r)
 
 print()
+print("=" * 70)
+print("4) O filtro /posts?lawsuits_id realmente filtra por processo?")
+print("=" * 70)
+for lid in (PROCESSO_EXEMPLO, "1", "999999999"):
+    st, rr = tenta_get("/posts", {"lawsuits_id": lid})
+    if st == 200 and hasattr(rr, "json"):
+        d = rr.json()
+        tc = d.get("totalCount") if isinstance(d, dict) else "?"
+        q = d.get("query") if isinstance(d, dict) else "?"
+        print(f"   lawsuits_id={lid}: totalCount={tc} | query_echo={q}")
+    else:
+        print(f"   lawsuits_id={lid}: status {st}")
+st, rr = tenta_get("/posts", None)
+if st == 200 and hasattr(rr, "json"):
+    print(f"   SEM filtro: totalCount={rr.json().get('totalCount')}")
+
+print()
+print("=" * 70)
+print("5) O VALOR do honorário está no objeto do processo (/lawsuits)?")
+print("=" * 70)
+st, rr = tenta_get(f"/lawsuits/{PROCESSO_EXEMPLO}")
+if st == 200 and hasattr(rr, "json"):
+    lw = rr.json()
+    if isinstance(lw, dict) and lw.get("data"):
+        lw = lw["data"][0] if isinstance(lw["data"], list) else lw["data"]
+    SENS = ("name", "cpf", "cnpj", "customer", "cliente", "email", "phone", "mobile")
+    INTER = ("value", "valor", "amount", "honor", "exito", "sucumb", "contrat", "fee", "price", "area", "type", "tipo", "subject", "assunto", "tese")
+    print(f"status 200 | campos do processo:")
+    if isinstance(lw, dict):
+        for k in sorted(lw.keys()):
+            v = lw[k]
+            kl = k.lower()
+            if any(s in kl for s in SENS):
+                print(f"   {k}: [oculto]")
+            elif any(s in kl for s in INTER):
+                print(f"   {k}: {v!r}   <== interessa")
+            else:
+                print(f"   {k}: ({type(v).__name__})")
+else:
+    print(f"status: {st}")
+
+print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
