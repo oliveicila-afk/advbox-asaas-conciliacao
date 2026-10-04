@@ -205,11 +205,11 @@ print("=" * 70)
 print("6) Ler o comentário/protocolo de um processo REAL (via lawsuit_id)")
 print("=" * 70)
 PROC_NUM = os.environ.get("PROCESSO_NUMERO", "0000929-79.2026.8.04.2800")
-alvo = re.sub(r"\D", "", PROC_NUM)
-# acha o lawsuit id pelo número do processo
-lawsuit_id = None
+alvo = re.sub(r"\D", "", PROC_NUM).lstrip("0")
+# acha TODOS os lawsuit ids pelo número do processo (pode ter duplicados)
+lawsuit_ids = []
 offset = 0
-while offset < 20000 and not lawsuit_id:
+while offset < 20000:
     st, rr = tenta_get("/lawsuits", {"limit": 1000, "offset": offset})
     if st != 200 or not hasattr(rr, "json"):
         break
@@ -217,25 +217,12 @@ while offset < 20000 and not lawsuit_id:
     if not itens:
         break
     for lw in itens:
-        if re.sub(r"\D", "", lw.get("process_number") or "").lstrip("0") == alvo.lstrip("0"):
-            lawsuit_id = lw.get("id")
-            break
+        if re.sub(r"\D", "", lw.get("process_number") or "").lstrip("0") == alvo:
+            lawsuit_ids.append(lw.get("id"))
     offset += 1000
-print(f"   processo {PROC_NUM} -> lawsuit_id = {lawsuit_id}")
+print(f"   processo {PROC_NUM} -> lawsuit_ids encontrados = {lawsuit_ids}")
 
-if lawsuit_id:
-    # pagina TODAS as tarefas (tenta incluir concluídas via variações de parâmetro)
-    variacoes = [
-        {"lawsuit_id": lawsuit_id},
-        {"lawsuit_id": lawsuit_id, "completed": "true"},
-        {"lawsuit_id": lawsuit_id, "status": "concluded"},
-        {"lawsuit_id": lawsuit_id, "finished": "true"},
-    ]
-    for base in variacoes:
-        st, rr = tenta_get("/posts", {**base, "limit": 1})
-        tc = rr.json().get("totalCount") if (st == 200 and hasattr(rr, "json") and isinstance(rr.json(), dict)) else "?"
-        print(f"   params={base} -> totalCount={tc}")
-
+for lawsuit_id in lawsuit_ids:
     todas = []
     offset = 0
     while True:
@@ -249,34 +236,13 @@ if lawsuit_id:
         if len(pg) < 100:
             break
         offset += 100
-    print(f"\n   TOTAL de tarefas lidas (paginando): {len(todas)}")
+    print(f"\n   === lawsuit_id {lawsuit_id}: {len(todas)} tarefa(s) ===")
     for i, t in enumerate(todas, 1):
         notes = (t.get("notes") or "")
-        tid = t.get("id")
-        print(f"\n   {i}. task={t.get('task')!r} | id={tid} | date={t.get('date')!r} | notes_len={len(notes)}")
+        print(f"\n   {i}. task={t.get('task')!r} | id={t.get('id')} | date={t.get('date')!r} | created_at={t.get('created_at')!r} | notes_len={len(notes)}")
         for linha in notes.splitlines():
             if linha.strip():
-                print(f"        | {linha.strip()[:110]}")
-
-        # procura o PROTOCOLO nos comentários da tarefa (endpoints candidatos)
-        print(f"      -- procurando comentários da tarefa {tid} --")
-        for cand in (f"/posts/{tid}", f"/posts/{tid}/comments", "/comments", "/post_comments"):
-            params = {"posts_id": tid} if cand in ("/comments", "/post_comments") else None
-            st2, rr2 = tenta_get(cand, params)
-            info = ""
-            if st2 == 200 and hasattr(rr2, "json"):
-                try:
-                    d2 = rr2.json()
-                    if isinstance(d2, dict):
-                        info = f"chaves={sorted(d2.keys())[:12]}"
-                        for campo in ("comments", "data", "replies", "history"):
-                            if isinstance(d2.get(campo), list):
-                                info += f" | {campo}={len(d2[campo])} itens"
-                    elif isinstance(d2, list):
-                        info = f"lista {len(d2)}"
-                except Exception:
-                    info = "(não-JSON)"
-            print(f"         {st2}  GET {cand}{'?posts_id' if params else ''}  {info}")
+                print(f"        | {linha.strip()[:115]}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
