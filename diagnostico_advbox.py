@@ -200,4 +200,33 @@ else:
     print(f"status: {st}")
 
 print()
+print("=" * 70)
+print("6) Como filtrar as tarefas/comentários POR PROCESSO?")
+print("=" * 70)
+# a) testa variações do nome do parâmetro de filtro
+for par in ("lawsuits_id", "lawsuit_id", "lawsuits", "id_lawsuits", "process_id"):
+    st, rr = tenta_get("/posts", {par: PROCESSO_EXEMPLO})
+    tc = rr.json().get("totalCount") if (st == 200 and hasattr(rr, "json") and isinstance(rr.json(), dict)) else "?"
+    print(f"   filtro {par}={PROCESSO_EXEMPLO} -> totalCount={tc}")
+
+# b) numa página de /posts, quantas tarefas têm lawsuits_id preenchido?
+st, rr = tenta_get("/posts", {"limit": 200})
+if st == 200 and hasattr(rr, "json"):
+    itens = rr.json().get("data", [])
+    com_proc = [t for t in itens if t.get("lawsuits_id")]
+    print(f"\n   numa página de {len(itens)} tarefas, {len(com_proc)} têm lawsuits_id preenchido")
+    # c) o texto do protocolo está em 'notes'? (procura palavras-chave, sem vazar PII)
+    achou_protocolo = 0
+    exemplo_campos = None
+    for t in itens:
+        notes = (t.get("notes") or "")
+        if any(p in notes.upper() for p in ("SUCUMBENC", "ÊXITO", "EXITO", "ALVARÁ", "HONORÁRIOS")):
+            achou_protocolo += 1
+            if exemplo_campos is None:
+                exemplo_campos = sorted(t.keys())
+    print(f"   tarefas cujo 'notes' tem palavras do protocolo (sucumbencial/êxito/honorários): {achou_protocolo}")
+    if exemplo_campos:
+        print(f"   campos dessas tarefas: {exemplo_campos}")
+
+print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
