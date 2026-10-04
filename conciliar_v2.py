@@ -934,6 +934,7 @@ def aplicar_correcoes(relatorio: dict) -> dict:
         payload = {
             "users_id": USERS_ID_PRISCILA,
             "entry_type": "income",
+            "debit_account": DEBIT_ACCOUNT_ASAAS,
             "categories_id": categoria_id,
             "cost_centers_id": centro_custo_id,
             "amount": formatar_valor_advbox(valor),
