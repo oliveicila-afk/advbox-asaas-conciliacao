@@ -2,9 +2,9 @@ name: Conciliação diária Advbox x Asaas
 
 on:
   schedule:
-    # 07:00 UTC = 03:00 em Manaus (America/Manaus, UTC-4 o ano todo, sem
+    # 05:00 UTC = 01:00 em Manaus (America/Manaus, UTC-4 o ano todo, sem
     # horário de verão). Ajuste aqui se o fuso da conciliação mudar.
-    - cron: "0 7 * * *"
+    - cron: "0 5 * * *"
   workflow_dispatch:
     inputs:
       target_date:

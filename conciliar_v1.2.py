@@ -1,25 +1,51 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Conciliação diária Advbox x Asaas v2.0 — com Fluxo de Caixa e Mascaramento de Dados.
+Conciliação diária Advbox x Asaas.
 
-Extensões da v1.2:
-  1. FLUXO DE CAIXA: agregação de entradas (recebimentos) e saídas (pagamentos) do dia,
-     com cálculo do saldo líquido.
-  2. COMPARAÇÃO DE SALDOS: fetch do saldo real da Asaas vs. saldo contábil do Advbox.
-  3. MASCARAMENTO DE DADOS SENSÍVEIS: nomes de clientes, CPFs, dados bancários ficam
-     mascarados no relatório PDF — o usuário aprova por IDs/números sem ver dados sensíveis.
-  4. RELATÓRIO ENRIQUECIDO: PDF agora mostra resumo de fluxo de caixa, saldos e detalhes
-     mascarados (adequado pra compartilhar sem expor dados).
+O que este script faz sozinho, todo dia (v1.1):
+  1. Lê os lançamentos do Advbox (banco ASAAS) e os eventos financeiros do
+     dia anterior na Asaas.
+  2. Aplica as regras de negócio já validadas com a Priscila.
+  3. CORRIGE SOZINHO só os dois casos considerados seguros/não-ambíguos:
+       (a) data de pagamento errada ou vazia num lançamento que já existe
+           no Advbox, quando há exatamente 1 correspondência clara na Asaas
+           (nome + valor batendo, sem outro candidato concorrendo);
+       (b) criação do lançamento consolidado das taxas diárias (TAXA DE
+           COMUNICAÇÃO, TAXA DE ANTECIPAÇÃO, TAXA DE EMISSÃO DE NF), que
+           não têm cliente/processo vinculado, quando falta valor pra
+           bater com a Asaas do dia.
+  4. Tudo o mais (taxas bancárias por cliente, pagamentos órfãos
+     institucionais, transferências, estornos, qualquer coisa que exija
+     identificar QUAL cliente/processo) fica só no relatório, pra decisão
+     da Priscila — o robô não decide isso sozinho.
+  5. Gera um PDF com o resultado (o que foi corrigido, o que ficou
+     pendente) e manda por email.
+  6. (novo, 22/09/2026) Pra receita "faltando" que não bate por nome com
+     nada no Advbox — típico de TED recebido direto de tribunal/Caixa
+     Econômica, sem o CPF/nome do cliente — tenta IDENTIFICAR (não lançar!)
+     o processo/cliente batendo os dígitos do campo externalReference da
+     Asaas contra o número do processo (CNJ) de cada lawsuit no Advbox.
+     Quando acha um candidato único, mostra no PDF "Possível processo
+     identificado: ... conferir Histórico > Tarefas no Advbox antes de
+     lançar" — porque só olhando as tarefas do processo (campo que a API
+     do Advbox não expõe) dá pra saber se o valor é honorário SUCUMBENCIAL
+     ou CONTRATUAL, e se tem repasse a fazer pro cliente. Também busca o
+     cadastro do cliente (Pessoas) e, pelo campo "Origem da pessoa", tenta
+     sugerir um centro de custo (mesmo padrão "GRUPO-CANAL" descoberto no
+     caso Weliton Lopes de Oliveira em 22/09/2026). O robô nunca decide
+     isso sozinho nem lança nada a partir dessa identificação — só aponta.
 
-Variáveis de ambiente esperadas (mesmas da v1.2, sem mudanças):
-  ADVBOX_TOKEN, ASAAS_TOKEN, SMTP_USER, SMTP_PASS, EMAIL_DESTINO, TARGET_DATE, TIMEZONE, DRY_RUN
-
-Segurança:
-  - Nenhum dado sensível é printado em logs
-  - Mascaramento é aplicado APENAS no PDF — não afeta dados internos/cálculos
-  - Saldos e movimentações são expostos (necessários pra conciliação)
-  - IDs de transações permanecem visíveis (necessários pra rastreabilidade)
+Variáveis de ambiente esperadas (Secrets no GitHub):
+  ADVBOX_TOKEN     -> token Bearer da API do Advbox
+  ASAAS_TOKEN      -> access_token da API do Asaas
+  SMTP_USER        -> email usado para ENVIAR (conta Gmail)
+  SMTP_PASS        -> senha de app do Gmail (não é a senha normal da conta)
+  EMAIL_DESTINO    -> email que vai RECEBER o relatório
+  TARGET_DATE      -> opcional, AAAA-MM-DD. Se não vier, usa "ontem".
+  TIMEZONE         -> opcional, padrão "America/Manaus"
+  DRY_RUN          -> opcional, "true" pra simular as correções sem
+                       gravar de verdade no Advbox (só loga o que faria)
 """
 
 import os
@@ -31,13 +57,15 @@ import unicodedata
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from zoneinfo import ZoneInfo
-from functools import lru_cache
 
 import requests
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 
-# ===== CONFIGURAÇÃO (mesma da v1.2) =====
+# --------------------------------------------------------------------------
+# Configuração
+# --------------------------------------------------------------------------
+
 ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "")
 ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "")
 SMTP_USER = os.environ.get("SMTP_USER", "")
@@ -49,21 +77,30 @@ DRY_RUN = os.environ.get("DRY_RUN", "false").strip().lower() == "true"
 ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
 ASAAS_BASE = "https://api.asaas.com/v3"
 
+# IDs já confirmados nas sessões anteriores de conciliação (ver memória do
+# projeto / histórico de conciliação com a Priscila).
 COST_CENTER_DESPESAS_FINANCEIRAS_GERAL = 60814
 DEBIT_ACCOUNT_ASAAS = 193264
 USERS_ID_PRISCILA = 65747
-CATEGORIES_ID_TAXAS_BANCARIAS = 51
+CATEGORIES_ID_TAXAS_BANCARIAS = 51  # por cliente, precisa customers_id/lawsuits_id — fica manual
 
+# As 3 taxas "diárias consolidadas" — sem cliente/processo vinculado.
+# Chave = campo "type" que vem no /financialTransactions da Asaas.
 TAXAS_DIARIAS_CONSOLIDADAS = {
     "INSTANT_TEXT_MESSAGE_FEE": {"categories_id": 70703, "nome": "TAXA DE COMUNICAÇÃO"},
     "RECEIVABLE_ANTICIPATION_FEE": {"categories_id": 94787, "nome": "TAXA DE ANTECIPAÇÃO"},
     "INVOICE_FEE": {"categories_id": 70704, "nome": "TAXA DE EMISSÃO DE NF"},
 }
 
+# Tipos de evento financeiro na Asaas que contam como RECEITA do dia
 TIPOS_RECEITA = {"PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"}
+# Taxa por cliente (fica só no relatório, não é criada sozinha)
 TIPO_TAXA_BANCARIA_CLIENTE = "PAYMENT_FEE"
+# Liquidação interna de algo já antecipado antes — não é despesa nova
 TIPOS_IGNORAR_INFORMATIVO = {"RECEIVABLE_ANTICIPATION_DEBIT"}
+# Estornos — tratados à parte (regra de par saída+estorno mesmo mês/valor)
 TIPOS_ESTORNO = {"PIX_TRANSACTION_DEBIT_REFUND", "PAYMENT_REFUND"}
+# Transferências — sempre ficam pra classificação manual (natureza varia)
 TIPOS_TRANSFER = {"TRANSFER"}
 
 TODOS_TIPOS_CONHECIDOS = (
@@ -75,65 +112,8 @@ TODOS_TIPOS_CONHECIDOS = (
     | TIPOS_TRANSFER
 )
 
-# ===== MASCARAMENTO DE DADOS SENSÍVEIS =====
-
-class MascaradorDados:
-    """Gerencia o mascaramento de dados sensíveis no relatório.
-
-    Estratégia:
-    - Nomes de clientes: substituídos por "Cliente #<ID_mascarado>"
-    - CPFs: substituídos por "***-***-***-XX" (mostra só últimos 2 dígitos)
-    - Descrições: sanitizadas mas informações técnicas preservadas
-    - Valores: mantidos (essenciais para conciliação)
-    - IDs de transação: mantidos (rastreabilidade)
-    """
-
-    def __init__(self):
-        self._cache_nomes = {}  # cpf/id -> "Cliente #XXXX"
-        self._counter = 0
-
-    def mascarar_cpf(self, cpf_str: str) -> str:
-        """Mascara CPF mostrando apenas últimos 2 dígitos."""
-        if not cpf_str:
-            return "[sem CPF]"
-        digitos = re.sub(r"\D", "", cpf_str or "")
-        if len(digitos) >= 2:
-            return f"***-***-***-{digitos[-2:]}"
-        return "***-***-***-**"
-
-    def mascarar_nome_cliente(self, nome: str, chave_unica: str = None) -> str:
-        """Mascara nome de cliente, mantendo consistência via chave única (CPF, customer_id, etc)."""
-        if not nome or not nome.strip():
-            return "[sem nome]"
-
-        # Se não temos uma chave única, usa hash do nome (menos consistente, mas seguro)
-        if not chave_unica:
-            chave_unica = hash(nome) % 10000
-
-        if chave_unica not in self._cache_nomes:
-            self._counter += 1
-            # Máximo de 10k clientes, ID mascarado de 4 dígitos
-            self._cache_nomes[chave_unica] = self._counter % 10000
-
-        id_mascarado = str(self._cache_nomes[chave_unica]).zfill(4)
-        return f"Cliente #{id_mascarado}"
-
-    def mascarar_descricao(self, desc: str) -> str:
-        """Remove nomes de cliente de descrições, mantém números de processo/fatura."""
-        if not desc:
-            return "[sem descrição]"
-        # Tira nomes em caps (típicos de cliente) mas mantém números de processo/fatura
-        desc = re.sub(r"\b[A-Z][A-Z\s]+\b", "[NOME]", desc)
-        return desc[:100]  # limita tamanho
-
-
-# Instância global do mascarador
-mascarador = MascaradorDados()
-
 
 def log(msg: str) -> None:
-    """Log seguro — nunca imprime dados sensíveis."""
-    # Aqui você pode adicionar filtros pra garantir que nenhum CPF/email sensível é logado
     print(f"[{datetime.now().isoformat(timespec='seconds')}] {msg}", flush=True)
 
 
@@ -152,9 +132,17 @@ def centavos_iguais(a: float, b: float, tolerancia: float = 0.01) -> bool:
 
 
 def extrair_numero_fatura(item_asaas: dict) -> str:
+    """
+    Extrai o número da fatura/parcela de um item Asaas.
+    A Asaas coloca o número da fatura na description, no formato:
+    "Antecipação - fatura nr. 904531355 NOME DO CLIENTE"
+    "Cobrança recebida - fatura nr. 878442693 NOME DO CLIENTE"
+    Retorna string vazia se não encontrar nada válido.
+    """
     desc = (item_asaas.get("description") or "").strip()
     if not desc:
         return ""
+    # Procura padrão "fatura nr. XXXXXX" (com ou sem variações)
     match = re.search(r'fatura\s+(?:nr\.?\s+)?(\d+)', desc, re.IGNORECASE)
     if match:
         return match.group(1)
@@ -162,146 +150,88 @@ def extrair_numero_fatura(item_asaas: dict) -> str:
 
 
 def extrair_nome_cliente_asaas(item_asaas: dict) -> str:
+    """
+    Extrai apenas o nome do cliente da description de um item Asaas.
+    Usa uma heurística: o nome do cliente é a última palavra ou sequência
+    de palavras maiúsculas após a fatura/descrição.
+    Exemplo:
+    "Antecipação - fatura nr. 904531355 ELISABETH BRITTO DA COSTA" → "ELISABETH BRITTO DA COSTA"
+    """
     desc = (item_asaas.get("description") or "").strip()
     if not desc:
         return ""
+
+    # Tira a parte de fatura se houver
+    # Tenta encontrar "fatura nr. XXXXXX" e pega tudo depois
     match = re.search(r'fatura\s+nr\.?\s+\d+\s+(.+)', desc, re.IGNORECASE)
     if match:
         return match.group(1).strip()
+
+    # Se não achou padrão de fatura, tenta outras estratégias
+    # Busca uma sequência de palavras maiúsculas no fim (nome tipicamente em caps)
     match = re.search(r'([A-Z][A-Z\s]+)$', desc)
     if match:
         return match.group(1).strip()
+
+    # Fallback: toda a description
     return desc
 
 
 def verificar_multiplas_parcelas_mesmo_cliente(nome_asaas: str, valor: float, asaas_itens: list[dict]) -> bool:
+    """
+    Double-check: verifica se há múltiplas transações do mesmo cliente
+    (mesmo nome normalizado e valor) na lista de items Asaas, mas com
+    números de fatura DIFERENTES. Se houver, significa que são parcelas
+    diferentes que devem ter lançamentos separados.
+
+    Retorna True se há potencial de múltiplas parcelas diferentes.
+    """
+    # Extrai apenas o nome do cliente da string de entrada
     nome_cliente = normalizar_nome(extrair_nome_cliente_asaas({"description": nome_asaas}))
     if not nome_cliente:
+        # Fallback: usa a normalização direta do nome passado
         nome_cliente = normalizar_nome(nome_asaas)
     if not nome_cliente:
         return False
 
+    # Encontra todos os items do mesmo cliente/valor
     faturas_encontradas = set()
     for item in asaas_itens:
         nome_item = normalizar_nome(extrair_nome_cliente_asaas(item))
         valor_item = float(item.get("value", 0))
+        # Compara: se os nomes normalizados têm match (substring) E valores batem
         if nome_item and (nome_cliente in nome_item or nome_item in nome_cliente) and centavos_iguais(valor, valor_item):
             fatura = extrair_numero_fatura(item)
             if fatura:
                 faturas_encontradas.add(fatura)
 
+    # Se encontrou mais de uma fatura diferente, são múltiplas parcelas
     return len(faturas_encontradas) > 1
 
 
 def formatar_valor_advbox(valor: float) -> str:
-    """Bug conhecido: Advbox exige vírgula decimal, não ponto."""
+    """
+    BUG conhecido da API do Advbox: enviar amount com ponto decimal (ex:
+    7.92 ou "7.92") faz o sistema salvar errado (vira 792). A forma
+    correta é string com VÍRGULA (ex: "7,92"). Nunca mude isso sem testar
+    de novo contra a API real.
+    """
     return f"{valor:.2f}".replace(".", ",")
 
 
-# ===== NOVAS FUNÇÕES PARA FLUXO DE CAIXA E SALDOS =====
-
-def asaas_get_saldo_atual() -> dict | None:
-    """Busca o saldo atual/real da conta Asaas."""
-    try:
-        url = f"{ASAAS_BASE}/balance"
-        headers = {"access_token": ASAAS_TOKEN}
-        resp = requests.get(url, headers=headers, timeout=30)
-        if resp.status_code == 200:
-            return resp.json()
-        log(f"Asaas GET /balance -> status {resp.status_code}")
-        return None
-    except requests.RequestException as exc:
-        log(f"Erro ao consultar saldo Asaas: {exc}")
-        return None
-
-
-def advbox_get_saldo_bancario(banco: str = "ASAAS") -> float:
-    """Busca o saldo contábil do Advbox para um banco específico.
-
-    Tenta via endpoint /accounts (se existir) ou estima via sum de transações.
-    """
-    try:
-        # Tentativa 1: endpoint direto de contas (se existir)
-        contas = advbox_get("/accounts", {"limit": 100})
-        if isinstance(contas, list):
-            contas = contas
-        else:
-            contas = contas.get("data", [])
-
-        for conta in contas:
-            if (conta.get("bank") or "").upper() == banco.upper():
-                return float(conta.get("balance", 0) or 0)
-
-        # Fallback: não achou via /accounts, retorna None pra indicar
-        return None
-    except RuntimeError:
-        return None
-
-
-def calcular_fluxo_caixa_do_dia(asaas_itens: list[dict], data_alvo: str) -> dict:
-    """Calcula entradas, saídas e saldo líquido do dia da Asaas.
-
-    Retorna:
-    {
-        "data": "AAAA-MM-DD",
-        "total_entradas": float,       # PAYMENT_RECEIVED, RECEIVABLE_ANTICIPATION_GROSS_CREDIT
-        "total_saidas": float,         # PAYMENT_FEE, taxas diárias, estornos de saída
-        "saldo_liquido": float,        # entradas - saídas
-        "entradas_detalhes": [...],    # lista de entradas mascaradas
-        "saidas_detalhes": [...],      # lista de saídas mascaradas
-    }
-    """
-    entradas = []
-    saidas = []
-
-    for item in asaas_itens:
-        tipo = item.get("type")
-        valor = float(item.get("value", 0))
-        data_item = item.get("date")
-
-        if data_item != data_alvo:
-            continue
-
-        # Entradas (receitas positivas)
-        if tipo in TIPOS_RECEITA:
-            entradas.append({
-                "tipo": tipo,
-                "valor": valor,
-                "descricao": item.get("description", ""),
-                "cliente": item.get("customerName", ""),
-                "id_asaas": item.get("id", ""),
-            })
-
-        # Saídas (despesas, taxas, estornos)
-        elif tipo in (TIPOS_ESTORNO | {TIPO_TAXA_BANCARIA_CLIENTE} | set(TAXAS_DIARIAS_CONSOLIDADAS.keys())):
-            saidas.append({
-                "tipo": tipo,
-                "valor": abs(valor),
-                "descricao": item.get("description", ""),
-                "cliente": item.get("customerName", ""),
-                "id_asaas": item.get("id", ""),
-            })
-
-    total_entradas = sum(e["valor"] for e in entradas)
-    total_saidas = sum(s["valor"] for s in saidas)
-    saldo_liquido = total_entradas - total_saidas
-
-    return {
-        "data": data_alvo,
-        "total_entradas": round(total_entradas, 2),
-        "total_saidas": round(total_saidas, 2),
-        "saldo_liquido": round(saldo_liquido, 2),
-        "entradas_detalhes": entradas,
-        "saidas_detalhes": saidas,
-    }
-
-
-# ===== FUNÇÕES DO ADVBOX (mesmas da v1.2, sem mudanças) =====
+# --------------------------------------------------------------------------
+# Advbox — leitura
+# --------------------------------------------------------------------------
 
 ADVBOX_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 )
+# Sem um User-Agent de navegador de verdade, o Cloudflare do Advbox devolve
+# uma página de desafio (403 HTML) em vez de chamar a API — descoberto ao
+# testar direto de uma sessão em nuvem. Sem isso, o robô do GitHub Actions
+# corre o mesmo risco (o User-Agent padrão do requests/Python também é
+# bloqueado).
 
 
 def advbox_get(path: str, params: dict | None = None, tentativas: int = 5) -> dict:
@@ -321,6 +251,12 @@ def advbox_get(path: str, params: dict | None = None, tentativas: int = 5) -> di
 
 
 def advbox_get_all_transactions(limite_paginas: int = 50) -> list[dict]:
+    """
+    O endpoint de listagem do Advbox ignora silenciosamente os parâmetros de
+    data (bug já confirmado em sessões anteriores) — por isso pagina tudo e
+    filtra no lado de cá. `limite_paginas` é uma trava de segurança (não
+    pra rodar pra sempre se algo sair do esperado).
+    """
     log("Advbox: paginando /transactions (filtro é feito no lado de cá)…")
     todos = []
     offset = 0
@@ -345,6 +281,10 @@ def advbox_get_all_transactions(limite_paginas: int = 50) -> list[dict]:
     log(f"Advbox: {len(todos)} lançamentos lidos no total, {len(do_banco_asaas)} do banco ASAAS")
     return do_banco_asaas
 
+
+# --------------------------------------------------------------------------
+# Advbox — escrita (só os dois casos seguros)
+# --------------------------------------------------------------------------
 
 def advbox_put(transaction_id, payload: dict) -> bool:
     url = f"{ADVBOX_BASE}/transactions/{transaction_id}"
@@ -383,9 +323,15 @@ def advbox_post(payload: dict) -> dict | None:
         return None
 
 
-# ===== FUNÇÕES DA ASAAS (mesmas da v1.2, com adição do saldo) =====
+# --------------------------------------------------------------------------
+# Asaas
+# --------------------------------------------------------------------------
 
 def advbox_get_all_lawsuits(limite_paginas: int = 20) -> list[dict]:
+    """Busca todos os processos (lawsuits) cadastrados no Advbox — usado só
+    pra tentar identificar, por número de processo, receitas que caíram
+    direto na Asaas sem bater por nome (ver identificar_processo_por_referencia).
+    """
     todos, offset, limite = [], 0, 1000
     for _ in range(limite_paginas):
         pagina = advbox_get("/lawsuits", {"limit": limite, "offset": offset})
@@ -418,6 +364,11 @@ def asaas_get(path: str, params: dict | None = None, tentativas: int = 5) -> dic
 
 
 def asaas_get_financial_transactions_do_dia(data_alvo: str) -> list[dict]:
+    """
+    O filtro por 'type' da Asaas já se mostrou não confiável em sessões
+    anteriores — por isso pedimos por intervalo de data e AINDA filtramos
+    no cliente pelo campo 'date' (que já reflete o creditDate/dia real).
+    """
     log(f"Asaas: buscando /financialTransactions de {data_alvo}…")
     todos = []
     offset = 0
@@ -441,7 +392,9 @@ def asaas_get_financial_transactions_do_dia(data_alvo: str) -> list[dict]:
     return do_dia
 
 
-# ===== MATCHING E ANÁLISE (mesmas da v1.2) =====
+# --------------------------------------------------------------------------
+# Matching (nome + valor) contra TODO o histórico do Advbox, não só o dia
+# --------------------------------------------------------------------------
 
 def encontrar_candidatos(nome_asaas: str, valor: float, advbox_itens: list[dict]) -> list[dict]:
     nome_norm = normalizar_nome(nome_asaas)
@@ -456,11 +409,33 @@ def encontrar_candidatos(nome_asaas: str, valor: float, advbox_itens: list[dict]
     return candidatos
 
 
+# --------------------------------------------------------------------------
+# Análise
+# --------------------------------------------------------------------------
+
 def extrair_digitos(texto: str) -> str:
     return re.sub(r"\D", "", texto or "")
 
 
 def identificar_processo_por_referencia(external_reference: str, lawsuits: list[dict]) -> dict | None:
+    """Descoberto em 22/09/2026 (casos Weliton Lopes de Oliveira e Lucas
+    Monteiro Gazel): um pagamento que cai direto na Asaas via TED de
+    tribunal/Caixa Econômica — sem CPF/nome do cliente batendo com nada no
+    Advbox — traz o número do processo (formato CNJ) embutido no campo
+    "externalReference" do evento financeiro, só que sem os tracinhos/pontos
+    e às vezes com zeros de preenchimento na frente.
+
+    Aqui a gente tenta casar os dígitos desse campo com os dígitos do
+    process_number de algum processo (lawsuit) no Advbox. Só retorna um
+    resultado quando encontra exatamente 1 candidato — 0 ou mais de 1 fica
+    ambíguo e não é reportado (evita falso positivo).
+
+    IMPORTANTE — isso só IDENTIFICA um candidato de processo/cliente. Nunca
+    decide sozinho se o valor é honorário SUCUMBENCIAL ou CONTRATUAL, nem se
+    tem repasse a fazer pro cliente — isso só dá pra confirmar abrindo
+    Histórico > Tarefas do processo no Advbox (a API não expõe esse dado),
+    então o robô nunca lança nada a partir disso, só aponta o caminho.
+    """
     digitos_ref = extrair_digitos(external_reference)
     if len(digitos_ref) < 15:
         return None
@@ -485,7 +460,24 @@ def advbox_get_customer(customer_id) -> dict | None:
 
 
 def sugerir_centro_custo_por_origem(origem_cliente: str, advbox_itens: list[dict]) -> str | None:
+    """Descoberto em 22/09/2026 (caso Weliton Lopes de Oliveira): os centros
+    de custo no Advbox seguem o padrão "GRUPO-CANAL" (ex: "PROFESSOR/PEDAGOGO
+    -PROSPECÇÃO ATIVA", "CONSUMIDOR-INDICAÇÃO") e costumam bater com palavras
+    do campo "Origem da pessoa" do cadastro do cliente em Pessoas no Advbox
+    (formato "CANAL | ... | GRUPO | ..." — ex: "PROSPECÇÃO | PROMOÇÃO
+    HORIZONTAL | PROFESSOR | SEDUC | AM").
+
+    Aqui a gente procura, entre os nomes de centro de custo que já aparecem
+    nos lançamentos que o robô buscou pra conciliação de hoje (advbox_itens
+    — não faz nenhuma chamada extra à API pra isso), um cujo GRUPO (antes do
+    hífen) e CANAL (depois do hífen) batam cada um com pelo menos uma palavra
+    do campo origem. Só sugere um NOME de centro de custo quando acha
+    exatamente 1 candidato — nunca decide/lança nada sozinho, e a Priscila
+    ainda confirma antes de qualquer lançamento."""
     def _palavras(texto: str, tamanho_minimo: int = 4) -> set[str]:
+        # tamanho mínimo evita colisão boba tipo "AM" (Amazonas, no fim da
+        # origem) casando por substring com "instAGRAM" de um centro de
+        # custo qualquer — exige palavra inteira normalizada, não pedaço
         return {p for p in normalizar_nome(texto).split(" ") if len(p) >= tamanho_minimo}
 
     palavras_origem: set[str] = set()
@@ -511,6 +503,29 @@ def sugerir_centro_custo_por_origem(origem_cliente: str, advbox_itens: list[dict
 def sugerir_categoria_por_precedente_do_processo(
     numero_processo: str, advbox_itens: list[dict]
 ) -> dict | None:
+    """Descoberto em 22/09/2026, revisão multi-dia 10-21/09: quando o
+    processo identificado (via identificar_processo_por_referencia) JÁ tem
+    algum lançamento de honorário anterior no Advbox (outro pagamento do
+    mesmo processo, ex: o honorário inicial ou uma parcela anterior de
+    êxito/sucumbencial), a categoria e o centro de custo usados nesse
+    lançamento anterior são um sinal muito mais confiável do que tentar
+    adivinhar pela "Origem da pessoa" — na prática, de 8 casos reais
+    verificados nessa revisão, 5 bateram exato ou quase exato com o
+    lançamento anterior do mesmo processo (Axon, Stanley, Daniel, Jefferson,
+    e parcialmente Alessandro), contra só 1 de 8 em que a Origem da pessoa
+    sozinha dava um palpite utilizável (João Marcelo).
+
+    Procura, dentro dos lançamentos já lidos do Advbox (advbox_itens, sem
+    chamada extra à API), algum outro lançamento de RECEITA (entry_type
+    income) do mesmo número de processo cuja categoria contenha "ÊXITO",
+    "SUCUMBENCIAL" ou "HONORÁRIOS" (ou seja, é um honorário, não uma taxa/
+    despesa administrativa) — e devolve a categoria e o centro de custo
+    usados lá. Quando encontra mais de uma categoria diferente pro mesmo
+    processo, devolve None (ambíguo, evita palpite errado). Só uma
+    SUGESTÃO — nunca decide nem lança nada sozinho; ainda precisa confirmar
+    se esse pagamento novo é sucumbencial ou contratual (com repasse) antes
+    de usar essa categoria, porque a categoria de honorário de êxito e a de
+    sucumbencial do mesmo processo podem ser diferentes."""
     digitos_alvo = extrair_digitos(numero_processo or "")
     if len(digitos_alvo) < 15:
         return None
@@ -535,6 +550,17 @@ def sugerir_categoria_por_precedente_do_processo(
 def enriquecer_receita_faltando_com_processo(
     relatorio: dict, lawsuits: list[dict], advbox_itens: list[dict]
 ) -> None:
+    """Pra cada item de receita_faltando, tenta achar um processo candidato
+    (ver identificar_processo_por_referencia) e guarda a info junto do item,
+    pra aparecer no PDF como pista — nunca lança nada sozinho. Quando acha o
+    processo, tenta duas fontes de sugestão pra categoria/centro de custo,
+    nessa ordem de confiança: (1) precedente de outro lançamento de
+    honorário do mesmo processo (ver
+    sugerir_categoria_por_precedente_do_processo — mais confiável, testado
+    em 22/09/2026), e (2) busca o cadastro do cliente (Pessoas) pra sugerir
+    um centro de custo pelo campo "Origem da pessoa" (ver
+    sugerir_centro_custo_por_origem — usada só quando não achou precedente).
+    Ambas são só sugestão, nunca decidem/lançam nada sozinhas."""
     for item in relatorio["receita_faltando"]:
         ref = item.get("externalReference") or ""
         if not ref:
@@ -577,6 +603,8 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
     transfer_asaas = [i for i in asaas_itens if i.get("type") in TIPOS_TRANSFER]
     outros_asaas = [i for i in asaas_itens if i.get("type") not in TODOS_TIPOS_CONHECIDOS]
 
+    # --- Receita: casar cada evento da Asaas com o Advbox (dia certo,
+    # dia errado, ou realmente faltando) ---
     receita_ok, receita_data_errada, receita_faltando = [], [], []
     for item in receita_asaas:
         nome = (item.get("description") or "") + " " + (item.get("customerName") or "")
@@ -584,21 +612,30 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
         candidatos = encontrar_candidatos(nome, valor, advbox_itens)
         candidatos_no_dia = [c for c in candidatos if c.get("date_payment") == data_alvo]
 
+        # DOUBLE-CHECK: verificar se há múltiplas parcelas do mesmo cliente
+        # (faturas diferentes) que poderiam estar sendo mapeadas para o mesmo
+        # Advbox ID — se sim, não mapear automaticamente, deixar pra decisão manual
         tem_multiplas_parcelas = verificar_multiplas_parcelas_mesmo_cliente(nome, valor, receita_asaas)
 
         if candidatos_no_dia:
             if tem_multiplas_parcelas:
+                # Múltiplas parcelas diferentes do mesmo cliente — não casar
+                # automaticamente, deixar pra decisão manual (receita_faltando)
                 receita_faltando.append(item)
             else:
                 receita_ok.append(item)
         elif len(candidatos) == 1:
             if tem_multiplas_parcelas:
+                # Múltiplas parcelas diferentes do mesmo cliente — não casar
+                # automaticamente, deixar pra decisão manual (receita_faltando)
                 receita_faltando.append(item)
             else:
                 receita_data_errada.append({"asaas": item, "advbox": candidatos[0]})
         else:
             receita_faltando.append(item)
 
+    # --- Taxa bancária por cliente: mesmo raciocínio, mas NUNCA corrige
+    # sozinho (precisa customers_id/lawsuits_id) — só reporta ---
     taxa_bancaria_ok, taxa_bancaria_data_errada, taxa_bancaria_faltando = [], [], []
     for item in taxa_bancaria_asaas:
         nome = (item.get("description") or "") + " " + (item.get("customerName") or "")
@@ -606,6 +643,8 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
         candidatos = encontrar_candidatos(nome, valor, advbox_itens)
         candidatos_no_dia = [c for c in candidatos if c.get("date_payment") == data_alvo]
 
+        # DOUBLE-CHECK: mesmo raciocínio para taxas — se há múltiplas parcelas
+        # do mesmo cliente (faturas diferentes), não casar automaticamente
         tem_multiplas_parcelas = verificar_multiplas_parcelas_mesmo_cliente(nome, valor, taxa_bancaria_asaas)
 
         if candidatos_no_dia:
@@ -621,11 +660,21 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
         else:
             taxa_bancaria_faltando.append(item)
 
+    # --- Taxas diárias consolidadas: comparação por TOTAL do dia, não por
+    # item — não têm cliente/processo, então não faz sentido "casar" um a
+    # um ---
     taxas_diarias_info = {}
     for tipo_asaas, meta in TAXAS_DIARIAS_CONSOLIDADAS.items():
         total_asaas = sum(
             abs(float(i.get("value", 0))) for i in asaas_itens if i.get("type") == tipo_asaas
         )
+        # BUG corrigido (achado numa revisão manual em 11/09/2026): a listagem
+        # paginada /transactions (sem filtro de data) NUNCA devolve o campo
+        # "categories_id" (numérico) — só "category" (nome, string). Comparar
+        # por categories_id aqui sempre dava 0 falsamente e fazia o robô tentar
+        # criar o consolidado do dia inteiro de novo mesmo quando já existia
+        # (causou uma duplicata real de TAXA DE ANTECIPAÇÃO no dia 08/09,
+        # já corrigida manualmente).
         total_advbox = sum(
             float(i.get("amount", 0) or 0)
             for i in advbox_itens
@@ -641,9 +690,16 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
         }
 
     total_receita_asaas = sum(float(i.get("value", 0)) for i in receita_asaas)
+    # BUG corrigido: receita_ok guarda o ITEM DA ASAAS (não o do Advbox) —
+    # ler "amount" nele (campo do Advbox) sempre devolvia 0 e fazia o
+    # relatório mostrar "Advbox R$ 0,00" mesmo com tudo certo. Não afetava
+    # quais itens eram corrigidos, só o total mostrado no resumo/PDF.
     total_receita_advbox = sum(float(i.get("value", 0)) for i in receita_ok) + sum(
         float(c["advbox"].get("amount", 0) or 0) for c in receita_data_errada
     )
+    # nota: total_receita_advbox aqui reflete o que JÁ existe no Advbox pro
+    # dia certo + o que existe mas está com data errada (mesmo dinheiro,
+    # só mal datado) — não conta duas vezes.
 
     total_taxa_bancaria_asaas = sum(abs(float(i.get("value", 0))) for i in taxa_bancaria_asaas)
     total_taxas_diarias_asaas = sum(v["total_asaas"] for v in taxas_diarias_info.values())
@@ -676,12 +732,18 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
     }
 
 
-# ===== CORREÇÕES AUTOMÁTICAS (v1.2, sem mudanças) =====
+# --------------------------------------------------------------------------
+# Correções automáticas (só os 2 casos seguros)
+# --------------------------------------------------------------------------
 
 def aplicar_correcoes(relatorio: dict) -> dict:
     aplicadas = []
     falhas = []
 
+    # (a) datas erradas em lançamento que JÁ EXISTE no Advbox (receita ou
+    # taxa bancária por cliente) — só quando o candidato é único. Isso não
+    # cria vínculo novo de cliente/processo nenhum, só corrige a data de
+    # um lançamento que já estava corretamente identificado antes.
     pares_data_errada = [
         (par, "receita") for par in relatorio["receita_data_errada"]
     ] + [
@@ -700,6 +762,7 @@ def aplicar_correcoes(relatorio: dict) -> dict:
         }
         (aplicadas if ok else falhas).append(registro)
 
+    # (b) criação das taxas diárias consolidadas que estão faltando
     for tipo_asaas, info in relatorio["taxas_diarias_info"].items():
         if info["faltando"] > 0.01:
             payload = {
@@ -724,9 +787,18 @@ def aplicar_correcoes(relatorio: dict) -> dict:
     return {"aplicadas": aplicadas, "falhas": falhas}
 
 
-# ===== PDF COM MASCARAMENTO E FLUXO DE CAIXA =====
+# --------------------------------------------------------------------------
+# PDF
+# --------------------------------------------------------------------------
 
 def sanitizar_texto_pdf(txt) -> str:
+    """Deixa qualquer texto seguro pra desenhar no PDF com a fonte Helvetica
+    (que só suporta Latin-1). Troca pontuação "esperta" comum (travessão,
+    aspas curvas, reticências) pelo equivalente simples e, por segurança,
+    qualquer caractere que ainda sobrar fora do Latin-1 — por exemplo um
+    emoji ou símbolo vindo de uma descrição de lançamento da Advbox/Asaas —
+    é substituído por "?" em vez de derrubar o relatório inteiro.
+    """
     txt = str(txt)
     substituicoes = {
         "—": "-", "–": "-", "―": "-",
@@ -738,7 +810,7 @@ def sanitizar_texto_pdf(txt) -> str:
     return txt.encode("latin-1", errors="replace").decode("latin-1")
 
 
-def gerar_pdf(relatorio: dict, correcoes: dict, fluxo_caixa: dict, saldo_asaas: dict, saldo_advbox: float, caminho_saida: str) -> None:
+def gerar_pdf(relatorio: dict, correcoes: dict, caminho_saida: str) -> None:
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -757,6 +829,16 @@ def gerar_pdf(relatorio: dict, correcoes: dict, fluxo_caixa: dict, saldo_asaas: 
         pdf.set_font("Helvetica", "", 10)
 
     def linha(txt):
+        # Faz a quebra de linha manualmente (em vez de usar multi_cell direto)
+        # porque o fpdf2 tem um bug conhecido: quando o texto encosta quase
+        # exatamente na borda da largura disponível, ele lança
+        # "Not enough horizontal space to render a single character" em vez
+        # de quebrar a linha (https://github.com/py-pdf/fpdf2/issues/1582).
+        # Quebrando nós mesmos, com uma margem de segurança, evitamos cair
+        # nesse caso extremo e o relatório nunca falha por causa de layout.
+        # Também sanitiza o texto primeiro, porque descrições vindas da
+        # Advbox/Asaas podem trazer caracteres (travessão, emoji, etc.) que a
+        # fonte Helvetica não suporta e derrubariam o relatório inteiro.
         txt = sanitizar_texto_pdf(txt)
         largura_maxima = pdf.w - pdf.l_margin - pdf.r_margin - 2
 
@@ -774,50 +856,13 @@ def gerar_pdf(relatorio: dict, correcoes: dict, fluxo_caixa: dict, saldo_asaas: 
                 linha_atual = palavra
         escreve(linha_atual)
 
-    # ===== NOVO: SEÇÃO DE SALDOS =====
-    titulo("Saldos da conta Asaas")
-    if saldo_asaas:
-        saldo_real = float(saldo_asaas.get("balance", 0) or 0)
-        linha(f"Saldo real em tempo real: R$ {saldo_real:.2f}")
-    else:
-        linha("Nao foi possivel obter saldo da Asaas")
-
-    if saldo_advbox is not None:
-        linha(f"Saldo contabil do Advbox: R$ {saldo_advbox:.2f}")
-    else:
-        linha("Nao foi possivel obter saldo contabil do Advbox")
-    pdf.ln(2)
-
-    # ===== NOVO: SEÇÃO DE FLUXO DE CAIXA =====
-    titulo(f"Fluxo de Caixa do dia ({relatorio['data']})")
-    linha(f"Total de Entradas (recebimentos): R$ {fluxo_caixa['total_entradas']:.2f}")
-    linha(f"Total de Saidas (despesas e taxas): R$ {fluxo_caixa['total_saidas']:.2f}")
-    linha(f"Saldo Liquido do dia: R$ {fluxo_caixa['saldo_liquido']:.2f}")
-    pdf.ln(2)
-
-    # Entradas mascaradas
-    if fluxo_caixa['entradas_detalhes']:
-        titulo(f"Detalhes das Entradas ({len(fluxo_caixa['entradas_detalhes'])})")
-        for i, entrada in enumerate(fluxo_caixa['entradas_detalhes'], 1):
-            cliente_mascarado = mascarador.mascarar_nome_cliente(entrada['cliente'], entrada['id_asaas'])
-            linha(f"  {i}. R$ {entrada['valor']:.2f} | {cliente_mascarado} | ID: {entrada['id_asaas']}")
-        pdf.ln(2)
-
-    # Saídas mascaradas
-    if fluxo_caixa['saidas_detalhes']:
-        titulo(f"Detalhes das Saidas ({len(fluxo_caixa['saidas_detalhes'])})")
-        for i, saida in enumerate(fluxo_caixa['saidas_detalhes'], 1):
-            cliente_mascarado = mascarador.mascarar_nome_cliente(saida['cliente'], saida['id_asaas'])
-            linha(f"  {i}. R$ {saida['valor']:.2f} | {cliente_mascarado} | ID: {saida['id_asaas']}")
-        pdf.ln(2)
-
-    # ===== RESUMO DE CONCILIAÇÃO (v1.2) =====
     bateu_receita = abs(relatorio["diferenca_receita"]) < 0.02
     bateu_despesa = abs(relatorio["diferenca_despesa"]) < 0.02
 
-    titulo("Resumo da Conciliacao (apos correcoes automaticas)")
+    titulo("Resumo (apos as correcoes automaticas abaixo)")
     linha(f"Receita  - Asaas: R$ {relatorio['total_receita_asaas']:.2f}  |  Advbox: R$ {relatorio['total_receita_advbox']:.2f}  |  Diferenca: R$ {relatorio['diferenca_receita']:.2f}  {'(BATEU)' if bateu_receita else '(NAO BATEU)'}")
     linha(f"Despesa  - Asaas: R$ {relatorio['total_despesa_asaas']:.2f}  |  Advbox: R$ {relatorio['total_despesa_advbox']:.2f}  |  Diferenca: R$ {relatorio['diferenca_despesa']:.2f}  {'(BATEU)' if bateu_despesa else '(NAO BATEU)'}")
+    linha("Obs: os totais do Advbox acima ja consideram as correcoes de data como se estivessem certas — a coluna 'Diferenca' mostra o que sobra mesmo depois de corrigir.")
     pdf.ln(2)
 
     titulo(f"Corrigido automaticamente ({len(correcoes['aplicadas'])})")
@@ -828,39 +873,85 @@ def gerar_pdf(relatorio: dict, correcoes: dict, fluxo_caixa: dict, saldo_asaas: 
     pdf.ln(2)
 
     if correcoes["falhas"]:
-        titulo(f"Tentativas de correcao que FALHARAM ({len(correcoes['falhas'])})")
+        titulo(f"Tentativas de correcao que FALHARAM ({len(correcoes['falhas'])}) - precisa checar na mao")
         for c in correcoes["falhas"]:
             linha(f"- [{c['tipo']}] {c['descricao']}")
         pdf.ln(2)
 
-    titulo(f"Receita faltando - precisa decisao manual ({len(relatorio['receita_faltando'])})")
+    titulo(f"Receita faltando no Advbox - precisa decisao manual ({len(relatorio['receita_faltando'])})")
     if not relatorio["receita_faltando"]:
         linha("Nenhuma pendencia encontrada.")
     for item in relatorio["receita_faltando"]:
-        cliente_mascarado = mascarador.mascarar_nome_cliente(item.get('customerName', ''), item.get('id'))
-        linha(f"- R$ {float(item.get('value', 0)):.2f} | {cliente_mascarado} | ID Asaas: {item.get('id', '?')}")
+        linha(f"- R$ {float(item.get('value', 0)):.2f} | {item.get('type')} | {item.get('description', '')}")
+        pid = item.get("_processo_identificado")
+        if pid:
+            linha(
+                f"    Possivel processo identificado: {pid.get('processo')} "
+                f"- {pid.get('cliente') or 'nome do cliente nao encontrado'} "
+                f"(estagio: {pid.get('estagio') or 'n/d'}). CONFERIR em "
+                f"Historico > Tarefas desse processo no Advbox antes de lancar "
+                f"(sucumbencial ou contratual, e se tem repasse a fazer pro cliente)."
+            )
+            if pid.get("categoria_sugerida_por_precedente"):
+                linha(
+                    f"    Categoria sugerida (por precedente de outro "
+                    f"lancamento de honorario do mesmo processo): "
+                    f"{pid['categoria_sugerida_por_precedente']} - confirmar "
+                    f"se este pagamento e do mesmo tipo (exito/sucumbencial) "
+                    f"antes de usar."
+                )
+            if pid.get("centro_custo_sugerido"):
+                linha(
+                    f"    Centro de custo sugerido: {pid['centro_custo_sugerido']} "
+                    f"- confirmar antes de usar."
+                )
     pdf.ln(2)
 
-    titulo(f"Transferencias do dia ({len(relatorio['transferencias'])})")
+    titulo(f"Taxa bancaria por cliente faltando - precisa decisao manual ({len(relatorio['taxa_bancaria_faltando'])})")
+    linha("(Datas divergentes de taxa bancaria ja aparecem corrigidas na secao 'Corrigido automaticamente' acima.)")
+    if not relatorio["taxa_bancaria_faltando"]:
+        linha("Nenhuma pendencia encontrada.")
+    for item in relatorio["taxa_bancaria_faltando"]:
+        linha(f"- FALTANDO: R$ {abs(float(item.get('value', 0))):.2f} | {item.get('description', '')}")
+    pdf.ln(2)
+
+    titulo(f"Transferencias do dia - precisam de classificacao manual ({len(relatorio['transferencias'])})")
     if not relatorio["transferencias"]:
         linha("Nenhuma transferencia no dia.")
     for item in relatorio["transferencias"]:
-        linha(f"- R$ {float(item.get('value', 0)):.2f} | ID: {item.get('id', '?')}")
+        linha(f"- R$ {float(item.get('value', 0)):.2f} | {item.get('description', '')}")
     pdf.ln(2)
 
-    titulo(f"Estornos do dia ({len(relatorio['estornos'])})")
+    titulo(f"Estornos do dia - conferir regra de par saida+estorno ({len(relatorio['estornos'])})")
     if not relatorio["estornos"]:
         linha("Nenhum estorno no dia.")
     for item in relatorio["estornos"]:
-        linha(f"- R$ {float(item.get('value', 0)):.2f} | ID: {item.get('id', '?')}")
+        linha(f"- R$ {float(item.get('value', 0)):.2f} | {item.get('description', '')}")
+    pdf.ln(2)
+
+    if relatorio["outros_nao_classificados"]:
+        titulo(f"Outros eventos nao classificados nas regras atuais ({len(relatorio['outros_nao_classificados'])})")
+        for item in relatorio["outros_nao_classificados"]:
+            linha(f"- R$ {float(item.get('value', 0)):.2f} | {item.get('type')} | {item.get('description', '')}")
+
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "I", 9)
+    linha(
+        "O robo corrige sozinho SO: data de pagamento errada/vazia em lancamento ja existente "
+        "(quando ha exatamente 1 correspondencia clara) e a criacao das taxas diarias consolidadas "
+        "(comunicacao/antecipacao/emissao de NF, que nao tem cliente vinculado). Taxa bancaria por "
+        "cliente, pagamentos orfaos institucionais e transferencias continuam exigindo decisao manual."
+    )
 
     pdf.output(caminho_saida)
     log(f"PDF salvo em {caminho_saida}")
 
 
-# ===== EMAIL (v1.2, sem mudanças) =====
+# --------------------------------------------------------------------------
+# Email
+# --------------------------------------------------------------------------
 
-def enviar_email(caminho_pdf: str, data_alvo: str, relatorio: dict, correcoes: dict, fluxo_caixa: dict) -> None:
+def enviar_email(caminho_pdf: str, data_alvo: str, relatorio: dict, correcoes: dict) -> None:
     if not (SMTP_USER and SMTP_PASS and EMAIL_DESTINO):
         log("Credenciais de email incompletas — pulando envio (PDF ficou salvo localmente).")
         return
@@ -871,22 +962,16 @@ def enviar_email(caminho_pdf: str, data_alvo: str, relatorio: dict, correcoes: d
 
     msg = EmailMessage()
     prefixo_dry = "[DRY RUN] " if DRY_RUN else ""
-    msg["Subject"] = f"{prefixo_dry}Conciliação Bancária - {data_alvo} ({status}) | Fluxo: R$ {fluxo_caixa['saldo_liquido']:.2f}"
+    msg["Subject"] = f"{prefixo_dry}Conciliação Bancária - {data_alvo} ({status})"
     msg["From"] = SMTP_USER
     msg["To"] = EMAIL_DESTINO
     msg.set_content(
         f"Conciliacao automatica do dia {data_alvo}.\n\n"
-        f"FLUXO DE CAIXA:\n"
-        f"  Entradas: R$ {fluxo_caixa['total_entradas']:.2f}\n"
-        f"  Saidas: R$ {fluxo_caixa['total_saidas']:.2f}\n"
-        f"  Saldo Liquido: R$ {fluxo_caixa['saldo_liquido']:.2f}\n\n"
-        f"RECONCILIACAO:\n"
-        f"  Receita: Asaas R$ {relatorio['total_receita_asaas']:.2f} x Advbox R$ {relatorio['total_receita_advbox']:.2f}\n"
-        f"  Despesa: Asaas R$ {relatorio['total_despesa_asaas']:.2f} x Advbox R$ {relatorio['total_despesa_advbox']:.2f}\n\n"
-        f"Correcoes aplicadas: {len(correcoes['aplicadas'])}\n"
-        f"Falhas: {len(correcoes['falhas'])}\n\n"
-        f"Dados sensíveis (nomes, CPFs) estão mascarados no relatório PDF em anexo.\n"
-        "Detalhes completos no PDF."
+        f"Receita: Asaas R$ {relatorio['total_receita_asaas']:.2f} x Advbox R$ {relatorio['total_receita_advbox']:.2f}\n"
+        f"Despesa: Asaas R$ {relatorio['total_despesa_asaas']:.2f} x Advbox R$ {relatorio['total_despesa_advbox']:.2f}\n\n"
+        f"Correcoes aplicadas automaticamente: {len(correcoes['aplicadas'])}\n"
+        f"Falhas ao tentar corrigir: {len(correcoes['falhas'])}\n\n"
+        "Detalhes completos no PDF em anexo."
     )
 
     with open(caminho_pdf, "rb") as f:
@@ -902,7 +987,9 @@ def enviar_email(caminho_pdf: str, data_alvo: str, relatorio: dict, correcoes: d
     log("Email enviado.")
 
 
-# ===== MAIN =====
+# --------------------------------------------------------------------------
+# Main
+# --------------------------------------------------------------------------
 
 def data_padrao() -> str:
     tz = ZoneInfo(TIMEZONE)
@@ -918,28 +1005,21 @@ def main() -> None:
     data_alvo = os.environ.get("TARGET_DATE", "").strip() or data_padrao()
     log(f"Conciliando o dia {data_alvo} (fuso {TIMEZONE}){' [DRY RUN]' if DRY_RUN else ''}")
 
-    # Fetch de dados
     advbox_itens = advbox_get_all_transactions()
     asaas_itens = asaas_get_financial_transactions_do_dia(data_alvo)
 
-    # Relatório de conciliação (v1.2)
     relatorio = montar_relatorio(data_alvo, advbox_itens, asaas_itens)
 
-    # NOVO: Fluxo de caixa do dia
-    fluxo_caixa = calcular_fluxo_caixa_do_dia(asaas_itens, data_alvo)
-
-    # NOVO: Saldos atuais
-    saldo_asaas = asaas_get_saldo_atual()
-    saldo_advbox = advbox_get_saldo_bancario("ASAAS")
-
     if relatorio["receita_faltando"]:
+        # só busca os ~8 mil processos do Advbox quando realmente tem
+        # receita faltando pra tentar identificar (evita esse custo todo
+        # dia à toa) — ver enriquecer_receita_faltando_com_processo
         try:
             lawsuits = advbox_get_all_lawsuits()
             enriquecer_receita_faltando_com_processo(relatorio, lawsuits, advbox_itens)
         except RuntimeError as exc:
             log(f"Não consegui buscar processos do Advbox pra identificar receita faltando: {exc}")
 
-    # Aplicar correções (v1.2)
     correcoes = aplicar_correcoes(relatorio)
 
     log(
@@ -947,13 +1027,12 @@ def main() -> None:
         f"Advbox R$ {relatorio['total_receita_advbox']:.2f} (dif. R$ {relatorio['diferenca_receita']:.2f}) | "
         f"Despesa: Asaas R$ {relatorio['total_despesa_asaas']:.2f} x "
         f"Advbox R$ {relatorio['total_despesa_advbox']:.2f} (dif. R$ {relatorio['diferenca_despesa']:.2f}) | "
-        f"Corrigido: {len(correcoes['aplicadas'])} | Falhas: {len(correcoes['falhas'])} | "
-        f"Fluxo de Caixa: R$ {fluxo_caixa['saldo_liquido']:.2f}"
+        f"Corrigido: {len(correcoes['aplicadas'])} | Falhas: {len(correcoes['falhas'])}"
     )
 
     caminho_pdf = f"conciliacao_{data_alvo}.pdf"
-    gerar_pdf(relatorio, correcoes, fluxo_caixa, saldo_asaas, saldo_advbox, caminho_pdf)
-    enviar_email(caminho_pdf, data_alvo, relatorio, correcoes, fluxo_caixa)
+    gerar_pdf(relatorio, correcoes, caminho_pdf)
+    enviar_email(caminho_pdf, data_alvo, relatorio, correcoes)
 
     log("Concluído.")
 
