@@ -25,8 +25,14 @@ jobs:
       - name: Instalar dependências
         run: pip install -r requirements.txt
 
-      - name: Rodar o diagnóstico (só-leitura)
+      - name: Rodar o diagnóstico Advbox (só-leitura)
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           PROCESSO_EXEMPLO: ${{ github.event.inputs.processo_exemplo }}
         run: python diagnostico_advbox.py
+
+      - name: Rodar o diagnóstico Asaas (só-leitura)
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TARGET_DATE: "2026-09-28"
+        run: python diagnostico_asaas.py
