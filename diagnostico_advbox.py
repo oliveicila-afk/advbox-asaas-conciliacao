@@ -288,16 +288,16 @@ for path, params in achou_200:
         continue
     d = rr.json()
     itens = d.get("data", []) if isinstance(d, dict) else (d if isinstance(d, list) else [])
+    if "/history/" not in path:
+        continue
     print(f"\n   --- conteúdo de {path} ({len(itens)} itens) ---")
     for it in itens[:10]:
         if isinstance(it, dict):
-            texto = ""
-            for campo in ("notes", "description", "text", "comment", "content", "history"):
-                if it.get(campo):
-                    texto = str(it.get(campo)); break
-            print(f"      id={it.get('id')} | date={it.get('date') or it.get('created_at')!r} | campos={sorted(it.keys())[:10]}")
-            if texto:
-                print(f"         texto: {mascara(texto)[:200]}")
+            texto = str(it.get("comments") or it.get("notes") or it.get("header") or "")
+            print(f"\n      date={it.get('date') or it.get('created_at')!r} | author={'[oculto]'} | comments_len={len(texto)}")
+            for linha in texto.splitlines():
+                if linha.strip():
+                    print(f"         | {mascara(linha.strip())[:115]}")
 
 print()
 print("Fim do diagnóstico (nada foi lançado ou alterado).")
