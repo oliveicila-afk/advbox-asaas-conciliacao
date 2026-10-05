@@ -188,15 +188,24 @@ Se a hipótese estiver correta:
 
 ## 📞 Resumo Rápido
 
-**Status**: ✅ Auditoria de receitas completada (2026-10-05)
+**Status**: 🔴 CRÍTICO - Divergência REAL é MUITO maior que pensávamos
 
-**Onde estamos**: Identificamos 6/10 dias com divergências de receita. Maior divergência em 09/08 (R$ 9.822,78)
+**Descoberta Crítica (09/08)**:
+- Advbox (dados reais): R$ 98.760,66 (98 receitas)
+- Asaas (conforme script): R$ 22.549,95
+- **Divergência REAL: R$ 76.210,71 (77% de divergência!)**
 
-**O que fazer agora**: Investigar padrão de TRANSFER em 09/08 e receita faltando em 09/06
+**Problema**: O script anterior reportou apenas R$ 12.727,17 do Advbox, mas dados reais mostram R$ 98.760,66
 
-**Tempo estimado**: 15-30 minutos (análise manual com ferramentas)
+**Causa raiz em investigação**:
+1. Script está capturando dados incompletos do Advbox?
+2. Asaas está mostrando apenas PARTE das transações?
+3. Há problema no filtro ou na sincronização?
 
-**Próximo passo**: Usar `analise_matching_manual.py` para detalhar quais transações não combinam
+**Próximo passo**: Análise detalhada dos 98 registros do Advbox para entender:
+- Quais tipos de receita estão em Advbox
+- Qual é a composição dos R$ 98.760,66
+- Por que Asaas mostra apenas R$ 22.549,95
 
 ---
 

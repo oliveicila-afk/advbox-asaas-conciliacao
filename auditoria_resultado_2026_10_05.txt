@@ -1,0 +1,13 @@
+
+======================================================================
+💰 AUDITORIA DE RECEITAS: ASAAS vs ADVBOX
+Período: 1-10 de setembro 2026
+======================================================================
+
+📥 Carregando dados...[2026-10-05T08:30:47] Advbox: paginando /transactions (filtro é feito no lado de cá)…
+[2026-10-05T08:30:47] Advbox GET /transactions -> status 401 (tentativa 1/5)
+[2026-10-05T08:30:50] Advbox GET /transactions -> status 401 (tentativa 2/5)
+[2026-10-05T08:30:55] Advbox GET /transactions -> status 401 (tentativa 3/5)
+[2026-10-05T08:31:03] Advbox GET /transactions -> status 401 (tentativa 4/5)
+[2026-10-05T08:31:20] Advbox GET /transactions -> status 401 (tentativa 5/5)
+ ERRO: Falha ao consultar Advbox /transactions após 5 tentativas
