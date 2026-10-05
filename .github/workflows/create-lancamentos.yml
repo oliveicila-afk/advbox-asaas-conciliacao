@@ -1,23 +1,41 @@
 name: Criar Lançamentos Faltantes
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Data inicial (YYYY-MM-DD)'
+        required: false
+        default: '2026-09-01'
+      end_date:
+        description: 'Data final (YYYY-MM-DD)'
+        required: false
+        default: '2026-09-10'
 
 jobs:
   create-lancamentos:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
-        run: pip install requests
-      
+        run: pip install requests fpdf2
+
+      - name: Run analysis
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: python3 analise_por_data_valor.py 2>&1 | tee analise_log.txt
+
       - name: Create missing transactions
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          START_DATE: ${{ github.event.inputs.start_date }}
+          END_DATE: ${{ github.event.inputs.end_date }}
         run: python3 criar_lancamentos.py
