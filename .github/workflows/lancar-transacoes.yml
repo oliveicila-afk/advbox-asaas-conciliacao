@@ -20,13 +20,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests fpdf2
 
-      - name: Run lançamento script
+      - name: Run lançamento script (curl version)
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
           TIMEZONE: America/Manaus
         run: |
-          python lançar_transacoes_faltantes.py 2>&1 | tee lancamento_output.txt
+          python lancar_transacoes_v2.py 2>&1 | tee lancamento_output.txt
 
       - name: Upload results
         if: always()
