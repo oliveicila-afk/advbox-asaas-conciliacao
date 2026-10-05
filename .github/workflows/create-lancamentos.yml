@@ -38,4 +38,13 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           START_DATE: ${{ github.event.inputs.start_date }}
           END_DATE: ${{ github.event.inputs.end_date }}
-        run: python3 criar_lancamentos.py
+        run: python3 criar_lancamentos.py 2>&1 | tee lancamentos_log.txt
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-logs
+          path: |
+            analise_log.txt
+            lancamentos_log.txt

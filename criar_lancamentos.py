@@ -189,15 +189,27 @@ def main():
     log(f"CRIAÇÃO DE LANÇAMENTOS FALTANTES - {data_conciliacao}")
     log("=" * 60)
 
+    # Validate we have data to process
+    receitas = analise.get('receita_faltando', [])
+    fantasmas = analise.get('advbox_fantasmas', [])
+
+    log(f"\n📊 Dados carregados da análise:")
+    log(f"  - Receitas faltando: {len(receitas)} itens")
+    log(f"  - Fantasmas para deletar: {len(fantasmas)} itens")
+
+    if not receitas and not fantasmas:
+        log("\n⚠️  Nenhuma ação necessária - análise não encontrou discrepâncias")
+        return 0
+
     # Fetch correct reference IDs from Advbox
     fetch_references()
 
     # Step 1: Create missing receitas
-    log("\n📝 PASSO 1: Criando receitas faltando (8 itens)")
+    log(f"\n📝 PASSO 1: Criando receitas faltando ({len(receitas)} itens)")
     log("-" * 60)
 
     receitas_criadas = 0
-    for i, item in enumerate(analise['receita_faltando'], 1):
+    for i, item in enumerate(receitas, 1):
         asaas = item.get('asaas', {})
         descricao = asaas.get('description', '')
         valor = asaas.get('value', 0)
@@ -206,14 +218,14 @@ def main():
         if lancamento_id:
             receitas_criadas += 1
 
-    log(f"\n✓ {receitas_criadas}/8 receitas criadas com sucesso")
+    log(f"\n✓ {receitas_criadas}/{len(receitas)} receitas criadas com sucesso")
 
     # Step 2: Delete phantom entries
-    log("\n🗑️  PASSO 2: Deletando entradas fantasmas (4 itens)")
+    log(f"\n🗑️  PASSO 2: Deletando entradas fantasmas ({len(fantasmas)} itens)")
     log("-" * 60)
 
     fantasmas_deletados = 0
-    for i, item in enumerate(analise['advbox_fantasmas'], 1):
+    for i, item in enumerate(fantasmas, 1):
         lancamento_id = item.get('id')
         descricao = item.get('description', '')
 
@@ -221,16 +233,16 @@ def main():
             if deletar_lancamento(lancamento_id, descricao):
                 fantasmas_deletados += 1
 
-    log(f"\n✓ {fantasmas_deletados}/4 entradas fantasmas deletadas")
+    log(f"\n✓ {fantasmas_deletados}/{len(fantasmas)} entradas fantasmas deletadas")
 
     # Summary
     log("\n" + "=" * 60)
     log("RESUMO DA OPERAÇÃO")
     log("=" * 60)
-    log(f"Receitas criadas: {receitas_criadas}/8")
-    log(f"Fantasmas deletados: {fantasmas_deletados}/4")
+    log(f"Receitas criadas: {receitas_criadas}/{len(receitas)}")
+    log(f"Fantasmas deletados: {fantasmas_deletados}/{len(fantasmas)}")
 
-    if receitas_criadas == 8 and fantasmas_deletados == 4:
+    if receitas_criadas == len(receitas) and fantasmas_deletados == len(fantasmas):
         log("\n✅ SUCESSO! Reconciliação completada para 2026-09-09")
         return 0
     else:
