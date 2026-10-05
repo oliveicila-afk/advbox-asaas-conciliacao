@@ -904,9 +904,11 @@ def enriquecer_receita_faltando_com_processo(
                 )
 
             # CAMADA 4: Sugere centro de custo por origem se ainda não tiver
+            origem_cliente = None
             if not centro_custo_sugerido and customer_id:
                 cliente = advbox_get_customer(customer_id)
                 if cliente and cliente.get("origin"):
+                    origem_cliente = cliente["origin"]
                     centro_custo_sugerido = sugerir_centro_custo_por_origem(
                         cliente["origin"], advbox_itens
                     )
@@ -930,6 +932,7 @@ def enriquecer_receita_faltando_com_processo(
                 "confianca_categoria": confianca_categoria,
                 "centro_custo_sugerido": centro_custo_sugerido,
                 "info_juros_multas": info_juros_multas,
+                "origem_cliente": origem_cliente,
                 "protocolo": protocolo,
                 "tese": tese,
                 "tipo_honorario": tipo_honorario,
@@ -1126,7 +1129,8 @@ def aplicar_correcoes(relatorio: dict) -> dict:
             f"[DIAG receita R$ {valor:.2f}] processo_ok={bool(enr.get('lawsuits_id'))} "
             f"precedente={confianca == 'precedente'} tem_protocolo={proto.get('tem_protocolo')} "
             f"exito={proto.get('exito')} sucumb={proto.get('sucumbencial')} repasse={proto.get('repasse_cliente')} "
-            f"creditado={proto.get('valor_creditado')} tese={bool(tese)} tipo_h={tipo_h} "
+            f"creditado={proto.get('valor_creditado')} tese={tese!r} tipo_h={tipo_h} "
+            f"origem={enr.get('origem_cliente')!r} "
             f"categoria_id={categoria_id} centro_custo_id={centro_custo_id}"
         )
 
