@@ -61,6 +61,8 @@ def advbox_api(method, path, data=None):
             resp = requests.get(url, headers=headers, timeout=30)
         elif method == "POST":
             resp = requests.post(url, headers=headers, json=data, timeout=30)
+        elif method == "PUT":
+            resp = requests.put(url, headers=headers, json=data, timeout=30)
         elif method == "DELETE":
             resp = requests.delete(url, headers=headers, timeout=30)
         else:
