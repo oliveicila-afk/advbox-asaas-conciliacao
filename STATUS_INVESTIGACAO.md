@@ -27,16 +27,16 @@ Reconciliar divergências entre Asaas (Gateway de Pagamentos) e Advbox (Contabil
 
 ## 📋 Fase Atual
 
-### **FASE 2: CONFIRMAÇÃO DE PADRÃO**
-Confirmar se setembro 8 (maior divergência) segue o mesmo padrão de setembro 4
+### **FASE 2: CONFIRMAÇÃO DE PADRÃO** ✅ COMPLETA
+Auditoria de RECEITAS executada com sucesso (2026-10-05)
 
-**Checklist**:
-- [ ] Executar "Cache de Dados + Diagnóstico Offline" no GitHub Actions
-  - [ ] atualizar_cache = "sim"
-  - [ ] dia_diagnostico = "2026-09-08"
-- [ ] Verificar se há muitas transações TRANSFER em Asaas
-- [ ] Verificar se Advbox tem menos despesas que Asaas
-- [ ] Confirmar padrão: TRANSFER em Asaas ≠ Match em Advbox
+**Checklist** (RECEITAS):
+- [x] Executar auditoria de receitas para 01-10 de setembro
+- [x] Identificar dias com divergências
+- [x] Documentar padrões encontrados
+- [x] Gerar relatório com recomendações
+
+**Resultado**: 6/10 dias com divergências de receita
 
 ---
 
@@ -44,18 +44,18 @@ Confirmar se setembro 8 (maior divergência) segue o mesmo padrão de setembro 4
 
 ### Dias com Divergências Identificadas
 
-| Dia | Receitas | Despesas | Δ Despesas | Status | Prioridade |
-|-----|----------|----------|-----------|--------|-----------|
-| 1 | ✗ | ✗ | ? | ❌ | Baixa |
-| 2 | ✗ | ✗ | ? | ❌ | Baixa |
-| 3 | ✗ | ✗ | ? | ❌ | Baixa |
-| 4 | ✗ | ✗ | R$ 11,517.35 | ❌ | **ANALISADO** |
-| 5 | ✓ | ✓ | - | ✅ | - |
-| 6 | ✗ | ✓ | - | ⚠️ | Média |
-| 7 | ✓ | ✓ | - | ✅ | - |
-| 8 | ✗ | ✗ | R$ 78,758.92 | ❌ | **🔴 CRÍTICA** |
-| 9 | ✗ | ✗ | ? | ❌ | Baixa |
-| 10 | ✗ | ✗ | ? | ❌ | Baixa |
+| Dia | Receitas (Δ) | Status | Prioridade |
+|-----|----------|--------|-----------|
+| 1 | ✗ R$ 497,00 | Advbox+ | Média |
+| 2 | ✗ R$ 3,00 | Arredond. | Baixa |
+| 3 | ✗ R$ 251,50 | Advbox- | Média |
+| 4 | ✗ R$ 248,50 | Advbox- | Média |
+| 5 | ✓ R$ 0,00 | OK | - |
+| 6 | ✗ R$ 6.000,00 | Advbox- | **Alta** |
+| 7 | ✓ R$ 0,00 | OK | - |
+| 8 | ✗ R$ 9.822,78 | Advbox- | **🔴 CRÍTICA** |
+| 9 | ✓ R$ 0,00 | OK | - |
+| 10 | ✓ R$ 0,00 | OK | - |
 
 ### Padrão Identificado
 
@@ -108,45 +108,41 @@ Exemplos:
 
 ## 🚀 PRÓXIMA AÇÃO RECOMENDADA
 
-### **AGORA: Confirmar padrão para setembro 8**
+### **AGORA (após auditoria de receitas completada): Investigação Profunda de 09/08**
 
-1. **Acesse GitHub Actions**
-   - URL: `github.com/seu-usuario/advbox-asaas-conciliacao`
-   - Clique em: **Actions** (aba)
+Resultado da auditoria: 6/10 dias com divergências. Maior divergência em **09/08: R$ 9.822,78**
 
-2. **Procure pelo workflow**
-   - Nome: `Cache de Dados + Diagnóstico Offline`
+**Próximos passos**:
 
-3. **Execute o workflow**
-   - Clique: **Run workflow**
-   - Preencha:
-     ```
-     atualizar_cache: sim
-     dia_diagnostico: 2026-09-08
-     ```
-   - Clique: **Run workflow** (confirm)
+1. **Usar ferramentas de análise manual para 09/08**:
+   ```bash
+   # Gerar cache (via GitHub Actions ou local)
+   python3 cache_transactions.py
+   
+   # Analisar com matching manual
+   DIA_ALVO="2026-09-08" python3 analise_matching_manual.py
+   ```
 
-4. **Aguarde conclusão** (3-5 minutos)
-   - Veja output no GitHub Actions
-   - Procure por:
-     - Quantas transações TRANSFER em Asaas?
-     - Quantas aparecem em Advbox?
-     - Qual é a divergência de valores?
+2. **Verificar padrão de TRANSFER**:
+   - Quantas transações TRANSFER em Asaas em 09/08?
+   - Quantas aparecem reconciliadas em Advbox?
+   - Qual é o valor total não reconciliado?
 
-5. **Confirme ou refute a hipótese**
-   - Se TRANSFER existe em Asaas mas não em Advbox → Padrão confirmado
-   - Se valores não combinam → Padrão confirmado
-   - Se tudo combina → Padrão refutado, investigar outro
+3. **Investigar 09/06** (segunda maior divergência):
+   - R$ 6.000,00 aparece em Asaas
+   - R$ 0,00 aparece em Advbox
+   - Verificar se há filtro especial ou atraso
 
-### **DEPOIS: Decisão de Negócio**
+### **DEPOIS: Decisão Estratégica**
 
-Com a confirmação do padrão, você precisará decidir:
+Com dados detalhados de 09/08, decidir:
 
-**Pergunta**: As transações de TRANSFER (PIX) devem estar sincronizadas entre Asaas e Advbox?
-
+**Pergunta 1**: As transações de TRANSFER (PIX) devem estar sincronizadas?
 - **SIM** → Há problema de mapeamento/sincronização a corrigir
 - **NÃO** → Precisamos excluir TRANSFERs dos filtros
-- **PARCIAL** → Precisa de regra de negócio clara
+
+**Pergunta 2**: A receita de 09/06 é um caso isolado?
+- Investigar se há padrão com outras datas
 
 ---
 
@@ -192,13 +188,15 @@ Se a hipótese estiver correta:
 
 ## 📞 Resumo Rápido
 
-**Onde estamos**: Identificamos padrão (TRANSFER não reconciliados) em setembro 4
+**Status**: ✅ Auditoria de receitas completada (2026-10-05)
 
-**O que fazer agora**: Confirmar padrão para setembro 8 via GitHub Actions
+**Onde estamos**: Identificamos 6/10 dias com divergências de receita. Maior divergência em 09/08 (R$ 9.822,78)
 
-**Tempo estimado**: 5-10 minutos (executar + analisar output)
+**O que fazer agora**: Investigar padrão de TRANSFER em 09/08 e receita faltando em 09/06
 
-**Próximo passo após confirmação**: Decidir se TRANSFERs devem estar sincronizadas
+**Tempo estimado**: 15-30 minutos (análise manual com ferramentas)
+
+**Próximo passo**: Usar `analise_matching_manual.py` para detalhar quais transações não combinam
 
 ---
 
