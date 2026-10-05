@@ -58,8 +58,8 @@ for dia in range(1, 11):
         )
 
         # Advbox
-        data_inicio = datetime.combine(data, datetime.min.time()).timestamp()
-        data_fim = datetime.combine(data, datetime.max.time()).timestamp()
+        data_inicio = datetime.combine(data, datetime.min.time(), tzinfo=tz).timestamp()
+        data_fim = datetime.combine(data, datetime.max.time(), tzinfo=tz).timestamp()
         txs_dia = [
             tx for tx in advbox_txs
             if data_inicio <= (tx.get("create_timestamp", 0) or 0) <= data_fim
