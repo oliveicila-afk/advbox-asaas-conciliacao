@@ -167,6 +167,9 @@ def main():
     log("CRIAÇÃO DE LANÇAMENTOS FALTANTES - 2026-09-09")
     log("=" * 60)
 
+    # Fetch correct reference IDs from Advbox
+    fetch_references()
+
     data_conciliacao = "2026-09-09"
 
     # Step 1: Create missing receitas
