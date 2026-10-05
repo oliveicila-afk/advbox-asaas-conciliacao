@@ -57,20 +57,20 @@ for dia in range(1, 11):
             if i.get("type") not in TIPOS_RECEITA and float(i.get("value", 0) or 0) < 0
         )
 
-        # Advbox
-        data_inicio = datetime.combine(data, datetime.min.time(), tzinfo=tz).timestamp()
-        data_fim = datetime.combine(data, datetime.max.time(), tzinfo=tz).timestamp()
+        # Advbox (usa date_payment string "YYYY-MM-DD" em vez de create_timestamp)
+        data_str_advbox = data.isoformat()
         txs_dia = [
             tx for tx in advbox_txs
-            if data_inicio <= (tx.get("create_timestamp", 0) or 0) <= data_fim
+            if tx.get("date_payment") == data_str_advbox
         ]
+        # Advbox usa "entry_type" (income/expense) em vez de "type", e "amount" em vez de "value"
         rec_advbox = sum(
-            float(tx.get("value", 0) or 0) for tx in txs_dia
-            if tx.get("type") == "CREDIT" and float(tx.get("value", 0) or 0) > 0
+            float(tx.get("amount", 0) or 0) for tx in txs_dia
+            if tx.get("entry_type") == "income" and float(tx.get("amount", 0) or 0) > 0
         )
         desp_advbox = sum(
-            abs(float(tx.get("value", 0) or 0)) for tx in txs_dia
-            if tx.get("type") == "DEBIT" and float(tx.get("value", 0) or 0) > 0
+            abs(float(tx.get("amount", 0) or 0)) for tx in txs_dia
+            if tx.get("entry_type") == "expense" and float(tx.get("amount", 0) or 0) > 0
         )
 
         # Compara
