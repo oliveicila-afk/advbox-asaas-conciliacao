@@ -43,11 +43,11 @@ divergencias = []
 
 for dia in range(1, 11):
     data = datetime(2026, 9, dia, tzinfo=tz).date()
-    data_str = f"2026-09-{dia:02d}"
+    data_str = data.isoformat()
 
     try:
         # Asaas
-        asaas_items = asaas_get_financial_transactions_do_dia(data)
+        asaas_items = asaas_get_financial_transactions_do_dia(data_str)
         rec_asaas = sum(
             float(i.get("value", 0) or 0) for i in asaas_items
             if i.get("type") in TIPOS_RECEITA and float(i.get("value", 0) or 0) > 0
