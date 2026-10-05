@@ -9,6 +9,7 @@ import os
 import json
 import sys
 import requests
+import glob
 from datetime import datetime
 
 # Configuration
@@ -26,9 +27,27 @@ if not ADVBOX_TOKEN:
     print("Use: ADVBOX_TOKEN='seu_token' python criar_lancamentos.py")
     sys.exit(1)
 
-# Load analysis data
-with open('analise_2026-09-09.json', 'r') as f:
+# Load analysis data - find the most recent analysis file
+def find_analysis_file():
+    """Find the most recent analysis JSON file"""
+    analysis_files = sorted(glob.glob('analise_*.json'), reverse=True)
+    if not analysis_files:
+        print("❌ ERRO: Nenhum arquivo de análise encontrado (analise_*.json)")
+        sys.exit(1)
+    return analysis_files[0]
+
+analysis_file = find_analysis_file()
+print(f"📋 Usando arquivo de análise: {analysis_file}")
+
+with open(analysis_file, 'r') as f:
     analise = json.load(f)
+
+# Validate analysis data
+if not analise.get('receita_faltando'):
+    print("⚠️  Nenhuma receita faltando encontrada no arquivo de análise")
+
+if not analise.get('advbox_fantasmas'):
+    print("⚠️  Nenhuma entrada fantasma encontrada no arquivo de análise")
 
 # Reference IDs (from conciliar.py - working values)
 USER_ID = 65747  # USERS_ID_PRISCILA
@@ -164,13 +183,14 @@ def deletar_lancamento(lancamento_id, descricao):
 
 def main():
     log("=" * 60)
-    log("CRIAÇÃO DE LANÇAMENTOS FALTANTES - 2026-09-09")
+
+    # Get date from analysis data or use provided date
+    data_conciliacao = analise.get('data', '2026-09-09')
+    log(f"CRIAÇÃO DE LANÇAMENTOS FALTANTES - {data_conciliacao}")
     log("=" * 60)
 
     # Fetch correct reference IDs from Advbox
     fetch_references()
-
-    data_conciliacao = "2026-09-09"
 
     # Step 1: Create missing receitas
     log("\n📝 PASSO 1: Criando receitas faltando (8 itens)")
