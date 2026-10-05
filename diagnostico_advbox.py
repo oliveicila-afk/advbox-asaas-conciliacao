@@ -93,6 +93,10 @@ if status == 200:
         print("\n-- centros de custo (nome exato + id) --")
         for cc in ((data.get("financial") or {}).get("cost_centers") or []):
             print(f"   id={cc.get('id')} | nome={cc.get('cost_center')!r}")
+
+        print("\n-- origens dos clientes (id + nome) --")
+        for o in (data.get("origins") or []):
+            print(f"   id={o.get('id')} | origem={o.get('origin')!r}")
     except Exception as e:
         print(f"erro ao ler JSON: {e}")
         print(r.text[:500])
