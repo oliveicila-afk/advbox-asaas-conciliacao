@@ -81,31 +81,40 @@ def fetch_references():
     if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
         USER_ID = resp['data'][0].get('id')
         log(f"  ✓ USER_ID: {USER_ID}")
+    else:
+        log(f"  ❌ /users falhou: status={status}, resp={resp}")
 
     # Get categories
     status, resp = advbox_api("GET", "/categories")
     if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
         CATEGORY_ID = resp['data'][0].get('id')
         log(f"  ✓ CATEGORY_ID: {CATEGORY_ID}")
+    else:
+        log(f"  ❌ /categories falhou: status={status}, resp={resp}")
 
     # Get bank accounts (debit accounts)
     status, resp = advbox_api("GET", "/bank-accounts")
     if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
         DEBIT_ACCOUNT_ID = resp['data'][0].get('id')
         log(f"  ✓ DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
+    else:
+        log(f"  ❌ /bank-accounts falhou: status={status}, resp={resp}")
 
     # Get cost centers
     status, resp = advbox_api("GET", "/cost-centers")
     if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
         COST_CENTER_ID = resp['data'][0].get('id')
         log(f"  ✓ COST_CENTER_ID: {COST_CENTER_ID}")
+    else:
+        log(f"  ❌ /cost-centers falhou: status={status}, resp={resp}")
 
     if not all([USER_ID, CATEGORY_ID, DEBIT_ACCOUNT_ID, COST_CENTER_ID]):
-        log("⚠️  Aviso: Nem todas as referências foram encontradas")
+        log("⚠️  ERRO: Nem todas as referências foram encontradas!")
         log(f"  USER_ID: {USER_ID}")
         log(f"  CATEGORY_ID: {CATEGORY_ID}")
         log(f"  DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
         log(f"  COST_CENTER_ID: {COST_CENTER_ID}")
+        sys.exit(1)
 
 def criar_lancamento(descricao, valor, data):
     """Create a transaction (lancamento) in Advbox"""
