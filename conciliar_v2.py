@@ -628,6 +628,68 @@ def _mapa_tipos_acao() -> dict:
     return {t.get("id"): (t.get("type") or "") for t in tipos if t.get("id")}
 
 
+@lru_cache(maxsize=1)
+def _mapa_tese_grupo() -> dict:
+    """tese (lawsuit type name) -> GRUPO (primeira parte do centro de custo 'GRUPO-CANAL').
+
+    Constrói o mapeamento observando os nomes dos centros de custo disponíveis.
+    Ex: se existe "CONSUMIDOR-INSTAGRAM", mapeia CONSUMIDOR (e variantes) -> CONSUMIDOR.
+    """
+    ccs = (advbox_get_settings().get("financial") or {}).get("cost_centers") or []
+    mapa = {}
+    for cc in ccs:
+        nome = (cc.get("cost_center") or "").strip()
+        if not nome:
+            continue
+        # Extrai a primeira parte antes de "-" ou "/"
+        # Ex: "CONSUMIDOR-INSTAGRAM / MÍDIA SOCIAL" -> "CONSUMIDOR"
+        grupo = re.split(r'[-/]', nome)[0].strip().upper()
+        if grupo:
+            # Adiciona variações comuns (com/sem acento, plurais)
+            for variacao in (grupo, grupo.rstrip('S')):  # RMC, CONSUMIDOR(ES), etc.
+                if variacao:
+                    mapa[variacao] = grupo
+    return mapa
+
+
+def resolver_centro_custo_por_tese_e_origem(tese: str, origem_cliente: str) -> str | None:
+    """Resolve o centro de custo pelo mapeamento TESE (grupo) + ORIGEM (canal).
+
+    Tenta achar um centro de custo cujo nome match o padrão 'TESE-ORIGEM'.
+    Ex: tese='RMC', origem='INSTAGRAM' -> procura 'RMC-INSTAGRAM' ou 'RMC-INSTAGRAM / ...'
+    """
+    if not tese or not origem_cliente:
+        return None
+
+    tese_upper = tese.strip().upper()
+    origem_upper = origem_cliente.strip().upper()
+
+    ccs = (advbox_get_settings().get("financial") or {}).get("cost_centers") or []
+
+    # Procura exatamente "TESE-ORIGEM" ou "TESE-ORIGEM /"
+    for cc in ccs:
+        nome = (cc.get("cost_center") or "").strip().upper()
+        # Verifica se o nome contém o padrão "TESE-ORIGEM"
+        if f"{tese_upper}-{origem_upper}" in nome or nome.startswith(f"{tese_upper}-{origem_upper}"):
+            return nome
+
+    # Fallback: se não achou exato, procura por palavras-chave parciais
+    palavras_tese = set(re.findall(r'\w+', tese_upper))
+    palavras_origem = set(re.findall(r'\w+', origem_upper))
+
+    for cc in ccs:
+        nome = (cc.get("cost_center") or "").strip().upper()
+        partes = re.split(r'[-/]', nome)
+        if len(partes) >= 2:
+            palavras_grupo = set(re.findall(r'\w+', partes[0]))
+            palavras_canal = set(re.findall(r'\w+', partes[1]))
+            # Se ambas as partes contêm palavras da tese/origem, é candidato
+            if (palavras_tese & palavras_grupo) and (palavras_origem & palavras_canal):
+                return nome
+
+    return None
+
+
 # ===== LEITURA E INTERPRETAÇÃO DO PROTOCOLO (histórico do processo) =====
 # O protocolo (com êxito/sucumbencial e repasse à cliente) fica no campo
 # `comments` do histórico do processo: GET /history/{lawsuit_id}/
@@ -658,7 +720,14 @@ def _valor_br_para_float(s: str):
 
 
 def interpretar_protocolo(textos: list[str]) -> dict:
-    """Extrai do protocolo os valores de êxito, sucumbencial, repasse e creditado."""
+    """Extrai do protocolo os valores de êxito, sucumbencial, repasse e creditado.
+
+    Versão v2.0 com padrões expandidos pra capturar mais variações de formato:
+    - Êxito contratual ou simples
+    - Sucumbencial com várias variantes ortográficas
+    - Repasse com ou sem menção a "cliente"
+    - Crédito/creditado
+    """
     info = {
         "tem_protocolo": False,
         "exito": None,
@@ -667,20 +736,47 @@ def interpretar_protocolo(textos: list[str]) -> dict:
         "valor_creditado": None,
     }
     padroes = {
-        "exito": r"honor[áa]rios?\s+(?:contratuais\s+)?de\s+[êe]xito[^\dR]*R?\$?\s*([\d.]+,\d{2})",
-        "sucumbencial": r"honor[áa]rios?\s+sucumbenc\w*[^\dR]*R?\$?\s*([\d.]+,\d{2})",
-        "repasse_cliente": r"repassad[oa][^\dR]*client[ea][^\dR]*R?\$?\s*([\d.]+,\d{2})",
-        "valor_creditado": r"creditad[oa][^\dR]*R?\$?\s*([\d.]+,\d{2})",
+        # Honorários de êxito: mais flexível
+        "exito": [
+            r"honor[áa]rios?\s+(?:de\s+)?[êe]xito[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"[êe]xito[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"honor[áa]rios?[^\dR$]*[êe]xito[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+        ],
+        # Honorários sucumbenciais
+        "sucumbencial": [
+            r"honor[áa]rios?\s+sucumbenc\w*[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"sucumbenc\w*[^\dR$]*honor[áa]rios?[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"sucumbenc\w*[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+        ],
+        # Repasse à cliente (com ou sem menção a "cliente")
+        "repasse_cliente": [
+            r"repassad[oa][^\dR$]*client[ea][^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"repasse[^\dR$]*client[ea][^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"client[ea][^\dR$]*repasse[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"repasse[^\dR$]*R?\$?\s*([\d.]+,\d{2})",  # Simples: "Repasse: R$ XXX"
+        ],
+        # Valor creditado
+        "valor_creditado": [
+            r"creditad[oa][^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+            r"cr[ée]dito[^\dR$]*R?\$?\s*([\d.]+,\d{2})",
+        ],
     }
+
     for texto in textos:
         up = texto.upper()
-        if any(p in up for p in ("HONORÁRIOS", "HONORARIOS", "SUCUMBENC", "ÊXITO", "EXITO", "REPASSAD")):
+        if any(p in up for p in ("HONORÁRIO", "SUCUMBENC", "ÊXITO", "EXITO", "REPASSA", "CLIENTE")):
             info["tem_protocolo"] = True
-        for chave, pad in padroes.items():
+
+        for chave, pads in padroes.items():
             if info[chave] is None:
-                m = re.search(pad, texto, re.IGNORECASE)
-                if m:
-                    info[chave] = _valor_br_para_float(m.group(1))
+                if isinstance(pads, str):
+                    pads = [pads]
+                for pad in pads:
+                    m = re.search(pad, texto, re.IGNORECASE)
+                    if m:
+                        info[chave] = _valor_br_para_float(m.group(1))
+                        break  # usa o primeiro padrão que bater
+
     return info
 
 
@@ -920,6 +1016,10 @@ def enriquecer_receita_faltando_com_processo(
             protocolo = interpretar_protocolo(advbox_get_protocolo_textos(lw.get("id")))
             tese = _mapa_tipos_acao().get(lw.get("type_lawsuit_id"))
             tipo_honorario = classificar_honorario(protocolo)
+
+            # CAMADA 4B: Se ainda não tem centro de custo, tenta resolver por TESE + ORIGEM
+            if not centro_custo_sugerido and tese and origem_cliente:
+                centro_custo_sugerido = resolver_centro_custo_por_tese_e_origem(tese, origem_cliente)
 
             item["_processo_identificado"] = {
                 "processo": numero_processo,
