@@ -30,6 +30,12 @@ if not ADVBOX_TOKEN:
 with open('analise_2026-09-09.json', 'r') as f:
     analise = json.load(f)
 
+# Reference IDs (will be fetched from API)
+USER_ID = None
+CATEGORY_ID = None
+DEBIT_ACCOUNT_ID = None
+COST_CENTER_ID = None
+
 def log(msg):
     """Log with timestamp"""
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
@@ -64,6 +70,43 @@ def advbox_api(method, path, data=None):
     except Exception as e:
         return None, str(e)
 
+def fetch_references():
+    """Fetch reference IDs from Advbox"""
+    global USER_ID, CATEGORY_ID, DEBIT_ACCOUNT_ID, COST_CENTER_ID
+
+    log("🔍 Buscando referências no Advbox...")
+
+    # Get users
+    status, resp = advbox_api("GET", "/users")
+    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
+        USER_ID = resp['data'][0].get('id')
+        log(f"  ✓ USER_ID: {USER_ID}")
+
+    # Get categories
+    status, resp = advbox_api("GET", "/categories")
+    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
+        CATEGORY_ID = resp['data'][0].get('id')
+        log(f"  ✓ CATEGORY_ID: {CATEGORY_ID}")
+
+    # Get bank accounts (debit accounts)
+    status, resp = advbox_api("GET", "/bank-accounts")
+    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
+        DEBIT_ACCOUNT_ID = resp['data'][0].get('id')
+        log(f"  ✓ DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
+
+    # Get cost centers
+    status, resp = advbox_api("GET", "/cost-centers")
+    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
+        COST_CENTER_ID = resp['data'][0].get('id')
+        log(f"  ✓ COST_CENTER_ID: {COST_CENTER_ID}")
+
+    if not all([USER_ID, CATEGORY_ID, DEBIT_ACCOUNT_ID, COST_CENTER_ID]):
+        log("⚠️  Aviso: Nem todas as referências foram encontradas")
+        log(f"  USER_ID: {USER_ID}")
+        log(f"  CATEGORY_ID: {CATEGORY_ID}")
+        log(f"  DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
+        log(f"  COST_CENTER_ID: {COST_CENTER_ID}")
+
 def criar_lancamento(descricao, valor, data):
     """Create a transaction (lancamento) in Advbox"""
     log(f"Criando: {descricao} - R$ {valor:.2f}")
@@ -73,6 +116,11 @@ def criar_lancamento(descricao, valor, data):
         "date_due": data,
         "date_payment": data,
         "description": descricao,
+        "entry_type": "credit",
+        "users_id": USER_ID,
+        "categories_id": CATEGORY_ID,
+        "debit_account": DEBIT_ACCOUNT_ID,
+        "cost_centers_id": COST_CENTER_ID,
     }
 
     status, resp = advbox_api("POST", "/transactions", payload)
@@ -103,6 +151,9 @@ def main():
     log("=" * 60)
 
     data_conciliacao = "2026-09-09"
+
+    # Step 0: Fetch reference IDs from Advbox API
+    fetch_references()
 
     # Step 1: Create missing receitas
     log("\n📝 PASSO 1: Criando receitas faltando (8 itens)")
