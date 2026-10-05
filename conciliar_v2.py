@@ -621,6 +621,114 @@ def resolver_centro_custo_id(valor):
     return _mapa_centros_custo().get(str(valor).strip().upper())
 
 
+@lru_cache(maxsize=1)
+def _mapa_tipos_acao() -> dict:
+    """id do tipo de ação -> nome (a 'tese' do processo)."""
+    tipos = advbox_get_settings().get("lawsuit_types") or []
+    return {t.get("id"): (t.get("type") or "") for t in tipos if t.get("id")}
+
+
+# ===== LEITURA E INTERPRETAÇÃO DO PROTOCOLO (histórico do processo) =====
+# O protocolo (com êxito/sucumbencial e repasse à cliente) fica no campo
+# `comments` do histórico do processo: GET /history/{lawsuit_id}/
+
+def advbox_get_protocolo_textos(lawsuit_id) -> list[str]:
+    try:
+        h = advbox_get(f"/history/{lawsuit_id}/")
+    except RuntimeError as exc:
+        log(f"Não consegui ler histórico do processo {lawsuit_id}: {exc}")
+        return []
+    itens = h.get("data", []) if isinstance(h, dict) else (h if isinstance(h, list) else [])
+    datados = []
+    for it in itens:
+        txt = it.get("comments") or ""
+        if txt:
+            datados.append((it.get("date") or it.get("created_at") or "", txt))
+    datados.sort(reverse=True)  # mais recente primeiro
+    return [t for _, t in datados]
+
+
+def _valor_br_para_float(s: str):
+    """'1.834,32' -> 1834.32"""
+    s = (s or "").strip().replace(".", "").replace(",", ".")
+    try:
+        return round(float(s), 2)
+    except ValueError:
+        return None
+
+
+def interpretar_protocolo(textos: list[str]) -> dict:
+    """Extrai do protocolo os valores de êxito, sucumbencial, repasse e creditado."""
+    info = {
+        "tem_protocolo": False,
+        "exito": None,
+        "sucumbencial": None,
+        "repasse_cliente": None,
+        "valor_creditado": None,
+    }
+    padroes = {
+        "exito": r"honor[áa]rios?\s+(?:contratuais\s+)?de\s+[êe]xito[^\dR]*R?\$?\s*([\d.]+,\d{2})",
+        "sucumbencial": r"honor[áa]rios?\s+sucumbenc\w*[^\dR]*R?\$?\s*([\d.]+,\d{2})",
+        "repasse_cliente": r"repassad[oa][^\dR]*client[ea][^\dR]*R?\$?\s*([\d.]+,\d{2})",
+        "valor_creditado": r"creditad[oa][^\dR]*R?\$?\s*([\d.]+,\d{2})",
+    }
+    for texto in textos:
+        up = texto.upper()
+        if any(p in up for p in ("HONORÁRIOS", "HONORARIOS", "SUCUMBENC", "ÊXITO", "EXITO", "REPASSAD")):
+            info["tem_protocolo"] = True
+        for chave, pad in padroes.items():
+            if info[chave] is None:
+                m = re.search(pad, texto, re.IGNORECASE)
+                if m:
+                    info[chave] = _valor_br_para_float(m.group(1))
+    return info
+
+
+def classificar_honorario(info_protocolo: dict) -> str | None:
+    """Decide 'exito' ou 'sucumbencial' pelo que o protocolo informa. None se ambíguo."""
+    tem_e = info_protocolo.get("exito") is not None
+    tem_s = info_protocolo.get("sucumbencial") is not None
+    if tem_e and not tem_s:
+        return "exito"
+    if tem_s and not tem_e:
+        return "sucumbencial"
+    return None  # ambíguo (nenhum ou os dois) -> decisão manual
+
+
+def categoria_por_tese(tipo_honorario: str, tese: str):
+    """Monta o nome da categoria a partir do tipo (exito/sucumbencial) + tese e resolve o ID.
+
+    Tenta as variações de nome que existem no Advbox; só devolve se bater exatamente.
+    """
+    if not tese:
+        return None, None
+    t = tese.strip().upper()
+    if tipo_honorario == "exito":
+        candidatos = [f"HONORÁRIOS CONTRATUAIS DE ÊXITO-{t}", f"HONORÁRIOS CONTRATUAIS DE EXITO-{t}"]
+    else:
+        candidatos = [
+            f"HONORÁRIOS CONTRATUAIS DE SUCUMBENCIAL-{t}",
+            f"HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-{t}",
+        ]
+    for nome in candidatos:
+        cid = resolver_categoria_id(nome)
+        if cid:
+            return cid, nome
+    return None, None
+
+
+def categoria_repasse_cliente(tese: str):
+    """Categoria de despesa (repasse à cliente) = 'ÊXITO DO CLIENTE-{tese}'."""
+    if not tese:
+        return None, None
+    t = tese.strip().upper()
+    for nome in (f"ÊXITO DO CLIENTE-{t}", f"EXITO DO CLIENTE-{t}"):
+        cid = resolver_categoria_id(nome)
+        if cid:
+            return cid, nome
+    return None, None
+
+
 def analisar_descricoes_para_categoria(
     cliente_nome: str, valor_pago: float, lawsuits: list[dict], advbox_itens: list[dict]
 ) -> dict | None:
@@ -806,6 +914,11 @@ def enriquecer_receita_faltando_com_processo(
             # Usa categoria de precedente ou tarefas (precedente tem prioridade)
             categoria_final = categoria_sugerida_por_precedente or categoria_sugerida_por_tarefas
 
+            # CAMADA 5: lê o PROTOCOLO (histórico) do processo e a TESE (tipo de ação)
+            protocolo = interpretar_protocolo(advbox_get_protocolo_textos(lw.get("id")))
+            tese = _mapa_tipos_acao().get(lw.get("type_lawsuit_id"))
+            tipo_honorario = classificar_honorario(protocolo)
+
             item["_processo_identificado"] = {
                 "processo": numero_processo,
                 "cliente": cliente_nome,
@@ -817,6 +930,9 @@ def enriquecer_receita_faltando_com_processo(
                 "confianca_categoria": confianca_categoria,
                 "centro_custo_sugerido": centro_custo_sugerido,
                 "info_juros_multas": info_juros_multas,
+                "protocolo": protocolo,
+                "tese": tese,
+                "tipo_honorario": tipo_honorario,
             }
 
 
@@ -972,43 +1088,52 @@ def aplicar_correcoes(relatorio: dict) -> dict:
             }
             (aplicadas if resultado else falhas).append(registro)
 
-    # Auto-posting de receitas faltantes enriquecidas com categoria e centro de custo
+    # Auto-posting de receitas de honorário (êxito/sucumbencial) + despesa de repasse.
+    # Regra contábil (definida pela usuária): registra a RECEITA pelo valor cheio
+    # que caiu, e a DESPESA pelo valor repassado à cliente (ambas no mesmo
+    # processo) — no relatório a subtração sai sozinha.
     for receita in relatorio.get("receita_faltando", []):
-        enriquecimento = receita.get("_processo_identificado")
-        if not enriquecimento:
-            continue
-
-        # Usa categoria_final (que pode ser precedente ou tarefas). Esses
-        # valores vêm como NOME (texto); convertemos para o ID numérico que a
-        # API de criação exige, via /settings.
-        categoria_id = resolver_categoria_id(enriquecimento.get("categoria_final"))
-        centro_custo_id = resolver_centro_custo_id(enriquecimento.get("centro_custo_sugerido"))
-        confianca = enriquecimento.get("confianca_categoria")
-
-        # Só posta se:
-        # 1. Tem AMBAS as informações (categoria E centro de custo)
-        # 2. Categoria tem confiança "alta" ou veio de "precedente"
-        if not (categoria_id and centro_custo_id):
-            continue
-
-        if confianca not in ("alta", "precedente"):
+        enr = receita.get("_processo_identificado")
+        if not enr:
             continue
 
         valor = float(receita.get("value", 0))
         if valor < 0.01:
             continue
 
-        nome_cliente = enriquecimento.get("cliente", "?")
-        numero_processo = enriquecimento.get("processo", "?")
-        info_multa = enriquecimento.get("info_juros_multas") or {}
+        centro_custo_id = resolver_centro_custo_id(enr.get("centro_custo_sugerido"))
+        numero_processo = enr.get("processo", "?")
+        nome_cliente = enr.get("cliente", "?")
+        protocolo = enr.get("protocolo") or {}
+        tese = enr.get("tese")
+        tipo_h = enr.get("tipo_honorario")            # 'exito' | 'sucumbencial' | None
+        confianca = enr.get("confianca_categoria")
 
-        # Monta descrição com nota sobre juros/multas se aplicável
-        descricao_base = f"Receita {numero_processo} - {nome_cliente}"
-        if info_multa.get("tem_juros_multas"):
-            descricao_base += f" [+R$ {info_multa.get('valor_diferenca', 0):.2f} juros/multas]"
-        descricao_base += " (conciliação automática)"
+        # Categoria da RECEITA:
+        # 1º) precedente (categoria exata copiada do histórico do mesmo processo)
+        categoria_id = None
+        categoria_nome = None
+        if confianca == "precedente":
+            categoria_id = resolver_categoria_id(enr.get("categoria_final"))
+            categoria_nome = enr.get("categoria_final")
+        # 2º) senão, pela classificação do protocolo (êxito/sucumbencial) + tese
+        if not categoria_id and tipo_h and tese:
+            categoria_id, categoria_nome = categoria_por_tese(tipo_h, tese)
 
-        payload = {
+        # Trava: precisa de categoria E centro de custo. Senão, fica pra manual.
+        if not (categoria_id and centro_custo_id):
+            continue
+
+        # Trava de valor (as "2 checagens"): se o protocolo informa o valor
+        # creditado e ele não bate com o que caiu, não arrisca -> manual.
+        creditado = protocolo.get("valor_creditado")
+        if creditado is not None and abs(creditado - valor) > 0.02:
+            continue
+
+        origem = "precedente" if confianca == "precedente" else f"protocolo/{tipo_h}"
+
+        # ---- RECEITA: valor cheio ----
+        payload_receita = {
             "users_id": USERS_ID_PRISCILA,
             "entry_type": "income",
             "debit_account": DEBIT_ACCOUNT_ASAAS,
@@ -1017,15 +1142,37 @@ def aplicar_correcoes(relatorio: dict) -> dict:
             "amount": formatar_valor_advbox(valor),
             "date_due": relatorio["data"],
             "date_payment": relatorio["data"],
-            "description": descricao_base,
+            "description": f"Receita {numero_processo} - {nome_cliente} (conciliação automática)",
         }
-        resultado = advbox_post(payload)
-        registro = {
-            "tipo": f"criação de receita faltando ({confianca})",
+        r1 = advbox_post(payload_receita)
+        (aplicadas if r1 else falhas).append({
+            "tipo": f"receita {origem} [{categoria_nome}]",
             "descricao": f"Proc. {numero_processo} ({nome_cliente}) — R$ {valor:.2f}",
-            "id": (resultado or {}).get("id"),
-        }
-        (aplicadas if resultado else falhas).append(registro)
+            "id": (r1 or {}).get("id"),
+        })
+
+        # ---- DESPESA: repasse à cliente (quando o protocolo informa) ----
+        repasse = protocolo.get("repasse_cliente")
+        if repasse and repasse > 0.01:
+            cat_rep_id, cat_rep_nome = categoria_repasse_cliente(tese)
+            if cat_rep_id:
+                payload_despesa = {
+                    "users_id": USERS_ID_PRISCILA,
+                    "entry_type": "expense",
+                    "debit_account": DEBIT_ACCOUNT_ASAAS,
+                    "categories_id": cat_rep_id,
+                    "cost_centers_id": centro_custo_id,
+                    "amount": formatar_valor_advbox(repasse),
+                    "date_due": relatorio["data"],
+                    "date_payment": relatorio["data"],
+                    "description": f"Repasse a cliente {numero_processo} - {nome_cliente} (conciliação automática)",
+                }
+                r2 = advbox_post(payload_despesa)
+                (aplicadas if r2 else falhas).append({
+                    "tipo": f"despesa repasse [{cat_rep_nome}]",
+                    "descricao": f"Proc. {numero_processo} ({nome_cliente}) — R$ {repasse:.2f}",
+                    "id": (r2 or {}).get("id"),
+                })
 
     return {"aplicadas": aplicadas, "falhas": falhas}
 
