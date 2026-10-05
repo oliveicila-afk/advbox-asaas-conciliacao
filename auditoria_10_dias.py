@@ -49,12 +49,12 @@ for dia in range(1, 11):
         # Asaas
         asaas_items = asaas_get_financial_transactions_do_dia(data)
         rec_asaas = sum(
-            i.get("value", 0) for i in asaas_items
-            if i.get("type") in TIPOS_RECEITA and (i.get("value") or 0) > 0
+            float(i.get("value", 0) or 0) for i in asaas_items
+            if i.get("type") in TIPOS_RECEITA and float(i.get("value", 0) or 0) > 0
         )
         desp_asaas = sum(
-            i.get("value", 0) for i in asaas_items
-            if i.get("type") not in TIPOS_RECEITA and (i.get("value") or 0) > 0
+            abs(float(i.get("value", 0) or 0)) for i in asaas_items
+            if i.get("type") not in TIPOS_RECEITA and float(i.get("value", 0) or 0) < 0
         )
 
         # Advbox
@@ -65,12 +65,12 @@ for dia in range(1, 11):
             if data_inicio <= (tx.get("create_timestamp", 0) or 0) <= data_fim
         ]
         rec_advbox = sum(
-            tx.get("value", 0) for tx in txs_dia
-            if tx.get("type") == "CREDIT" and (tx.get("value") or 0) > 0
+            float(tx.get("value", 0) or 0) for tx in txs_dia
+            if tx.get("type") == "CREDIT" and float(tx.get("value", 0) or 0) > 0
         )
         desp_advbox = sum(
-            tx.get("value", 0) for tx in txs_dia
-            if tx.get("type") == "DEBIT" and (tx.get("value") or 0) > 0
+            abs(float(tx.get("value", 0) or 0)) for tx in txs_dia
+            if tx.get("type") == "DEBIT" and float(tx.get("value", 0) or 0) > 0
         )
 
         # Compara
