@@ -1,0 +1,36 @@
+name: Análise Detalhada por Data e Valor
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests fpdf2
+
+      - name: Run analysis script
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          python analise_por_data_valor.py 2>&1 | tee analise_output.txt
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: analise-results
+          path: analise_output.txt
