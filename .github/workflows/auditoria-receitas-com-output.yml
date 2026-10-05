@@ -1,0 +1,43 @@
+name: Auditoria - Receitas (com Output Salvo)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Auditoria de Receitas
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: "America/Manaus"
+        run: |
+          python3 auditoria_receitas_10_dias.py > resultado_auditoria_receitas.txt 2>&1
+          cat resultado_auditoria_receitas.txt
+
+      - name: Commit Resultado
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add resultado_auditoria_receitas.txt
+          git commit -m "chore: auditoria de receitas executada em $(date)" || echo "Nenhuma mudança para commitar"
+          git push
+
+      - name: Upload Resultado
+        uses: actions/upload-artifact@v4
+        with:
+          name: auditoria-receitas-resultado
+          path: resultado_auditoria_receitas.txt
+          retention-days: 7
