@@ -83,7 +83,7 @@ despesas_asaas = [
 print(f"Despesas encontradas: {len(despesas_asaas)}\n")
 
 for idx, item in enumerate(despesas_asaas, 1):
-    print(f"{idx}. R$ {abs(float(item.get('value', 0)))>10.2f} | {item.get('type')}")
+    print(f"{idx}. R$ {abs(float(item.get('value', 0))):>10.2f} | {item.get('type')}")
     print(f"   Descrição: {item.get('description', 'N/A')[:80]}")
     print(f"   ID: {item.get('id')}\n")
 
