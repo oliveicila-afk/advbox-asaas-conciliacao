@@ -1120,6 +1120,16 @@ def aplicar_correcoes(relatorio: dict) -> dict:
         if not categoria_id and tipo_h and tese:
             categoria_id, categoria_nome = categoria_por_tese(tipo_h, tese)
 
+        # (diagnóstico, sem dados sensíveis) mostra o que foi encontrado
+        proto = enr.get("protocolo") or {}
+        log(
+            f"[DIAG receita R$ {valor:.2f}] processo_ok={bool(enr.get('lawsuits_id'))} "
+            f"precedente={confianca == 'precedente'} tem_protocolo={proto.get('tem_protocolo')} "
+            f"exito={proto.get('exito')} sucumb={proto.get('sucumbencial')} repasse={proto.get('repasse_cliente')} "
+            f"creditado={proto.get('valor_creditado')} tese={bool(tese)} tipo_h={tipo_h} "
+            f"categoria_id={categoria_id} centro_custo_id={centro_custo_id}"
+        )
+
         # Trava: precisa de categoria E centro de custo. Senão, fica pra manual.
         if not (categoria_id and centro_custo_id):
             continue
