@@ -58,8 +58,8 @@ for dia in range(1, 11):
         for item in items:
             valor = float(item.get("value", 0) or 0)
             if valor > 0:  # Apenas receitas
-                desc = item.get("description", "")
-                client_name = desc.split("-")[0].strip() if "-" in desc else desc[:50]
+                desc = item.get("description", "") or ""
+                client_name = desc.split("-")[0].strip() if desc and "-" in desc else (desc[:50] if desc else "")
 
                 if client_name:
                     asaas_clientes[client_name]["valores"].append(valor)
@@ -80,8 +80,8 @@ for tx in advbox_txs:
         if tx.get("entry_type") == "income":
             valor = float(tx.get("amount", 0) or 0)
             if valor > 0:
-                desc = tx.get("description", "")
-                client_name = desc.split("-")[0].strip() if "-" in desc else desc[:50]
+                desc = tx.get("description", "") or ""
+                client_name = desc.split("-")[0].strip() if desc and "-" in desc else (desc[:50] if desc else "")
 
                 if client_name:
                     advbox_clientes[client_name]["valores"].append(valor)
