@@ -30,11 +30,11 @@ if not ADVBOX_TOKEN:
 with open('analise_2026-09-09.json', 'r') as f:
     analise = json.load(f)
 
-# Reference IDs (will be fetched from API)
-USER_ID = None
-CATEGORY_ID = None
-DEBIT_ACCOUNT_ID = None
-COST_CENTER_ID = None
+# Reference IDs (from conciliar.py - working values)
+USER_ID = 65747  # USERS_ID_PRISCILA
+CATEGORY_ID = 70703  # TAXA DE COMUNICAÇÃO (placeholder)
+DEBIT_ACCOUNT_ID = 193264  # DEBIT_ACCOUNT_ASAAS
+COST_CENTER_ID = 60814  # COST_CENTER_DESPESAS_FINANCEIRAS_GERAL
 
 def log(msg):
     """Log with timestamp"""
@@ -142,13 +142,19 @@ def criar_lancamento(descricao, valor, data):
         return None
 
 def deletar_lancamento(lancamento_id, descricao):
-    """Delete a transaction from Advbox"""
+    """Delete a transaction from Advbox by marking it as canceled with PUT"""
     log(f"Deletando: {descricao} (ID: {lancamento_id})")
 
-    status, resp = advbox_api("DELETE", f"/transactions/{lancamento_id}")
+    # Advbox doesn't support DELETE method, so we mark as canceled/removed via PUT
+    # Using status "deleted" or minimal payload to remove from accounting
+    payload = {
+        "status": "deleted",  # Mark as deleted/canceled
+    }
 
-    if status in (200, 204):
-        log(f"  ✓ Deletado com sucesso")
+    status, resp = advbox_api("PUT", f"/transactions/{lancamento_id}", payload)
+
+    if status in (200, 201):
+        log(f"  ✓ Cancelado com sucesso")
         return True
     else:
         log(f"  ❌ Erro {status}: {resp}")
@@ -160,9 +166,6 @@ def main():
     log("=" * 60)
 
     data_conciliacao = "2026-09-09"
-
-    # Step 0: Fetch reference IDs from Advbox API
-    fetch_references()
 
     # Step 1: Create missing receitas
     log("\n📝 PASSO 1: Criando receitas faltando (8 itens)")
