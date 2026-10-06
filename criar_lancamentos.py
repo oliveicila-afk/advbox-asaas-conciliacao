@@ -1,253 +1,294 @@
 #!/usr/bin/env python3
-"""
-Script para criar lançamentos faltantes no Advbox
-Cria as 8 receitas que existem no Asaas mas não no Advbox
-Deleta as 4 entradas fantasmas criadas por erro
-"""
+"""Aplica o plano de conciliação recém-gerado, sem usar relatórios antigos."""
 
-import os
 import json
+import os
 import sys
-import requests
-import glob
-from datetime import datetime
+from pathlib import Path
+from typing import Any
 
-# Configuration
-ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
-ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# User-Agent required to avoid Cloudflare blocking
-ADVBOX_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+from conciliar_v2 import (
+    DRY_RUN,
+    TAXAS_DIARIAS_CONSOLIDADAS,
+    TIPOS_ESTORNO,
+    TIPOS_IGNORAR_INFORMATIVO,
+    TIPOS_RECEITA,
+    TIPO_TAXA_BANCARIA_CLIENTE,
+    advbox_get_all_lawsuits,
+    advbox_get_all_transactions,
+    advbox_put,
+    asaas_get_financial_transactions_do_dia,
+    aplicar_correcoes,
+    categoria_por_tese,
+    categoria_repasse_cliente,
+    enriquecer_receita_faltando_com_processo,
+    montar_relatorio,
+    resolver_categoria_id,
+    resolver_centro_custo_id,
+)
+from period_reconciliation import plan_daily_movements
+
+
+ANALYSIS_FILE = Path(os.environ.get("ANALYSIS_FILE", "analysis_report.json"))
+HANDLED_MISSING_TYPES = (
+    set(TIPOS_RECEITA)
+    | set(TAXAS_DIARIAS_CONSOLIDADAS)
 )
 
-if not ADVBOX_TOKEN:
-    print("❌ ERRO: ADVBOX_TOKEN não está definido")
-    print("Use: ADVBOX_TOKEN='seu_token' python criar_lancamentos.py")
-    sys.exit(1)
 
-# Load analysis data - find the most recent analysis file
-def find_analysis_file():
-    """Find the most recent analysis JSON file"""
-    analysis_files = sorted(glob.glob('analise_*.json'), reverse=True)
-    if not analysis_files:
-        print("❌ ERRO: Nenhum arquivo de análise encontrado (analise_*.json)")
-        sys.exit(1)
-    return analysis_files[0]
+def load_analysis(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"Plano atual não encontrado: {path}. Execute analise_por_data_valor.py primeiro."
+        )
+    analysis = json.loads(path.read_text(encoding="utf-8"))
+    if analysis.get("schema_version") != 1 or not isinstance(analysis.get("days"), list):
+        raise ValueError(f"Formato inválido no plano de conciliação: {path}")
+    if not analysis["days"]:
+        raise ValueError("O plano de conciliação não contém dias para processar.")
+    return analysis
 
-analysis_file = find_analysis_file()
-print(f"📋 Usando arquivo de análise: {analysis_file}")
 
-with open(analysis_file, 'r') as f:
-    analise = json.load(f)
+def _item_id(item: dict[str, Any]) -> str | None:
+    value = item.get("id") or item.get("transactions_id")
+    return str(value) if value is not None else None
 
-# Validate analysis data
-if not analise.get('receita_faltando'):
-    print("⚠️  Nenhuma receita faltando encontrada no arquivo de análise")
 
-if not analise.get('advbox_fantasmas'):
-    print("⚠️  Nenhuma entrada fantasma encontrada no arquivo de análise")
+def _filter_report_to_missing_movements(
+    report: dict[str, Any], missing_movements: list[dict[str, Any]]
+) -> None:
+    missing_ids = {_item_id(item) for item in missing_movements}
+    missing_ids.discard(None)
 
-# Reference IDs (from conciliar.py - working values)
-USER_ID = 65747  # USERS_ID_PRISCILA
-CATEGORY_ID = 70703  # TAXA DE COMUNICAÇÃO (placeholder)
-DEBIT_ACCOUNT_ID = 193264  # DEBIT_ACCOUNT_ASAAS
-COST_CENTER_ID = 60814  # COST_CENTER_DESPESAS_FINANCEIRAS_GERAL
+    def is_missing(item: dict[str, Any]) -> bool:
+        item_id = _item_id(item)
+        if item_id is not None:
+            return item_id in missing_ids
+        return any(item == missing for missing in missing_movements)
 
-def log(msg):
-    """Log with timestamp"""
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+    report["receita_faltando"] = [
+        item for item in report.get("receita_faltando", []) if is_missing(item)
+    ]
+    report["taxa_bancaria_faltando"] = [
+        item for item in report.get("taxa_bancaria_faltando", []) if is_missing(item)
+    ]
 
-def formatar_valor_advbox(valor: float) -> str:
-    """
-    Format value for Advbox API using comma (virgula) instead of dot
-    due to a known bug in the API.
-    """
-    return f"{valor:.2f}".replace(".", ",")
 
-def advbox_api(method, path, data=None):
-    """Make API call to Advbox"""
-    headers = {
-        "Authorization": f"Bearer {ADVBOX_TOKEN}",
-        "User-Agent": ADVBOX_USER_AGENT,
-        "Accept": "application/json"
-    }
-    url = f"{ADVBOX_BASE}{path}"
+def _preflight_report(report: dict[str, Any]) -> list[str]:
+    errors = []
+    for receita in report.get("receita_faltando", []):
+        processo = receita.get("_processo_identificado")
+        if not processo:
+            errors.append(f"Receita Asaas {_item_id(receita) or '<sem ID>'}: sem processo identificado.")
+            continue
 
-    try:
-        if method == "GET":
-            resp = requests.get(url, headers=headers, timeout=30)
-        elif method == "POST":
-            resp = requests.post(url, headers=headers, json=data, timeout=30)
-        elif method == "PUT":
-            resp = requests.put(url, headers=headers, json=data, timeout=30)
-        elif method == "DELETE":
-            resp = requests.delete(url, headers=headers, timeout=30)
+        categoria_id = None
+        if processo.get("confianca_categoria") == "precedente":
+            categoria_id = resolver_categoria_id(processo.get("categoria_final"))
+        if not categoria_id and processo.get("tipo_honorario") and processo.get("tese"):
+            categoria_id, _ = categoria_por_tese(
+                processo["tipo_honorario"],
+                processo["tese"],
+            )
+
+        centro_custo_id = resolver_centro_custo_id(processo.get("centro_custo_sugerido"))
+        protocolo = processo.get("protocolo") or {}
+        valor = float(receita.get("value", 0) or 0)
+        valor_creditado = protocolo.get("valor_creditado")
+        if valor_creditado is not None and abs(float(valor_creditado) - valor) > 0.02:
+            errors.append(f"Receita Asaas {_item_id(receita) or '<sem ID>'}: valor não confere com o protocolo.")
+        elif not categoria_id or not centro_custo_id:
+            errors.append(f"Receita Asaas {_item_id(receita) or '<sem ID>'}: categoria/centro de custo não resolvido.")
+
+        repasse = float(protocolo.get("repasse_cliente") or 0)
+        if repasse > 0.01 and not categoria_repasse_cliente(processo.get("tese"))[0]:
+            errors.append(f"Receita Asaas {_item_id(receita) or '<sem ID>'}: categoria do repasse não resolvida.")
+
+    for info in report.get("taxas_diarias_info", {}).values():
+        if info.get("faltando", 0) > 0.01:
+            if not resolver_categoria_id(info.get("nome")):
+                errors.append(f"Categoria {info.get('nome')} não encontrada em /settings.")
+            if not resolver_centro_custo_id("DESPESAS FINANCEIRAS GERAL"):
+                errors.append("Centro de custo DESPESAS FINANCEIRAS GERAL não encontrado em /settings.")
+    return errors
+
+
+def _preflight_analysis(analysis: dict[str, Any]) -> list[str]:
+    errors = []
+    for day in analysis["days"]:
+        movements = day.get("movements") or {}
+        target_date = day.get("data", "<sem data>")
+        if not movements.get("safe_to_mutate"):
+            errors.append(
+                f"{target_date}: movimentação sem classificação segura "
+                f"(ASAAS={movements.get('unsupported_asaas_types', [])}, "
+                f"AdvBox={len(movements.get('unsupported_advbox_ids', [] ) or [])}, "
+                f"excessos de categoria={len(movements.get('daily_category_overages', [] ) or [])})."
+            )
+            continue
+
+        unhandled = [
+            item.get("type") or "<sem tipo>"
+            for item in movements.get("asaas_faltando", [])
+            if item.get("type") not in HANDLED_MISSING_TYPES
+        ]
+        if unhandled:
+            errors.append(f"{target_date}: tipos sem regra de inclusão automática: {sorted(set(unhandled))}.")
+
+    return errors
+
+
+def _delete_phantoms(day: dict[str, Any]) -> tuple[int, list[str]]:
+    deleted = 0
+    errors = []
+    for item in (day.get("movements") or {}).get("advbox_fantasmas", []):
+        transaction_id = _item_id(item)
+        if transaction_id is None:
+            errors.append(f"{day['data']}: lançamento excedente sem ID.")
+            continue
+        if advbox_put(transaction_id, {"status": "deleted"}):
+            deleted += 1
         else:
-            raise ValueError(f"Unknown method: {method}")
+            errors.append(f"{day['data']}: não foi possível excluir o lançamento AdvBox {transaction_id}.")
+    return deleted, errors
 
-        return resp.status_code, resp.json() if resp.text else None
-    except Exception as e:
-        return None, str(e)
 
-def fetch_references():
-    """Fetch reference IDs from Advbox"""
-    global USER_ID, CATEGORY_ID, DEBIT_ACCOUNT_ID, COST_CENTER_ID
+def _verify(analysis: dict[str, Any]) -> list[str]:
+    advbox_items = advbox_get_all_transactions()
+    errors = []
+    for day in analysis["days"]:
+        target_date = day["data"]
+        asaas_items = asaas_get_financial_transactions_do_dia(target_date)
+        report = montar_relatorio(target_date, advbox_items, asaas_items)
+        advbox_day = [
+            item for item in advbox_items
+            if item.get("date_payment") == target_date
+        ]
+        movements = plan_daily_movements(
+            asaas_items,
+            advbox_day,
+            target_date,
+            income_types=set(TIPOS_RECEITA),
+            expense_types=set(TIPOS_ESTORNO) | set(TAXAS_DIARIAS_CONSOLIDADAS) | {TIPO_TAXA_BANCARIA_CLIENTE},
+            ignored_types=set(TIPOS_IGNORAR_INFORMATIVO),
+            consolidated_expense_categories={
+                transaction_type: metadata["nome"]
+                for transaction_type, metadata in TAXAS_DIARIAS_CONSOLIDADAS.items()
+            },
+        )
+        _filter_report_to_missing_movements(report, movements["asaas_faltando"])
+        unresolved = (
+            len(movements["asaas_faltando"])
+            + len(movements["advbox_fantasmas"])
+            + len(report.get("receita_faltando", []))
+            + len(report.get("taxa_bancaria_faltando", []))
+            + len(report.get("receita_data_errada", []))
+            + len(report.get("taxa_bancaria_data_errada", []))
+            + sum(info.get("faltando", 0) > 0.01 for info in report.get("taxas_diarias_info", {}).values())
+        )
+        totals_differ = (
+            movements["expected_income_cents"] != movements["actual_income_cents"]
+            or movements["expected_expense_cents"] != movements["actual_expense_cents"]
+        )
+        if not movements["safe_to_mutate"] or unresolved or totals_differ:
+            errors.append(
+                f"{target_date}: ainda há divergências após a conciliação "
+                f"(receitas {movements['actual_income_cents']}/{movements['expected_income_cents']} "
+                f"centavos; despesas {movements['actual_expense_cents']}/"
+                f"{movements['expected_expense_cents']} centavos; itens pendentes={unresolved})."
+            )
+    return errors
 
-    log("🔍 Buscando referências no Advbox...")
 
-    # Get users
-    status, resp = advbox_api("GET", "/users")
-    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
-        USER_ID = resp['data'][0].get('id')
-        log(f"  ✓ USER_ID: {USER_ID}")
-    else:
-        log(f"  ❌ /users falhou: status={status}, resp={resp}")
+def main() -> int:
+    if not os.environ.get("ADVBOX_TOKEN") or not os.environ.get("ASAAS_TOKEN"):
+        raise RuntimeError("ADVBOX_TOKEN e ASAAS_TOKEN precisam estar configurados.")
 
-    # Get categories
-    status, resp = advbox_api("GET", "/categories")
-    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
-        CATEGORY_ID = resp['data'][0].get('id')
-        log(f"  ✓ CATEGORY_ID: {CATEGORY_ID}")
-    else:
-        log(f"  ❌ /categories falhou: status={status}, resp={resp}")
-
-    # Get bank accounts (debit accounts)
-    status, resp = advbox_api("GET", "/bank-accounts")
-    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
-        DEBIT_ACCOUNT_ID = resp['data'][0].get('id')
-        log(f"  ✓ DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
-    else:
-        log(f"  ❌ /bank-accounts falhou: status={status}, resp={resp}")
-
-    # Get cost centers
-    status, resp = advbox_api("GET", "/cost-centers")
-    if status == 200 and resp and 'data' in resp and len(resp['data']) > 0:
-        COST_CENTER_ID = resp['data'][0].get('id')
-        log(f"  ✓ COST_CENTER_ID: {COST_CENTER_ID}")
-    else:
-        log(f"  ❌ /cost-centers falhou: status={status}, resp={resp}")
-
-    if not all([USER_ID, CATEGORY_ID, DEBIT_ACCOUNT_ID, COST_CENTER_ID]):
-        log("⚠️  ERRO: Nem todas as referências foram encontradas!")
-        log(f"  USER_ID: {USER_ID}")
-        log(f"  CATEGORY_ID: {CATEGORY_ID}")
-        log(f"  DEBIT_ACCOUNT_ID: {DEBIT_ACCOUNT_ID}")
-        log(f"  COST_CENTER_ID: {COST_CENTER_ID}")
-        sys.exit(1)
-
-def criar_lancamento(descricao, valor, data):
-    """Create a transaction (lancamento) in Advbox"""
-    log(f"Criando: {descricao} - R$ {valor:.2f}")
-
-    payload = {
-        "amount": formatar_valor_advbox(valor),
-        "date_due": data,
-        "date_payment": data,
-        "description": descricao,
-        "entry_type": "credit",
-        "users_id": USER_ID,
-        "categories_id": CATEGORY_ID,
-        "debit_account": DEBIT_ACCOUNT_ID,
-        "cost_centers_id": COST_CENTER_ID,
-    }
-
-    status, resp = advbox_api("POST", "/transactions", payload)
-
-    if status in (200, 201):
-        log(f"  ✓ Criado com sucesso")
-        return resp.get('id') if isinstance(resp, dict) else None
-    else:
-        log(f"  ❌ Erro {status}: {resp}")
-        return None
-
-def deletar_lancamento(lancamento_id, descricao):
-    """Delete a transaction from Advbox by marking it as canceled with PUT"""
-    log(f"Deletando: {descricao} (ID: {lancamento_id})")
-
-    # Advbox doesn't support DELETE method, so we mark as canceled/removed via PUT
-    # Using status "deleted" or minimal payload to remove from accounting
-    payload = {
-        "status": "deleted",  # Mark as deleted/canceled
-    }
-
-    status, resp = advbox_api("PUT", f"/transactions/{lancamento_id}", payload)
-
-    if status in (200, 201):
-        log(f"  ✓ Cancelado com sucesso")
-        return True
-    else:
-        log(f"  ❌ Erro {status}: {resp}")
-        return False
-
-def main():
-    log("=" * 60)
-
-    # Get date from analysis data or use provided date
-    data_conciliacao = analise.get('data', '2026-09-09')
-    log(f"CRIAÇÃO DE LANÇAMENTOS FALTANTES - {data_conciliacao}")
-    log("=" * 60)
-
-    # Validate we have data to process
-    receitas = analise.get('receita_faltando', [])
-    fantasmas = analise.get('advbox_fantasmas', [])
-
-    log(f"\n📊 Dados carregados da análise:")
-    log(f"  - Receitas faltando: {len(receitas)} itens")
-    log(f"  - Fantasmas para deletar: {len(fantasmas)} itens")
-
-    if not receitas and not fantasmas:
-        log("\n⚠️  Nenhuma ação necessária - análise não encontrou discrepâncias")
-        return 0
-
-    # Fetch correct reference IDs from Advbox
-    fetch_references()
-
-    # Step 1: Create missing receitas
-    log(f"\n📝 PASSO 1: Criando receitas faltando ({len(receitas)} itens)")
-    log("-" * 60)
-
-    receitas_criadas = 0
-    for i, item in enumerate(receitas, 1):
-        asaas = item.get('asaas', {})
-        descricao = asaas.get('description', '')
-        valor = asaas.get('value', 0)
-
-        lancamento_id = criar_lancamento(descricao, valor, data_conciliacao)
-        if lancamento_id:
-            receitas_criadas += 1
-
-    log(f"\n✓ {receitas_criadas}/{len(receitas)} receitas criadas com sucesso")
-
-    # Step 2: Delete phantom entries
-    log(f"\n🗑️  PASSO 2: Deletando entradas fantasmas ({len(fantasmas)} itens)")
-    log("-" * 60)
-
-    fantasmas_deletados = 0
-    for i, item in enumerate(fantasmas, 1):
-        lancamento_id = item.get('id')
-        descricao = item.get('description', '')
-
-        if lancamento_id:
-            if deletar_lancamento(lancamento_id, descricao):
-                fantasmas_deletados += 1
-
-    log(f"\n✓ {fantasmas_deletados}/{len(fantasmas)} entradas fantasmas deletadas")
-
-    # Summary
-    log("\n" + "=" * 60)
-    log("RESUMO DA OPERAÇÃO")
-    log("=" * 60)
-    log(f"Receitas criadas: {receitas_criadas}/{len(receitas)}")
-    log(f"Fantasmas deletados: {fantasmas_deletados}/{len(fantasmas)}")
-
-    if receitas_criadas == len(receitas) and fantasmas_deletados == len(fantasmas):
-        log("\n✅ SUCESSO! Reconciliação completada para 2026-09-09")
-        return 0
-    else:
-        log(f"\n⚠️  ATENÇÃO: Nem todas as operações foram bem-sucedidas")
+    analysis = load_analysis(ANALYSIS_FILE)
+    preflight_errors = _preflight_analysis(analysis)
+    if preflight_errors:
+        for error in preflight_errors:
+            print(f"PENDENTE: {error}")
+        print("Nenhuma alteração foi enviada ao AdvBox.")
         return 1
 
+    for day in analysis["days"]:
+        _filter_report_to_missing_movements(
+            day["report"],
+            (day.get("movements") or {}).get("asaas_faltando", []),
+        )
+
+    if any(day["report"].get("receita_faltando") for day in analysis["days"]):
+        lawsuits = advbox_get_all_lawsuits()
+        advbox_items = advbox_get_all_transactions()
+        for day in analysis["days"]:
+            report = day["report"]
+            if report.get("receita_faltando"):
+                enrich_receita_faltando_com_processo(
+                    report,
+                    lawsuits,
+                    advbox_items,
+                )
+
+    for day in analysis["days"]:
+        errors = _preflight_report(day["report"])
+        if errors:
+            for error in errors:
+                print(f"PENDENTE: {day['data']}: {error}")
+            print("Nenhuma alteração foi enviada ao AdvBox.")
+            return 1
+
+    created_or_corrected = 0
+    deleted = 0
+    operation_errors = []
+    for day in analysis["days"]:
+        result = aplicar_correcoes(day["report"])
+        created_or_corrected += len(result["aplicadas"])
+        if result["falhas"]:
+            operation_errors.append(f"{day['data']}: {len(result['falhas'])} operação(ões) falharam.")
+        if result.get("pendentes"):
+            operation_errors.append(f"{day['data']}: {len(result['pendentes'])} movimentação(ões) sem regra automática.")
+
+    if operation_errors:
+        for error in operation_errors:
+            print(f"ERRO: {error}")
+        return 1
+
+    for day in analysis["days"]:
+        count, delete_errors = _delete_phantoms(day)
+        deleted += count
+        operation_errors.extend(delete_errors)
+
+    if operation_errors:
+        for error in operation_errors:
+            print(f"ERRO: {error}")
+        return 1
+
+    if DRY_RUN:
+        print(
+            f"SIMULAÇÃO concluída: {created_or_corrected} inclusão(ões)/correção(ões) "
+            f"e {deleted} exclusão(ões) seriam enviadas ao AdvBox."
+        )
+        return 0
+
+    verification_errors = _verify(analysis)
+    if verification_errors:
+        for error in verification_errors:
+            print(f"DIVERGÊNCIA: {error}")
+        return 1
+
+    print(
+        f"Conciliação verificada: {created_or_corrected} inclusão(ões)/correção(ões) "
+        f"e {deleted} exclusão(ões) no AdvBox."
+    )
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (RuntimeError, ValueError, OSError, json.JSONDecodeError) as exc:
+        print(f"ERRO: {exc}", file=sys.stderr)
+        sys.exit(1)

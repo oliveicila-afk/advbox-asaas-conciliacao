@@ -67,6 +67,24 @@ A conciliação roda automaticamente todo dia às 05:00 UTC (01:00 em Manaus). V
    - **DRY_RUN:** true (primeiro!) ou false
 4. O PDF fica disponível em **Artifacts** por 30 dias
 
+Para a retroconciliação por intervalo:
+
+1. Abra **Actions** → **Criar Lançamentos Faltantes** → **Run workflow**.
+2. Informe as datas inicial e final.
+3. Mantenha **dry_run** ativado na primeira execução para revisar o plano.
+4. Só desative **dry_run** depois de conferir a simulação; a execução real cria/corrige e cancela lançamentos no AdvBox.
+
+Esse workflow busca os dados novamente para cada intervalo e não usa os arquivos `analise_*.json`
+versionados no repositório. O matching considera data, direção e valor em centavos, preserva
+duplicidades e deixa a execução bloqueada quando há tipos sem regra, categorias inexistentes ou
+excesso em categoria consolidada. Receitas só são criadas quando as regras existentes identificam
+processo, categoria e centro de custo; não há categoria padrão de fallback. Taxas bancárias por
+cliente sem correspondência inequívoca continuam manuais, conforme a regra já existente.
+
+Se o workflow registrar `401 Unauthenticated`, confira/atualize os secrets `ADVBOX_TOKEN` e
+`ASAAS_TOKEN` em **Settings** → **Secrets and variables** → **Actions**. A simulação e a análise
+não corrigem credenciais inválidas.
+
 ## 📊 Fluxo de Classificação
 
 ```

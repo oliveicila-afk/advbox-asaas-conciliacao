@@ -11,6 +11,11 @@ on:
         description: 'Data final (YYYY-MM-DD)'
         required: false
         default: '2026-09-10'
+      dry_run:
+        description: 'Simular sem alterar lançamentos no AdvBox'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   create-lancamentos:
@@ -31,14 +36,22 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
           TIMEZONE: America/Manaus
-        run: python3 analise_por_data_valor.py 2>&1 | tee analise_log.txt
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          ANALYSIS_FILE: analysis_report.json
+        run: |
+          set -euo pipefail
+          python3 analise_por_data_valor.py 2>&1 | tee analise_log.txt
 
       - name: Create missing transactions
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
-          START_DATE: ${{ github.event.inputs.start_date }}
-          END_DATE: ${{ github.event.inputs.end_date }}
-        run: python3 criar_lancamentos.py 2>&1 | tee lancamentos_log.txt
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ANALYSIS_FILE: analysis_report.json
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          python3 criar_lancamentos.py 2>&1 | tee lancamentos_log.txt
 
       - name: Upload logs on failure
         if: failure()

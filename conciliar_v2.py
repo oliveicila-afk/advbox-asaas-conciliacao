@@ -49,15 +49,14 @@ DRY_RUN = os.environ.get("DRY_RUN", "false").strip().lower() == "true"
 ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
 ASAAS_BASE = "https://api.asaas.com/v3"
 
-COST_CENTER_DESPESAS_FINANCEIRAS_GERAL = 60814
+CENTRO_CUSTO_DESPESAS_FINANCEIRAS_GERAL = "DESPESAS FINANCEIRAS GERAL"
 DEBIT_ACCOUNT_ASAAS = 193264
 USERS_ID_PRISCILA = 65747
-CATEGORIES_ID_TAXAS_BANCARIAS = 51
 
 TAXAS_DIARIAS_CONSOLIDADAS = {
-    "INSTANT_TEXT_MESSAGE_FEE": {"categories_id": 70703, "nome": "TAXA DE COMUNICAÇÃO"},
-    "RECEIVABLE_ANTICIPATION_FEE": {"categories_id": 94787, "nome": "TAXA DE ANTECIPAÇÃO"},
-    "INVOICE_FEE": {"categories_id": 70704, "nome": "TAXA DE EMISSÃO DE NF"},
+    "INSTANT_TEXT_MESSAGE_FEE": {"nome": "TAXA DE COMUNICAÇÃO"},
+    "RECEIVABLE_ANTICIPATION_FEE": {"nome": "TAXA DE ANTECIPAÇÃO"},
+    "INVOICE_FEE": {"nome": "TAXA DE EMISSÃO DE NF"},
 }
 
 TIPOS_RECEITA = {"PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"}
@@ -336,7 +335,10 @@ def advbox_get_all_transactions(limite_paginas: int = 50) -> list[dict]:
         offset += limite
         time.sleep(0.4)
     else:
-        log(f"AVISO: atingiu o limite de {limite_paginas} páginas — pode haver mais registros não lidos.")
+        raise RuntimeError(
+            f"AdvBox /transactions atingiu o limite de {limite_paginas} páginas; "
+            "conciliação cancelada porque a leitura pode estar incompleta."
+        )
 
     do_banco_asaas = [
         item for item in todos
@@ -350,7 +352,7 @@ def advbox_put(transaction_id, payload: dict) -> bool:
     url = f"{ADVBOX_BASE}/transactions/{transaction_id}"
     headers = {"Authorization": f"Bearer {ADVBOX_TOKEN}", "User-Agent": ADVBOX_USER_AGENT, "Accept": "application/json"}
     if DRY_RUN:
-        log(f"[DRY RUN] PUT {url} <- {payload}")
+        log(f"[DRY RUN] PUT /transactions/{transaction_id}")
         return True
     try:
         resp = requests.put(url, headers=headers, json=payload, timeout=30)
@@ -367,7 +369,7 @@ def advbox_post(payload: dict) -> dict | None:
     url = f"{ADVBOX_BASE}/transactions"
     headers = {"Authorization": f"Bearer {ADVBOX_TOKEN}", "User-Agent": ADVBOX_USER_AGENT, "Accept": "application/json"}
     if DRY_RUN:
-        log(f"[DRY RUN] POST {url} <- {payload}")
+        log("[DRY RUN] POST /transactions (payload ocultado)")
         return {"id": "DRY_RUN", "simulado": True}
     try:
         resp = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -572,11 +574,7 @@ def advbox_get_tasks_do_processo(processo_id: str) -> list[dict]:
 
 @lru_cache(maxsize=1)
 def advbox_get_settings() -> dict:
-    try:
-        return advbox_get("/settings") or {}
-    except RuntimeError as exc:
-        log(f"Não consegui buscar /settings do Advbox: {exc}")
-        return {}
+    return advbox_get("/settings") or {}
 
 
 @lru_cache(maxsize=1)
@@ -609,7 +607,14 @@ def resolver_categoria_id(valor):
         return None
     if isinstance(valor, int):
         return valor
-    return _mapa_categorias().get(str(valor).strip().upper())
+    nome = unicodedata.normalize("NFKD", str(valor).strip().upper())
+    nome = "".join(caractere for caractere in nome if not unicodedata.combining(caractere))
+    for categoria, categoria_id in _mapa_categorias().items():
+        candidata = unicodedata.normalize("NFKD", categoria)
+        candidata = "".join(caractere for caractere in candidata if not unicodedata.combining(caractere))
+        if candidata == nome:
+            return categoria_id
+    return None
 
 
 def resolver_centro_custo_id(valor):
@@ -618,7 +623,14 @@ def resolver_centro_custo_id(valor):
         return None
     if isinstance(valor, int):
         return valor
-    return _mapa_centros_custo().get(str(valor).strip().upper())
+    nome = unicodedata.normalize("NFKD", str(valor).strip().upper())
+    nome = "".join(caractere for caractere in nome if not unicodedata.combining(caractere))
+    for centro, centro_id in _mapa_centros_custo().items():
+        candidato = unicodedata.normalize("NFKD", centro)
+        candidato = "".join(caractere for caractere in candidato if not unicodedata.combining(caractere))
+        if candidato == nome:
+            return centro_id
+    return None
 
 
 @lru_cache(maxsize=1)
@@ -1099,12 +1111,11 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
         total_advbox = sum(
             float(i.get("amount", 0) or 0)
             for i in advbox_itens
-            if (i.get("category") or "").strip().upper() == meta["nome"].strip().upper()
+            if normalizar_nome(i.get("category") or "") == normalizar_nome(meta["nome"])
             and i.get("date_payment") == data_alvo
         )
         taxas_diarias_info[tipo_asaas] = {
             "nome": meta["nome"],
-            "categories_id": meta["categories_id"],
             "total_asaas": total_asaas,
             "total_advbox": total_advbox,
             "faltando": round(total_asaas - total_advbox, 2),
@@ -1151,6 +1162,7 @@ def montar_relatorio(data_alvo: str, advbox_itens: list[dict], asaas_itens: list
 def aplicar_correcoes(relatorio: dict) -> dict:
     aplicadas = []
     falhas = []
+    pendentes = []
 
     pares_data_errada = [
         (par, "receita") for par in relatorio["receita_data_errada"]
@@ -1172,12 +1184,25 @@ def aplicar_correcoes(relatorio: dict) -> dict:
 
     for tipo_asaas, info in relatorio["taxas_diarias_info"].items():
         if info["faltando"] > 0.01:
+            categoria_id = resolver_categoria_id(info["nome"])
+            centro_custo_id = resolver_centro_custo_id(CENTRO_CUSTO_DESPESAS_FINANCEIRAS_GERAL)
+            if not categoria_id or not centro_custo_id:
+                falhas.append({
+                    "tipo": "categoria/centro de custo não encontrado",
+                    "descricao": f"{info['nome']} / {CENTRO_CUSTO_DESPESAS_FINANCEIRAS_GERAL}",
+                    "id": None,
+                })
+                log(
+                    f"Não criei {info['nome']}: categoria ou centro de custo "
+                    "não encontrado em /settings."
+                )
+                continue
             payload = {
                 "users_id": USERS_ID_PRISCILA,
                 "entry_type": "expense",
                 "debit_account": DEBIT_ACCOUNT_ASAAS,
-                "categories_id": info["categories_id"],
-                "cost_centers_id": COST_CENTER_DESPESAS_FINANCEIRAS_GERAL,
+                "categories_id": categoria_id,
+                "cost_centers_id": centro_custo_id,
                 "amount": formatar_valor_advbox(info["faltando"]),
                 "date_due": relatorio["data"],
                 "date_payment": relatorio["data"],
@@ -1198,6 +1223,10 @@ def aplicar_correcoes(relatorio: dict) -> dict:
     for receita in relatorio.get("receita_faltando", []):
         enr = receita.get("_processo_identificado")
         if not enr:
+            pendentes.append({
+                "tipo": "receita sem processo identificado",
+                "id": receita.get("id"),
+            })
             continue
 
         valor = float(receita.get("value", 0))
@@ -1236,12 +1265,20 @@ def aplicar_correcoes(relatorio: dict) -> dict:
 
         # Trava: precisa de categoria E centro de custo. Senão, fica pra manual.
         if not (categoria_id and centro_custo_id):
+            pendentes.append({
+                "tipo": "receita sem categoria/centro de custo",
+                "id": receita.get("id"),
+            })
             continue
 
         # Trava de valor (as "2 checagens"): se o protocolo informa o valor
         # creditado e ele não bate com o que caiu, não arrisca -> manual.
         creditado = protocolo.get("valor_creditado")
         if creditado is not None and abs(creditado - valor) > 0.02:
+            pendentes.append({
+                "tipo": "valor do protocolo diferente do crédito",
+                "id": receita.get("id"),
+            })
             continue
 
         origem = "precedente" if confianca == "precedente" else f"protocolo/{tipo_h}"
@@ -1287,8 +1324,13 @@ def aplicar_correcoes(relatorio: dict) -> dict:
                     "descricao": f"Proc. {numero_processo} ({nome_cliente}) — R$ {repasse:.2f}",
                     "id": (r2 or {}).get("id"),
                 })
+            else:
+                pendentes.append({
+                    "tipo": "categoria de repasse não encontrada",
+                    "id": receita.get("id"),
+                })
 
-    return {"aplicadas": aplicadas, "falhas": falhas}
+    return {"aplicadas": aplicadas, "falhas": falhas, "pendentes": pendentes}
 
 
 # ===== PDF COM MASCARAMENTO E FLUXO DE CAIXA =====

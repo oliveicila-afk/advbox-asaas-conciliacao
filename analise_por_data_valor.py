@@ -1,142 +1,114 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Análise detalhada de transações por DATA e VALOR
-Para identificar as transações que faltam lançar em Advbox
-"""
+"""Gera o plano atual de conciliação diária para um intervalo de datas."""
 
+import json
 import os
 import sys
-from datetime import datetime
-from zoneinfo import ZoneInfo
-from collections import defaultdict
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    from conciliar_v2 import (
-        advbox_get_all_transactions,
-        asaas_get_financial_transactions_do_dia,
+from conciliar_v2 import (
+    TAXAS_DIARIAS_CONSOLIDADAS,
+    TIPOS_ESTORNO,
+    TIPOS_IGNORAR_INFORMATIVO,
+    TIPOS_RECEITA,
+    TIPO_TAXA_BANCARIA_CLIENTE,
+    advbox_get_all_transactions,
+    asaas_get_financial_transactions_do_dia,
+    montar_relatorio,
+)
+from period_reconciliation import date_range, plan_daily_movements
+
+
+def main() -> int:
+    if not os.environ.get("ADVBOX_TOKEN") or not os.environ.get("ASAAS_TOKEN"):
+        raise RuntimeError("ADVBOX_TOKEN e ASAAS_TOKEN precisam estar configurados.")
+
+    dates = date_range(
+        os.environ.get("START_DATE") or "2026-09-01",
+        os.environ.get("END_DATE") or "2026-09-10",
     )
-except ImportError as e:
-    print(f"Erro ao importar: {e}")
-    sys.exit(1)
+    advbox_items = advbox_get_all_transactions()
+    advbox_period = [
+        item for item in advbox_items
+        if dates[0] <= str(item.get("date_payment") or "") <= dates[-1]
+    ]
+    reports = []
 
-TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
-tz = ZoneInfo(TIMEZONE)
+    for target_date in dates:
+        asaas_items = asaas_get_financial_transactions_do_dia(target_date)
+        advbox_day = [
+            item for item in advbox_period
+            if item.get("date_payment") == target_date
+        ]
+        report = montar_relatorio(target_date, advbox_period, asaas_items)
+        reports.append({
+            "data": target_date,
+            "asaas_items": asaas_items,
+            "advbox_items": advbox_day,
+            "report": report,
+        })
 
-print("\n" + "="*120)
-print("💰 ANÁLISE DETALHADA POR DATA E VALOR: Asaas vs Advbox (01-10 Setembro)")
-print("="*120 + "\n")
+    wrong_date_ids = {
+        str(item.get("advbox", {}).get("id") or item.get("advbox", {}).get("transactions_id"))
+        for day in reports
+        for key in ("receita_data_errada", "taxa_bancaria_data_errada")
+        for item in day["report"].get(key, [])
+        if item.get("advbox", {}).get("id") or item.get("advbox", {}).get("transactions_id")
+    }
+    income_types = set(TIPOS_RECEITA)
+    expense_types = set(TIPOS_ESTORNO) | {TIPO_TAXA_BANCARIA_CLIENTE}
+    daily_fee_types = {
+        transaction_type: metadata["nome"]
+        for transaction_type, metadata in TAXAS_DIARIAS_CONSOLIDADAS.items()
+    }
+    ignored_types = set(TIPOS_IGNORAR_INFORMATIVO)
 
-# ===== CARREGAR DADOS =====
-print("📥 Carregando dados do Advbox...", end="", flush=True)
-try:
-    advbox_txs = advbox_get_all_transactions()
-    print(" ✓\n")
-except Exception as e:
-    print(f" ❌ ERRO: {e}")
-    sys.exit(1)
+    for day in reports:
+        plan = plan_daily_movements(
+            day["asaas_items"],
+            day["advbox_items"],
+            day["data"],
+            income_types=income_types,
+            expense_types=expense_types,
+            ignored_types=ignored_types,
+            consolidated_expense_categories=daily_fee_types,
+            excluded_advbox_ids=wrong_date_ids,
+        )
+        day["movements"] = plan
+        print(
+            f"{day['data']}: receitas Asaas={plan['expected_income_cents'] / 100:.2f}, "
+            f"AdvBox={plan['actual_income_cents'] / 100:.2f}; despesas "
+            f"Asaas={plan['expected_expense_cents'] / 100:.2f}, "
+            f"AdvBox={plan['actual_expense_cents'] / 100:.2f}; "
+            f"faltantes={len(plan['asaas_faltando'])}, "
+            f"extras={len(plan['advbox_fantasmas'])}, "
+            f"seguro={plan['safe_to_mutate']}"
+        )
 
-# Agrupar Advbox por DATA
-advbox_por_data = defaultdict(list)
-print("📥 Agrupando dados do Advbox (01-10 setembro)...\n")
-for tx in advbox_txs:
-    data_payment = tx.get("date_payment")
-    if data_payment and data_payment.startswith("2026-09"):
-        dia = int(data_payment[8:10])
-        if dia <= 10:
-            if tx.get("entry_type") == "income":
-                valor = float(tx.get("amount", 0) or 0)
-                if valor > 0:
-                    advbox_por_data[dia].append({
-                        "data": data_payment,
-                        "valor": valor,
-                        "descricao": tx.get("description", ""),
-                        "categoria": tx.get("category", ""),
-                    })
+    output_path = Path(os.environ.get("ANALYSIS_FILE", "analysis_report.json"))
+    output_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "start_date": dates[0],
+                "end_date": dates[-1],
+                "days": reports,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    print(f"Plano de conciliação gravado em {output_path}")
+    return 0
 
-# ===== ASAAS POR DATA =====
-print("📥 Carregando dados do Asaas (01-10 de setembro)...\n")
 
-asaas_por_data = defaultdict(list)
-asaas_todos = {}  # Para armazenar todos os dados
-
-for dia in range(1, 11):
-    data = datetime(2026, 9, dia, tzinfo=tz).date()
-    data_str = data.isoformat()
-
+if __name__ == "__main__":
     try:
-        items = asaas_get_financial_transactions_do_dia(data_str)
-
-        for item in items:
-            valor = float(item.get("value", 0) or 0)
-            if valor > 0:  # Apenas receitas
-                asaas_por_data[dia].append({
-                    "data": data_str,
-                    "valor": valor,
-                    "descricao": item.get("description", ""),
-                    "id": item.get("id", ""),
-                    "tipo": item.get("type", ""),
-                })
-
-    except Exception as e:
-        print(f"⚠️  Erro ao buscar {data_str}: {e}")
-
-# ===== ANÁLISE POR DIA =====
-print("\n" + "="*120)
-print("📊 ANÁLISE POR DIA")
-print("="*120 + "\n")
-
-divergencias_por_dia = {}
-
-for dia in range(1, 11):
-    asaas_txs = asaas_por_data[dia]
-    advbox_txs = advbox_por_data[dia]
-
-    total_asaas = sum(tx["valor"] for tx in asaas_txs)
-    total_advbox = sum(tx["valor"] for tx in advbox_txs)
-    divergencia = total_asaas - total_advbox
-
-    print(f"📅 **09/{dia:02d}**")
-    print(f"   Asaas:   R$ {total_asaas:>10.2f} ({len(asaas_txs):>2} transações)")
-    print(f"   Advbox:  R$ {total_advbox:>10.2f} ({len(advbox_txs):>2} transações)")
-
-    if divergencia > 0.01:
-        print(f"   ❌ Divergência: R$ {divergencia:.2f} (falta em Advbox)")
-        divergencias_por_dia[dia] = divergencia
-
-        # Mostrar detalhes
-        print(f"\n   📋 Detalhes do Asaas:")
-        for tx in sorted(asaas_txs, key=lambda x: x["valor"], reverse=True):
-            print(f"      • R$ {tx['valor']:>10.2f} | {tx['descricao'][:70]}")
-
-        print(f"\n   📋 Detalhes do Advbox:")
-        for tx in sorted(advbox_txs, key=lambda x: x["valor"], reverse=True):
-            print(f"      • R$ {tx['valor']:>10.2f} | {tx['descricao'][:70]}")
-    elif abs(divergencia) < 0.01:
-        print(f"   ✅ Balanceado")
-    else:
-        print(f"   🟡 Advbox tem mais: R$ {abs(divergencia):.2f}")
-
-    print()
-
-# ===== TOTAIS =====
-print("\n" + "="*120)
-print("📈 RESUMO GERAL")
-print("="*120 + "\n")
-
-total_asaas_geral = sum(sum(tx["valor"] for tx in asaas_por_data[d]) for d in range(1, 11))
-total_advbox_geral = sum(sum(tx["valor"] for tx in advbox_por_data[d]) for d in range(1, 11))
-divergencia_geral = total_asaas_geral - total_advbox_geral
-
-print(f"Asaas Total:          R$ {total_asaas_geral:>12.2f}")
-print(f"Advbox Total:         R$ {total_advbox_geral:>12.2f}")
-print(f"Divergência Total:    R$ {divergencia_geral:>12.2f}\n")
-
-if divergencias_por_dia:
-    print("Dias com divergência (falta em Advbox):")
-    for dia in sorted(divergencias_por_dia.keys()):
-        print(f"  • 09/{dia:02d}: R$ {divergencias_por_dia[dia]:>10.2f}")
-
-print("\n" + "="*120 + "\n")
+        sys.exit(main())
+    except (RuntimeError, ValueError, OSError) as exc:
+        print(f"ERRO: {exc}", file=sys.stderr)
+        sys.exit(1)
