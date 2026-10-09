@@ -91,16 +91,31 @@ def criar_lancamento(descricao: str, valor: float, data: str, category_id: int =
     Criar lançamento em Advbox na conta ASAAS
 
     OBRIGATÓRIO: debit_account = ASAAS_ACCOUNT_ID
+
+    Tratamento de estornos/chargebacks (valores negativos):
+    - Valores positivos: entry_type="credit" (receitas)
+    - Valores negativos: entry_type="debit" com valor positivo (estornos/devoluções)
     """
     log(f"  → Criando: {descricao[:60]} | R$ {valor:.2f} | {data}")
 
     cat_id = category_id if category_id else CATEGORY_ID
+
+    # Determine entry_type based on amount sign
+    # Positive amounts (revenues) use "credit"
+    # Negative amounts (chargebacks/estornos) use "debit" with positive amount
+    if valor < 0:
+        entry_type = "debit"
+        amount_value = abs(valor)  # Convert to positive
+    else:
+        entry_type = "credit"
+        amount_value = valor
+
     payload = {
-        "amount": formatar_valor_advbox(valor),
+        "amount": formatar_valor_advbox(amount_value),
         "date_due": data,
         "date_payment": data,
         "description": descricao,
-        "entry_type": "credit",  # Sempre "credit" - Advbox usa sinal do amount para devoluções
+        "entry_type": entry_type,  # "credit" para receitas, "debit" para estornos
         "users_id": USER_ID,
         "categories_id": cat_id,
         "debit_account": ASAAS_ACCOUNT_ID,  # ⚠️ OBRIGATÓRIO
@@ -110,7 +125,7 @@ def criar_lancamento(descricao: str, valor: float, data: str, category_id: int =
     status, resp = advbox_api("POST", "/transactions", payload)
 
     if status in (200, 201):
-        log(f"    ✅ Criado com sucesso (category_id={cat_id})")
+        log(f"    ✅ Criado com sucesso (type={entry_type}, category_id={cat_id})")
         return True
     else:
         # Extract error message if available
