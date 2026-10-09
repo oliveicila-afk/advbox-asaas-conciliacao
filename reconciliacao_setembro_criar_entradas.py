@@ -90,11 +90,11 @@ def criar_lancamento(descricao: str, valor: float, data: str) -> bool:
     log(f"  → Criando: {descricao[:60]} | R$ {valor:.2f} | {data}")
 
     payload = {
-        "amount": formatar_valor_advbox(abs(valor)),
+        "amount": formatar_valor_advbox(valor),
         "date_due": data,
         "date_payment": data,
         "description": descricao,
-        "entry_type": "income" if valor > 0 else "expense",  # Suporta valores negativos
+        "entry_type": "credit",  # Sempre "credit" - Advbox usa sinal do amount para devoluções
         "users_id": USER_ID,
         "categories_id": CATEGORY_ID,
         "debit_account": ASAAS_ACCOUNT_ID,  # ⚠️ OBRIGATÓRIO
