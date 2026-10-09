@@ -20,8 +20,20 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
         run: |
           mkdir -p output
+
+          # Validate token is set
+          if [ -z "$ADVBOX_TOKEN" ]; then
+            echo "❌ ADVBOX_TOKEN não está definido no workflow"
+            exit 1
+          fi
+
+          echo "✓ Token recebido no workflow: ${#ADVBOX_TOKEN} caracteres"
+          export ADVBOX_TOKEN="$ADVBOX_TOKEN"
+
           python3 -m pip install requests --quiet 2>/dev/null || true
           python3 debug_transacoes.py 2>&1 | tee output/debug_output.txt
+
+          echo ""
           echo "=== Files in output directory ==="
           ls -lh output/ || echo "No files in output"
 

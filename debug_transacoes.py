@@ -11,7 +11,7 @@ import requests
 import json
 
 ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
-ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "")
+ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
 ASAAS_ACCOUNT_ID = 193264
 
 if not ADVBOX_TOKEN:
@@ -19,13 +19,23 @@ if not ADVBOX_TOKEN:
     print("Use: ADVBOX_TOKEN='seu_token' python3 debug_transacoes.py")
     sys.exit(1)
 
+# Debug: validar token
+print("=" * 80)
+print("DEBUG: Validação de Token")
+print("=" * 80)
+print(f"✓ Token recebido: {len(ADVBOX_TOKEN)} caracteres")
+print(f"✓ Primeiros 15 chars: {ADVBOX_TOKEN[:15]}...")
+print(f"✓ Últimos 15 chars: ...{ADVBOX_TOKEN[-15:]}")
+print(f"✓ Contém espaços? {'Sim' if ' ' in ADVBOX_TOKEN else 'Não'}")
+print(f"✓ Contém quebras de linha? {'Sim' if chr(10) in ADVBOX_TOKEN else 'Não'}")
+
 headers = {
     "Authorization": f"Bearer {ADVBOX_TOKEN}",
     "Accept": "application/json",
     "Content-Type": "application/json"
 }
 
-print("=" * 80)
+print("\n" + "=" * 80)
 print("DEBUG: Verificando transações em Advbox")
 print("=" * 80)
 
