@@ -28,19 +28,31 @@ print("=" * 80)
 # Try both endpoints to get transactions
 print("\n1. Buscando transações...")
 transactions = []
+api_errors = []
 for endpoint in ["/transactions", f"/accounts/193264/transactions"]:
     try:
+        print(f"   Tentando {endpoint}...")
         resp = requests.get(f"{ADVBOX_BASE}{endpoint}", headers=headers, params={"limit": 1000}, timeout=30)
+        print(f"   Status: {resp.status_code}")
         if resp.status_code == 200:
             data = resp.json()
             transactions = data.get("data", []) if isinstance(data, dict) else data
             print(f"   ✅ Endpoint {endpoint} funcionou ({len(transactions)} transações)")
             break
-    except:
-        pass
+        else:
+            api_errors.append(f"{endpoint}: {resp.status_code} - {resp.text[:100]}")
+    except Exception as e:
+        api_errors.append(f"{endpoint}: {str(e)}")
 
 if not transactions:
     print("   ❌ Nenhuma transação encontrada")
+    if api_errors:
+        print("\n   Erros da API:")
+        for error in api_errors:
+            print(f"   - {error}")
+    print("\n   Verifique:")
+    print(f"   - Token disponível: {bool(ADVBOX_TOKEN)}")
+    print(f"   - Conectividade com Advbox")
     sys.exit(1)
 
 # Filter for September chargebacks with specific amounts
