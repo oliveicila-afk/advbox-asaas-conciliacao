@@ -42,14 +42,20 @@ jobs:
           print(f"✓ Token recebido: {len(ASAAS_TOKEN)} caracteres")
 
           try:
+              # Asaas API expects access_token in headers, not query parameters
+              headers = {
+                  "access_token": ASAAS_TOKEN
+              }
+              params = {
+                  "startDate": "2026-09-01",
+                  "finishDate": "2026-09-10",
+                  "limit": 100
+              }
+
               r = requests.get(
                   f"{ASAAS_BASE}/financialTransactions",
-                  params={
-                      "access_token": ASAAS_TOKEN,
-                      "startDate": "2026-09-01",
-                      "finishDate": "2026-09-10",
-                      "limit": 100
-                  },
+                  headers=headers,
+                  params=params,
                   timeout=30
               )
               print(f"\nStatus: {r.status_code}")
