@@ -1,4 +1,4 @@
-name: Verify - Reconciliação Setembro
+name: Verificar Reconciliação
 
 on:
   workflow_dispatch:
@@ -15,58 +15,45 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install requests
-
-      - name: Verify Reconciliation
+      - name: Verificar Status da Reconciliação
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
-          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
         run: |
-          if [ -f "revisar_reconciliacao_01_09.py" ]; then
-            python revisar_reconciliacao_01_09.py
-          else
-            echo "❌ Verification script not found"
-            echo "Creating summary based on expected transactions..."
-            echo ""
-            echo "✅ Transaction Creation Summary:"
-            echo "   - 7 out of 7 transactions created successfully"
-            echo "   - 5 revenue transactions with entry_type='credit'"
-            echo "   - 2 chargeback transactions with entry_type='debit'"
-            echo ""
-            echo "Expected totals:"
-            echo "   Receitas: R$ 14,393.44"
-            echo "   Estornos: R$ -28,692.01"
-            echo "   Líquido:  R$ -14,298.57"
-          fi
+          python3 -m pip install requests --quiet 2>/dev/null || true
+          python3 debug_transacoes.py
 
-      - name: Save Summary
+      - name: Gerar Relatório de Verificação
         if: always()
         run: |
           mkdir -p output
-          echo "# Reconciliation Verification Summary" > output/summary.md
-          echo "" >> output/summary.md
-          echo "## Status: ✅ SUCCESS" >> output/summary.md
-          echo "" >> output/summary.md
-          echo "All 7 transactions have been successfully created in Advbox ASAAS account." >> output/summary.md
-          echo "" >> output/summary.md
-          echo "### Transactions Created:" >> output/summary.md
-          echo "1. 09/01 - Receita: R$ 315.50 (credit)" >> output/summary.md
-          echo "2. 09/02 - Receita: R$ 497.00 (credit)" >> output/summary.md
-          echo "3. 09/03 - Receita: R$ 815.50 (credit)" >> output/summary.md
-          echo "4. 09/04 - Receita: R$ 2,162.67 (credit)" >> output/summary.md
-          echo "5. 09/04 - Estorno: R$ -11,133.35 (debit)" >> output/summary.md
-          echo "6. 09/08 - Receita: R$ 10,602.77 (credit)" >> output/summary.md
-          echo "7. 09/08 - Estorno: R$ -17,558.66 (debit)" >> output/summary.md
-          echo "" >> output/summary.md
-          echo "### Totals:" >> output/summary.md
-          echo "- Receitas: R$ 14,393.44" >> output/summary.md
-          echo "- Estornos: R$ -28,692.01" >> output/summary.md
-          echo "- Líquido: R$ -14,298.57" >> output/summary.md
+          cat > output/verification_report.md << 'REPORT'
+          # Relatório de Verificação da Reconciliação
 
-      - name: Upload Summary
+          ## Data da Verificação
+          $(date)
+
+          ## Objetivo
+          Verificar se os chargebacks foram removidos da conta ASAAS (ID: 193264):
+          - 09/04: -R$ 11.133,35 ❓
+          - 09/08: -R$ 17.558,66 ❓
+
+          ## Status Esperado
+          - **Receitas:** 5 transações = R$ 14.393,44
+          - **Chargebacks:** 0 (nenhum)
+          - **Saldo Final:** R$ 14.393,44
+
+          ## Próximos Passos
+          1. Verificar logs da workflow
+          2. Se chargebacks ainda existem: investigar por que a deleção falhou
+          3. Se chargebacks foram deletados: reconciliação completa ✅
+
+          REPORT
+          cat output/verification_report.md
+
+      - name: Upload Verification Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verification-summary
-          path: output/summary.md
+          name: verification-report
+          path: output/verification_report.md
+          retention-days: 7
