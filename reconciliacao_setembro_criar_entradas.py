@@ -41,7 +41,7 @@ ADVBOX_USER_AGENT = (
 
 # Fixed reference IDs from working previous configurations
 USER_ID = 65747  # Priscila
-CATEGORY_ID = 70703  # Categoria padrão
+CATEGORY_ID = 1  # Categoria padrão (70703 não existe - usando 1, validado em teste)
 ASAAS_ACCOUNT_ID = 193264  # CONTA ASAAS (OBRIGATÓRIA)
 COST_CENTER_ID = 60814  # Centro de custo padrão
 
