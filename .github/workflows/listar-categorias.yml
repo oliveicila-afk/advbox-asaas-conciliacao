@@ -21,4 +21,12 @@ jobs:
       - name: List Categorias
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
-        run: python listar_categorias.py
+        run: |
+          echo "ADVBOX_TOKEN length: ${#ADVBOX_TOKEN}"
+          python listar_categorias.py
+        continue-on-error: false
+
+      - name: Upload output if failed
+        if: failure()
+        run: |
+          echo "Workflow failed - ADVBOX_TOKEN may not be configured"
