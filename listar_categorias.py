@@ -32,6 +32,10 @@ headers = {
 
 def main():
     try:
+        print(f"Token length: {len(ADVBOX_TOKEN)}")
+        print(f"Token (first 10 chars): {ADVBOX_TOKEN[:10]}...")
+        print(f"Headers: Authorization={headers['Authorization'][:20]}...")
+
         resp = requests.get(
             f"{ADVBOX_BASE}/categories",
             headers=headers,
@@ -46,21 +50,28 @@ def main():
 
             if categories:
                 print(f"✅ Encontradas {len(categories)} categorias:\n")
-                for cat in categories[:20]:  # Show first 20
+                for cat in categories[:30]:  # Show first 30
                     cat_id = cat.get("id")
                     name = cat.get("name", "(sem nome)")
                     print(f"  ID: {cat_id:>6} | Nome: {name}")
+
+                # Save to file for easy reference
+                print("\n📁 Salvando categorias em categorias_list.json...")
+                import json
+                with open("categorias_list.json", "w") as f:
+                    json.dump(categories, f, indent=2, ensure_ascii=False)
+                print("✅ Salvo em categorias_list.json")
             else:
                 print("❌ Nenhuma categoria encontrada")
                 print(f"Response: {data}")
         else:
             print(f"⚠️  Erro {resp.status_code}")
+            print(f"Full response text:\n{resp.text}")
             try:
-                print("Response JSON:")
+                print("\nResponse JSON:")
                 print(resp.json())
             except:
-                print("Response text:")
-                print(resp.text[:1000])
+                pass
 
     except Exception as e:
         print(f"❌ Exception: {e}")
