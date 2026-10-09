@@ -21,36 +21,39 @@ jobs:
         run: |
           mkdir -p output
           python3 -m pip install requests --quiet 2>/dev/null || true
-          python3 debug_transacoes.py > output/debug_output.txt 2>&1
-          cat output/debug_output.txt
+          python3 debug_transacoes.py 2>&1 | tee output/debug_output.txt
+          echo "=== Files in output directory ==="
+          ls -lh output/ || echo "No files in output"
 
       - name: Gerar Relatório de Verificação
         if: always()
         run: |
-          mkdir -p output
-          cat > output/verification_report.md << 'REPORT'
-          # Relatório de Verificação da Reconciliação
-
-          ## Data da Verificação
-          $(date)
-
-          ## Objetivo
-          Verificar se os chargebacks foram removidos da conta ASAAS (ID: 193264):
-          - 09/04: -R$ 11.133,35 ❓
-          - 09/08: -R$ 17.558,66 ❓
-
-          ## Status Esperado
-          - **Receitas:** 5 transações = R$ 14.393,44
-          - **Chargebacks:** 0 (nenhum)
-          - **Saldo Final:** R$ 14.393,44
-
-          ## Próximos Passos
-          1. Verificar logs da workflow
-          2. Se chargebacks ainda existem: investigar por que a deleção falhou
-          3. Se chargebacks foram deletados: reconciliação completa ✅
-
-          REPORT
-          cat output/verification_report.md
+          {
+            echo "# Relatório de Verificação da Reconciliação"
+            echo ""
+            echo "## Data da Verificação"
+            date
+            echo ""
+            echo "## Objetivo"
+            echo "Verificar se os chargebacks foram removidos da conta ASAAS (ID: 193264):"
+            echo "- 09/04: -R\$ 11.133,35 ❓"
+            echo "- 09/08: -R\$ 17.558,66 ❓"
+            echo ""
+            echo "## Resultado da Verificação"
+            if [ -f output/debug_output.txt ]; then
+              echo "### Debug Output"
+              echo '```'
+              cat output/debug_output.txt
+              echo '```'
+            else
+              echo "⚠️ Debug output file not found"
+            fi
+            echo ""
+            echo "## Status Esperado"
+            echo "- **Receitas:** 5 transações = R\$ 14.393,44"
+            echo "- **Chargebacks:** 0 (nenhum)"
+            echo "- **Saldo Final:** R\$ 14.393,44"
+          } | tee output/verification_report.md
 
       - name: Upload Verification Report
         if: always()
