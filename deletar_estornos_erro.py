@@ -33,7 +33,7 @@ def log(msg):
     ts = datetime.now().strftime("%H:%M:%S")
     print(f"[{ts}] {msg}")
 
-def advbox_api(method: str, path: str, data: Optional[Dict] = None) -> tuple:
+def advbox_api(method: str, path: str, params: Optional[Dict] = None, data: Optional[Dict] = None) -> tuple:
     """Make API call to Advbox"""
     headers = {
         "Authorization": f"Bearer {ADVBOX_TOKEN}",
@@ -45,7 +45,7 @@ def advbox_api(method: str, path: str, data: Optional[Dict] = None) -> tuple:
 
     try:
         if method == "GET":
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = requests.get(url, headers=headers, params=params or {}, timeout=30)
         elif method == "DELETE":
             resp = requests.delete(url, headers=headers, timeout=30)
         else:
@@ -64,11 +64,28 @@ def listar_transacoes_setembro() -> List[Dict]:
     """List all transactions from ASAAS account for September 2026"""
     log("📋 Buscando transações de setembro na conta ASAAS (ID: 193264)...")
 
-    status, resp = advbox_api("GET", f"/accounts/{ASAAS_ACCOUNT_ID}/transactions?date_range=2026-09-01,2026-09-30")
+    # Fetch all transactions with pagination
+    status, resp = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
 
     if status == 200:
-        transactions = resp.get("data", []) if isinstance(resp, dict) else []
-        log(f"   ✅ Encontradas {len(transactions)} transações em setembro\n")
+        # Handle response format
+        if isinstance(resp, dict):
+            all_transactions = resp.get("data", []) if resp.get("data") else resp
+        else:
+            all_transactions = resp if isinstance(resp, list) else []
+
+        # Filter transactions for ASAAS account and September 2026
+        transactions = []
+        for t in all_transactions:
+            # Check if this transaction is for the ASAAS account
+            debit_account = t.get("debit_account_id")
+            if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID):
+                # Check if date is in September 2026
+                date_str = t.get("date_due") or t.get("created_at") or ""
+                if date_str.startswith("2026-09"):
+                    transactions.append(t)
+
+        log(f"   ✅ Encontradas {len(transactions)} transações para conta ASAAS em setembro\n")
         return transactions
     else:
         log(f"   ❌ Erro ao listar transações: {status}")

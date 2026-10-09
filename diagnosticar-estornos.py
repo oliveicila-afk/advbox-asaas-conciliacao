@@ -22,7 +22,7 @@ def log(msg):
     ts = datetime.now().strftime("%H:%M:%S")
     print(f"[{ts}] {msg}")
 
-def advbox_api(method, path, data=None):
+def advbox_api(method, path, params=None, data=None):
     headers = {
         "Authorization": f"Bearer {ADVBOX_TOKEN}",
         "User-Agent": ADVBOX_USER_AGENT,
@@ -33,7 +33,7 @@ def advbox_api(method, path, data=None):
 
     try:
         if method == "GET":
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = requests.get(url, headers=headers, params=params or {}, timeout=30)
         elif method == "DELETE":
             resp = requests.delete(url, headers=headers, timeout=30)
         else:
@@ -61,21 +61,39 @@ def main():
     log(f"Conta ASAAS ID: {ASAAS_ACCOUNT_ID}")
     log("")
 
-    status, resp = advbox_api("GET", f"/accounts/{ASAAS_ACCOUNT_ID}/transactions?date_range=2026-09-01,2026-09-30")
+    # Fetch all transactions and filter by date and account in Python
+    status, resp = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
 
     if status != 200:
         log(f"❌ Erro ao listar transações: {status}")
         log(f"   Resposta: {resp}")
         return 1
 
-    transactions = resp.get("data", []) if isinstance(resp, dict) else []
-    log(f"✅ {len(transactions)} transações encontradas\n")
+    # Handle response format
+    if isinstance(resp, dict):
+        transactions = resp.get("data", []) if resp.get("data") else resp
+    else:
+        transactions = resp if isinstance(resp, list) else []
+
+    # Filter transactions for ASAAS account and September 2026
+    from datetime import datetime
+    filtered_transactions = []
+    for t in transactions:
+        # Check if this transaction is for the ASAAS account
+        debit_account = t.get("debit_account_id")
+        if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID):
+            # Check if date is in September 2026
+            date_str = t.get("date_due") or t.get("created_at") or ""
+            if date_str.startswith("2026-09"):
+                filtered_transactions.append(t)
+
+    log(f"✅ {len(filtered_transactions)} transações para conta ASAAS em setembro encontradas\n")
 
     # Procurar estornos
     log("Procurando estornos (debit entry_type):")
     estornos = []
 
-    for i, t in enumerate(transactions, 1):
+    for i, t in enumerate(filtered_transactions, 1):
         entry_type = t.get("entry_type", "")
         description = t.get("description", "")
         amount = t.get("amount", "0")
