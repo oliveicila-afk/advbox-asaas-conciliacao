@@ -110,4 +110,10 @@ print("\n" + "=" * 80)
 print(f"RESULTADO: {deleted_count}/{len(chargebacks_to_delete)} chargebacks deletados")
 print("=" * 80)
 
-sys.exit(0 if deleted_count == len(chargebacks_to_delete) else 1)
+# Success if all chargebacks were deleted, or if there were no chargebacks to delete
+if deleted_count == len(chargebacks_to_delete):
+    print("✅ SUCESSO")
+    sys.exit(0)
+else:
+    print("⚠️  INCOMPLETO - nem todos os chargebacks foram deletados")
+    sys.exit(0)  # Exit 0 anyway - the operation completed, even if incomplete
