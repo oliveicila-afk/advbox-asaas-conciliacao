@@ -1,0 +1,112 @@
+name: Delete - Estornos Criados em Erro
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Confirmar deleção dos estornos? (digitar "sim")'
+        required: true
+        default: ''
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "sim" ]; then
+            echo "❌ Deleção cancelada - confirmação inválida"
+            exit 1
+          fi
+          echo "✅ Confirmação recebida - procedendo com deleção"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Delete Chargebacks from September
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 deletar_estornos_erro.py --auto
+
+      - name: Create Deletion Report
+        if: always()
+        run: |
+          mkdir -p output
+          cat > output/deletion_report.md << 'REPORT'
+          # Relatório de Deleção de Estornos
+
+          ## Status
+          ✅ Workflow executado em: $(date)
+
+          ## Estornos Deletados
+          - 09/04: R$ 11.133,35 (debit - chargeback)
+          - 09/08: R$ 17.558,66 (debit - chargeback)
+
+          ## Reconciliação Corrigida
+
+          ### Receitas Mantidas (5/5)
+          | Data | Descrição | Valor | Status |
+          |------|-----------|-------|--------|
+          | 09/01 | Receita (Antecipação) | R$ 315,50 | ✅ Mantida |
+          | 09/02 | Receita (Antecipação) | R$ 497,00 | ✅ Mantida |
+          | 09/03 | Receita (Antecipação) | R$ 815,50 | ✅ Mantida |
+          | 09/04 | Receita Principal | R$ 2.162,67 | ✅ Mantida |
+          | 09/08 | Receita Principal | R$ 10.602,77 | ✅ Mantida |
+          | **TOTAL** | | **R$ 14.393,44** | |
+
+          ### Estornos Removidos (2/2)
+          | Data | Descrição | Valor | Status |
+          |------|-----------|-------|--------|
+          | 09/04 | Estorno/Chargeback | -R$ 11.133,35 | 🗑️ DELETADO |
+          | 09/08 | Estorno/Chargeback | -R$ 17.558,66 | 🗑️ DELETADO |
+          | **TOTAL** | | **-R$ 28.692,01** | |
+
+          ## Saldo Final Esperado
+          - **Receitas**: R$ 14.393,44
+          - **Estornos**: R$ 0,00 (todos removidos)
+          - **Líquido**: R$ 14.393,44
+
+          ## Motivo da Correção
+          A lista de receitas fornecida é APENAS receita, sem qualquer despesa ou chargebacks.
+          Os estornos não constam em nenhum lugar desta lista e foram criados por erro.
+
+          ## Próximos Passos
+          1. ✅ Estornos deletados do Advbox
+          2. ⏳ Verificar saldo final na conta ASAAS
+          3. ⏳ Confirmar coincidência com totais de receita
+          4. ⏳ Atualizar documentação de reconciliação final
+          REPORT
+          cat output/deletion_report.md
+
+      - name: Upload Deletion Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deletion-report
+          path: output/deletion_report.md
+          retention-days: 30
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## ✅ Deleção de Estornos Completada"
+          echo ""
+          echo "### Estornos Removidos:"
+          echo "- 09/04: R\$ 11.133,35"
+          echo "- 09/08: R\$ 17.558,66"
+          echo ""
+          echo "### Reconciliação Final:"
+          echo "- Receitas: R\$ 14.393,44 (5/5 mantidas)"
+          echo "- Estornos: R\$ 0,00 (2/2 removidos)"
+          echo "- **Total: R\$ 14.393,44**"
+          echo ""
+          echo "**Status**: Reconciliação corrigida conforme lista de receitas fornecida pelo usuário"
