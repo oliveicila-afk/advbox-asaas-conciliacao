@@ -1,0 +1,77 @@
+name: Reconciliação Setembro 01-10 - Criar Entradas
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmacao:
+        description: 'Confirme digitando YES para proceder'
+        required: true
+        default: ''
+
+jobs:
+  reconciliacao:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verificar confirmação
+        run: |
+          if [ "${{ github.event.inputs.confirmacao }}" != "YES" ]; then
+            echo "❌ Confirmação não fornecida. Abortando."
+            exit 1
+          fi
+          echo "✅ Confirmação recebida. Prosseguindo com reconciliação..."
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Executar Reconciliação (Criar Entradas)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          chmod +x reconciliacao_setembro_criar_entradas.py
+          python reconciliacao_setembro_criar_entradas.py << EOF
+          s
+          EOF
+        shell: bash
+
+      - name: Executar Análise Pós-Reconciliação
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          python analise_por_data_valor.py 2>&1 | tee analise_pos_reconciliacao.txt
+
+      - name: Upload de Resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reconciliacao-results
+          path: analise_pos_reconciliacao.txt
+          retention-days: 30
+
+  notificar:
+    needs: reconciliacao
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resumo da Operação
+        run: |
+          if [ "${{ needs.reconciliacao.result }}" == "success" ]; then
+            echo "✅ Reconciliação concluída com sucesso!"
+            echo "📊 Verifique os resultados no artefato: reconciliacao-results"
+          else
+            echo "❌ Reconciliação falhou. Verifique os logs."
+          fi
