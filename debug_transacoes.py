@@ -14,6 +14,12 @@ ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
 ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
 ASAAS_ACCOUNT_ID = 193264
 
+# User-Agent necessário para Advbox aceitar requisições
+ADVBOX_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+)
+
 if not ADVBOX_TOKEN:
     print("❌ ADVBOX_TOKEN não definido")
     print("Use: ADVBOX_TOKEN='seu_token' python3 debug_transacoes.py")
@@ -21,18 +27,19 @@ if not ADVBOX_TOKEN:
 
 # Debug: validar token
 print("=" * 80)
-print("DEBUG: Validação de Token")
+print("DEBUG: Validação de Token e Headers")
 print("=" * 80)
 print(f"✓ Token recebido: {len(ADVBOX_TOKEN)} caracteres")
 print(f"✓ Primeiros 15 chars: {ADVBOX_TOKEN[:15]}...")
 print(f"✓ Últimos 15 chars: ...{ADVBOX_TOKEN[-15:]}")
 print(f"✓ Contém espaços? {'Sim' if ' ' in ADVBOX_TOKEN else 'Não'}")
 print(f"✓ Contém quebras de linha? {'Sim' if chr(10) in ADVBOX_TOKEN else 'Não'}")
+print(f"✓ User-Agent: {ADVBOX_USER_AGENT[:50]}...")
 
 headers = {
     "Authorization": f"Bearer {ADVBOX_TOKEN}",
-    "Accept": "application/json",
-    "Content-Type": "application/json"
+    "User-Agent": ADVBOX_USER_AGENT,
+    "Accept": "application/json"
 }
 
 print("\n" + "=" * 80)
