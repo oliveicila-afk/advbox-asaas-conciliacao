@@ -1,0 +1,37 @@
+name: Reconciliação Setembro - DEBUG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reconciliacao:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Executar Reconciliação (DEBUG)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          echo "=== Script Output ==="
+          python reconciliacao_setembro_criar_entradas.py --auto 2>&1
+          echo ""
+          echo "=== Script Exit Code ==="
+          python reconciliacao_setembro_criar_entradas.py --auto > /tmp/reconciliacao.log 2>&1
+          exit_code=$?
+          echo "Exit code: $exit_code"
+          echo ""
+          echo "=== Full Log ==="
+          cat /tmp/reconciliacao.log
