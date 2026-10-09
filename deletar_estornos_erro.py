@@ -64,8 +64,25 @@ def listar_transacoes_setembro() -> List[Dict]:
     """List all transactions from ASAAS account for September 2026"""
     log("📋 Buscando transações de setembro na conta ASAAS (ID: 193264)...")
 
-    # Fetch all transactions with pagination
-    status, resp = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
+    # Try both endpoints
+    log("   Tentativa 1: /transactions endpoint...")
+    status1, resp1 = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
+    log(f"   Status: {status1}")
+
+    log("   Tentativa 2: /accounts/{ASAAS_ACCOUNT_ID}/transactions endpoint...")
+    status2, resp2 = advbox_api("GET", f"/accounts/{ASAAS_ACCOUNT_ID}/transactions", {"limit": 1000, "offset": 0})
+    log(f"   Status: {status2}")
+
+    # Use whichever endpoint works
+    if status1 == 200:
+        log(f"   ✅ /transactions funcionou")
+        status, resp = status1, resp1
+    elif status2 == 200:
+        log(f"   ✅ /accounts/{ASAAS_ACCOUNT_ID}/transactions funcionou")
+        status, resp = status2, resp2
+    else:
+        log(f"   ❌ Ambos endpoints falharam")
+        return []
 
     if status == 200:
         # Handle response format
@@ -74,15 +91,18 @@ def listar_transacoes_setembro() -> List[Dict]:
         else:
             all_transactions = resp if isinstance(resp, list) else []
 
+        log(f"   Total de transações: {len(all_transactions)}")
+
         # Filter transactions for ASAAS account and September 2026
         transactions = []
         for t in all_transactions:
             # Check if this transaction is for the ASAAS account
-            debit_account = t.get("debit_account_id")
-            if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID):
-                # Check if date is in September 2026
-                date_str = t.get("date_due") or t.get("created_at") or ""
-                if date_str.startswith("2026-09"):
+            debit_account = t.get("debit_account_id") or t.get("debit_account")
+            date_str = t.get("date_due") or t.get("created_at") or t.get("date") or ""
+
+            if date_str.startswith("2026-09"):
+                # Accept if debit_account matches or if it's None
+                if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID) or debit_account is None:
                     transactions.append(t)
 
         log(f"   ✅ Encontradas {len(transactions)} transações para conta ASAAS em setembro\n")

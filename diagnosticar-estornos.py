@@ -61,12 +61,24 @@ def main():
     log(f"Conta ASAAS ID: {ASAAS_ACCOUNT_ID}")
     log("")
 
-    # Fetch all transactions and filter by date and account in Python
-    status, resp = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
+    # Try both endpoints
+    log(f"Tentativa 1: /transactions endpoint...")
+    status1, resp1 = advbox_api("GET", f"/transactions", {"limit": 1000, "offset": 0})
 
-    if status != 200:
-        log(f"❌ Erro ao listar transações: {status}")
-        log(f"   Resposta: {resp}")
+    log(f"Tentativa 2: /accounts/{ASAAS_ACCOUNT_ID}/transactions endpoint...")
+    status2, resp2 = advbox_api("GET", f"/accounts/{ASAAS_ACCOUNT_ID}/transactions", {"limit": 1000, "offset": 0})
+
+    # Use whichever endpoint works
+    if status1 == 200:
+        log(f"✅ /transactions funcionou (status {status1})")
+        status, resp = status1, resp1
+    elif status2 == 200:
+        log(f"✅ /accounts/{ASAAS_ACCOUNT_ID}/transactions funcionou (status {status2})")
+        status, resp = status2, resp2
+    else:
+        log(f"❌ Ambos endpoints falharam:")
+        log(f"   /transactions: {status1}")
+        log(f"   /accounts/{ASAAS_ACCOUNT_ID}/transactions: {status2}")
         return 1
 
     # Handle response format
@@ -75,19 +87,32 @@ def main():
     else:
         transactions = resp if isinstance(resp, list) else []
 
+    log(f"\nTotal de transações retornadas: {len(transactions)}")
+
+    # Show all transactions to help debug
+    log("\nTodas as transações:")
+    for i, t in enumerate(transactions, 1):
+        log(f"{i}. {t.get('description', 'N/A')}")
+        log(f"   - Data: {t.get('date_due') or t.get('date') or t.get('created_at') or 'N/A'}")
+        log(f"   - Tipo: {t.get('entry_type', 'N/A')}")
+        log(f"   - Valor: {t.get('amount', 'N/A')}")
+        log(f"   - Conta Debit: {t.get('debit_account_id') or t.get('debit_account') or 'N/A'}")
+        log("")
+
     # Filter transactions for ASAAS account and September 2026
     from datetime import datetime
     filtered_transactions = []
     for t in transactions:
         # Check if this transaction is for the ASAAS account
-        debit_account = t.get("debit_account_id")
-        if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID):
-            # Check if date is in September 2026
-            date_str = t.get("date_due") or t.get("created_at") or ""
-            if date_str.startswith("2026-09"):
+        debit_account = t.get("debit_account_id") or t.get("debit_account")
+        date_str = t.get("date_due") or t.get("created_at") or t.get("date") or ""
+
+        if date_str.startswith("2026-09"):
+            # Accept if debit_account matches or if it's None (might be implicit)
+            if debit_account == ASAAS_ACCOUNT_ID or debit_account == str(ASAAS_ACCOUNT_ID) or debit_account is None:
                 filtered_transactions.append(t)
 
-    log(f"✅ {len(filtered_transactions)} transações para conta ASAAS em setembro encontradas\n")
+    log(f"✅ {len(filtered_transactions)} transações filtradas para setembro\n")
 
     # Procurar estornos
     log("Procurando estornos (debit entry_type):")
