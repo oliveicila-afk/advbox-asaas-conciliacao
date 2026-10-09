@@ -18,7 +18,6 @@ ADVBOX_USER_AGENT = (
 
 if not ADVBOX_TOKEN:
     print("❌ ADVBOX_TOKEN not set")
-    import sys
     sys.exit(1)
 
 print("📋 Listando categorias do Advbox")
@@ -55,15 +54,18 @@ def main():
                 print("❌ Nenhuma categoria encontrada")
                 print(f"Response: {data}")
         else:
-            print(f"❌ Erro {resp.status_code}")
-            print(resp.text[:500])
-            return 1
+            print(f"⚠️  Erro {resp.status_code}")
+            try:
+                print("Response JSON:")
+                print(resp.json())
+            except:
+                print("Response text:")
+                print(resp.text[:1000])
 
     except Exception as e:
         print(f"❌ Exception: {e}")
         import traceback
         traceback.print_exc()
-        return 1
 
     return 0
 
