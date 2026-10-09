@@ -23,7 +23,6 @@ jobs:
           import os
           import sys
           import requests
-          from datetime import datetime
 
           ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "").strip()
           ASAAS_BASE = "https://api.asaas.com/v3"
@@ -32,9 +31,12 @@ jobs:
               print("❌ ASAAS_TOKEN não definido")
               sys.exit(1)
 
-          headers = {
-              "Authorization": f"Bearer {ASAAS_TOKEN}",
-              "Accept": "application/json"
+          # Usar access_token como parâmetro na URL (método do Asaas)
+          params = {
+              "access_token": ASAAS_TOKEN,
+              "startDate": "2026-09-01",
+              "finishDate": "2026-09-10",
+              "limit": 100
           }
 
           print("=" * 80)
@@ -42,43 +44,46 @@ jobs:
           print("=" * 80)
 
           try:
-              # Query payments between Sep 1-10
-              params = {
-                  "dateFrom": "2026-09-01",
-                  "dateTo": "2026-09-10",
-                  "limit": 100
-              }
-              
-              resp = requests.get(f"{ASAAS_BASE}/payments", headers=headers, params=params, timeout=30)
+              # Usar /financialTransactions que retorna receitas
+              resp = requests.get(f"{ASAAS_BASE}/financialTransactions", params=params, timeout=30)
               print(f"\nStatus: {resp.status_code}")
               
               if resp.status_code == 200:
                   data = resp.json()
-                  payments = data.get("data", [])
+                  transactions = data.get("data", [])
                   
-                  print(f"\nTotal de Transações: {len(payments)}")
+                  print(f"\nTotal de Transações: {len(transactions)}")
+                  
+                  # Filtrar apenas receitas (PAYMENT_RECEIVED, RECEIVABLE_ANTICIPATION)
+                  receitas = [t for t in transactions if t.get("type") in ("PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT")]
+                  print(f"Receitas: {len(receitas)}")
                   
                   total = 0
-                  for p in payments:
-                      value = float(p.get("value", 0))
-                      status = p.get("status", "")
-                      date = p.get("dueDate", "")
+                  for r in receitas:
+                      value = float(r.get("value", 0))
+                      date = r.get("date", "")
+                      tx_type = r.get("type", "")
+                      ext_ref = r.get("externalReference", "")
+                      
                       print(f"\n  Data: {date}")
+                      print(f"  Tipo: {tx_type}")
                       print(f"  Valor: R$ {value:,.2f}")
-                      print(f"  Status: {status}")
-                      print(f"  ID: {p.get('id', 'N/A')}")
+                      print(f"  Ref: {ext_ref}")
+                      
                       total += value
                   
                   print("\n" + "=" * 80)
-                  print(f"TOTAL: R$ {total:,.2f}")
+                  print(f"TOTAL DE RECEITAS (Sep 01-10): R$ {total:,.2f}")
                   print("=" * 80)
               else:
                   print(f"\nErro na requisição:")
-                  print(resp.text)
+                  print(resp.text[:500])
                   sys.exit(1)
                   
           except Exception as e:
               print(f"❌ Erro: {e}")
+              import traceback
+              traceback.print_exc()
               sys.exit(1)
 
           PYTHON_EOF
