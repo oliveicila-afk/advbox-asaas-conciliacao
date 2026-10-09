@@ -35,7 +35,7 @@ jobs:
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
         run: |
-          python3 deletar_estornos_erro.py --auto
+          python3 deletar_estornos_simples.py
 
       - name: Create Deletion Report
         if: always()
