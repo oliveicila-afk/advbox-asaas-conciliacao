@@ -1,0 +1,84 @@
+name: Consultar Total Asaas - Sep 01-10
+
+on:
+  workflow_dispatch:
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Consultar Total Asaas (01-10 Set)
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 << 'PYTHON_EOF'
+          import os
+          import sys
+          import requests
+          from datetime import datetime
+
+          ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "").strip()
+          ASAAS_BASE = "https://api.asaas.com/v3"
+
+          if not ASAAS_TOKEN:
+              print("❌ ASAAS_TOKEN não definido")
+              sys.exit(1)
+
+          headers = {
+              "Authorization": f"Bearer {ASAAS_TOKEN}",
+              "Accept": "application/json"
+          }
+
+          print("=" * 80)
+          print("TOTAL EM ASAAS: 1 a 10 de Setembro de 2026")
+          print("=" * 80)
+
+          try:
+              # Query payments between Sep 1-10
+              params = {
+                  "dateFrom": "2026-09-01",
+                  "dateTo": "2026-09-10",
+                  "limit": 100
+              }
+              
+              resp = requests.get(f"{ASAAS_BASE}/payments", headers=headers, params=params, timeout=30)
+              print(f"\nStatus: {resp.status_code}")
+              
+              if resp.status_code == 200:
+                  data = resp.json()
+                  payments = data.get("data", [])
+                  
+                  print(f"\nTotal de Transações: {len(payments)}")
+                  
+                  total = 0
+                  for p in payments:
+                      value = float(p.get("value", 0))
+                      status = p.get("status", "")
+                      date = p.get("dueDate", "")
+                      print(f"\n  Data: {date}")
+                      print(f"  Valor: R$ {value:,.2f}")
+                      print(f"  Status: {status}")
+                      print(f"  ID: {p.get('id', 'N/A')}")
+                      total += value
+                  
+                  print("\n" + "=" * 80)
+                  print(f"TOTAL: R$ {total:,.2f}")
+                  print("=" * 80)
+              else:
+                  print(f"\nErro na requisição:")
+                  print(resp.text)
+                  sys.exit(1)
+                  
+          except Exception as e:
+              print(f"❌ Erro: {e}")
+              sys.exit(1)
+
+          PYTHON_EOF
