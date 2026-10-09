@@ -165,12 +165,17 @@ def main():
     log("\n" + "=" * 80)
 
     # Confirmation
-    print("\n❓ Deseja prosseguir? (s/n): ", end="")
-    resposta = input().strip().lower()
+    auto_confirm = "--auto" in sys.argv
 
-    if resposta != 's':
-        log("\n❌ Operação cancelada pelo usuário")
-        return 1
+    if not auto_confirm:
+        print("\n❓ Deseja prosseguir? (s/n): ", end="")
+        resposta = input().strip().lower()
+
+        if resposta != 's':
+            log("\n❌ Operação cancelada pelo usuário")
+            return 1
+    else:
+        log("\n⚡ Modo automático ativado - prosseguindo com reconciliação")
 
     # Create transactions
     log("\n📝 CRIANDO TRANSAÇÕES...")
