@@ -2,11 +2,6 @@ name: Delete - Estornos Criados em Erro
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Confirmar deleção dos estornos? (digitar "sim")'
-        required: true
-        default: ''
 
 jobs:
   delete:
@@ -14,14 +9,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Validate Confirmation
-        run: |
-          if [ "${{ github.event.inputs.confirm }}" != "sim" ]; then
-            echo "❌ Deleção cancelada - confirmação inválida"
-            exit 1
-          fi
-          echo "✅ Confirmação recebida - procedendo com deleção"
 
       - name: Set up Python
         uses: actions/setup-python@v4
