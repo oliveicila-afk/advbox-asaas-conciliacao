@@ -19,8 +19,10 @@ jobs:
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
         run: |
+          mkdir -p output
           python3 -m pip install requests --quiet 2>/dev/null || true
-          python3 debug_transacoes.py
+          python3 debug_transacoes.py > output/debug_output.txt 2>&1
+          cat output/debug_output.txt
 
       - name: Gerar Relatório de Verificação
         if: always()
@@ -55,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: verification-report
-          path: output/verification_report.md
+          path: output/
           retention-days: 7
