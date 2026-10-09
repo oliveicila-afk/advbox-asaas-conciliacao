@@ -75,13 +75,18 @@ def advbox_api(method, path, data=None):
         resp.raise_for_status()
         return resp.status_code, resp.json() if resp.text else None
     except requests.exceptions.RequestException as e:
-        return None, str(e)
+        # Try to extract error details from response
+        try:
+            error_data = e.response.json() if e.response.text else {"error": str(e)}
+            return e.response.status_code if e.response else None, error_data
+        except:
+            return None, str(e)
 
 def formatar_valor_advbox(valor: float) -> str:
     """Format value for Advbox API (using comma as decimal separator)"""
     return f"{valor:.2f}".replace(".", ",")
 
-def criar_lancamento(descricao: str, valor: float, data: str) -> bool:
+def criar_lancamento(descricao: str, valor: float, data: str, category_id: int = None) -> bool:
     """
     Criar lançamento em Advbox na conta ASAAS
 
@@ -89,6 +94,7 @@ def criar_lancamento(descricao: str, valor: float, data: str) -> bool:
     """
     log(f"  → Criando: {descricao[:60]} | R$ {valor:.2f} | {data}")
 
+    cat_id = category_id if category_id else CATEGORY_ID
     payload = {
         "amount": formatar_valor_advbox(valor),
         "date_due": data,
@@ -96,7 +102,7 @@ def criar_lancamento(descricao: str, valor: float, data: str) -> bool:
         "description": descricao,
         "entry_type": "credit",  # Sempre "credit" - Advbox usa sinal do amount para devoluções
         "users_id": USER_ID,
-        "categories_id": CATEGORY_ID,
+        "categories_id": cat_id,
         "debit_account": ASAAS_ACCOUNT_ID,  # ⚠️ OBRIGATÓRIO
         "cost_centers_id": COST_CENTER_ID,
     }
@@ -104,10 +110,12 @@ def criar_lancamento(descricao: str, valor: float, data: str) -> bool:
     status, resp = advbox_api("POST", "/transactions", payload)
 
     if status in (200, 201):
-        log(f"    ✅ Criado com sucesso")
+        log(f"    ✅ Criado com sucesso (category_id={cat_id})")
         return True
     else:
-        log(f"    ❌ Erro {status}: {resp}")
+        # Extract error message if available
+        error_msg = resp if isinstance(resp, dict) else str(resp)
+        log(f"    ❌ Erro {status}: {error_msg}")
         return False
 
 def main():
