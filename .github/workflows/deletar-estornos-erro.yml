@@ -15,17 +15,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          set +e
-          python3 -m pip install --upgrade pip
-          python3 -m pip install requests 2>&1 || true
-          set -e
-
       - name: Delete Chargebacks from September
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
         run: |
+          python3 -m pip install requests --quiet --no-warn-script-location 2>/dev/null || true
           python3 deletar_estornos_simples.py
 
       - name: Create Deletion Report
