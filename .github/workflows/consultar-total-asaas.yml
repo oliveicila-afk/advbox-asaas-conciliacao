@@ -15,75 +15,64 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: pip install requests -q
+
       - name: Consultar Total Asaas (01-10 Set)
         env:
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: python3 diagnostico_asaas.py || echo "Script diagnostico falhou, tentando alternativa..."
+
+      - name: Consultar via script alternativo
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        if: always()
         run: |
           python3 << 'PYTHON_EOF'
           import os
-          import sys
+          import json
           import requests
 
           ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "").strip()
           ASAAS_BASE = "https://api.asaas.com/v3"
 
+          print("\n" + "=" * 80)
+          print("CONSULTA DIRETA: Total Asaas (Sep 01-10)")
+          print("=" * 80)
+
           if not ASAAS_TOKEN:
-              print("❌ ASAAS_TOKEN não definido")
-              sys.exit(1)
+              print("❌ Token não encontrado")
+              exit(1)
 
-          # Usar access_token como parâmetro na URL (método do Asaas)
-          params = {
-              "access_token": ASAAS_TOKEN,
-              "startDate": "2026-09-01",
-              "finishDate": "2026-09-10",
-              "limit": 100
-          }
+          print(f"✓ Token recebido: {len(ASAAS_TOKEN)} caracteres")
 
-          print("=" * 80)
-          print("TOTAL EM ASAAS: 1 a 10 de Setembro de 2026")
-          print("=" * 80)
-
+          # Tentar método 1: access_token como parâmetro
+          print("\n[Método 1] Usando access_token como parâmetro...")
           try:
-              # Usar /financialTransactions que retorna receitas
-              resp = requests.get(f"{ASAAS_BASE}/financialTransactions", params=params, timeout=30)
-              print(f"\nStatus: {resp.status_code}")
-              
-              if resp.status_code == 200:
-                  data = resp.json()
+              r = requests.get(
+                  f"{ASAAS_BASE}/financialTransactions",
+                  params={
+                      "access_token": ASAAS_TOKEN,
+                      "startDate": "2026-09-01",
+                      "finishDate": "2026-09-10",
+                      "limit": 100
+                  },
+                  timeout=30
+              )
+              print(f"Status: {r.status_code}")
+              if r.status_code == 200:
+                  data = r.json()
                   transactions = data.get("data", [])
-                  
-                  print(f"\nTotal de Transações: {len(transactions)}")
-                  
-                  # Filtrar apenas receitas (PAYMENT_RECEIVED, RECEIVABLE_ANTICIPATION)
                   receitas = [t for t in transactions if t.get("type") in ("PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT")]
+                  total = sum(float(t.get("value", 0)) for t in receitas)
+                  
+                  print(f"\n✅ Transações encontradas: {len(transactions)}")
                   print(f"Receitas: {len(receitas)}")
-                  
-                  total = 0
-                  for r in receitas:
-                      value = float(r.get("value", 0))
-                      date = r.get("date", "")
-                      tx_type = r.get("type", "")
-                      ext_ref = r.get("externalReference", "")
-                      
-                      print(f"\n  Data: {date}")
-                      print(f"  Tipo: {tx_type}")
-                      print(f"  Valor: R$ {value:,.2f}")
-                      print(f"  Ref: {ext_ref}")
-                      
-                      total += value
-                  
-                  print("\n" + "=" * 80)
-                  print(f"TOTAL DE RECEITAS (Sep 01-10): R$ {total:,.2f}")
-                  print("=" * 80)
+                  print(f"\n📊 TOTAL: R$ {total:,.2f}")
               else:
-                  print(f"\nErro na requisição:")
-                  print(resp.text[:500])
-                  sys.exit(1)
-                  
+                  print(f"❌ Erro {r.status_code}")
+                  print(r.text[:200])
           except Exception as e:
-              print(f"❌ Erro: {e}")
-              import traceback
-              traceback.print_exc()
-              sys.exit(1)
+              print(f"❌ Falha: {e}")
 
           PYTHON_EOF
