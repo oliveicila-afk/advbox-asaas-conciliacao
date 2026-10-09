@@ -16,7 +16,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install requests || python3 -m pip install --break-system-packages requests || echo "Requests might already be installed"
 
       - name: Delete Chargebacks from September
         env:
