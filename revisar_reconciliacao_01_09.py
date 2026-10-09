@@ -95,7 +95,13 @@ def get_advbox_transactions(data_inicio, data_fim):
     status, resp = advbox_api("GET", path)
 
     if status == 200 and resp:
-        return resp.get("data", [])
+        # Filter to only include transactions within the date range
+        data = resp.get("data", [])
+        filtered_data = [
+            tx for tx in data
+            if tx.get("date_payment") and data_inicio <= tx.get("date_payment") <= data_fim
+        ]
+        return filtered_data
     else:
         log(f"❌ Erro ao buscar transações Advbox: {status} - {resp}")
         return []
@@ -137,7 +143,7 @@ def main():
 
     for tx in transacoes_advbox:
         data = tx.get("date_payment", "")
-        descricao = tx.get("description", "")
+        descricao = tx.get("description") or "(sem descrição)"
 
         # Parse amount (Advbox uses comma as decimal separator in response)
         amount_str = str(tx.get("amount", "0")).replace(",", ".")
