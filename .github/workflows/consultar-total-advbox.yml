@@ -28,7 +28,7 @@ jobs:
           import requests
 
           ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
-          ADVBOX_BASE = "https://api.advbox.com.br/public/v2"
+          ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
           ADVBOX_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 
           print("=" * 80)
@@ -48,34 +48,56 @@ jobs:
                   "User-Agent": ADVBOX_USER_AGENT,
                   "Accept": "application/json"
               }
-              
-              # Parâmetros da consulta
+
+              # Parâmetros da consulta - filtrar por data
               params = {
-                  "startDate": "2026-09-01",
-                  "endDate": "2026-09-10",
                   "limit": 100
               }
 
-              print("\nConsultando API do Advbox (conta ASAAS)...")
+              print("\nConsultando API do Advbox...")
               r = requests.get(
-                  f"{ADVBOX_BASE}/account/193264/transaction",
+                  f"{ADVBOX_BASE}/transactions",
                   headers=headers,
                   params=params,
                   timeout=30
               )
 
               print(f"Status: {r.status_code}")
-              
+
               if r.status_code == 200:
                   data = r.json()
                   transactions = data.get("data", []) if isinstance(data, dict) else data
-                  
-                  print(f"\nTotal de transações no Advbox: {len(transactions)}")
-                  
+
+                  print(f"\nTotal de transações retornadas: {len(transactions)}")
+
+                  # Filtrar por período: 01 a 10 de setembro de 2026
+                  from datetime import datetime
+                  start = datetime(2026, 9, 1)
+                  end = datetime(2026, 9, 10, 23, 59, 59)
+
+                  filtered_transactions = []
+                  for t in transactions:
+                      date_str = t.get("date") or t.get("created_at", "")
+                      try:
+                          # Tentar diferentes formatos de data
+                          for fmt in ["%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%d/%m/%Y"]:
+                              try:
+                                  tx_date = datetime.strptime(date_str.split('T')[0], "%Y-%m-%d") if 'T' in date_str else datetime.strptime(date_str, fmt)
+                                  if start <= tx_date <= end:
+                                      filtered_transactions.append(t)
+                                  break
+                              except ValueError:
+                                  continue
+                      except:
+                          pass
+
+                  transactions = filtered_transactions
+                  print(f"Transações no período (01-10/set/2026): {len(transactions)}")
+
                   # Filtrar receitas (entry_type = "credit")
                   receitas = [t for t in transactions if t.get("entry_type") == "credit"]
                   print(f"Receitas (credit): {len(receitas)}")
-                  
+
                   # Filtrar estornos/débitos (entry_type = "debit")
                   estornos = [t for t in transactions if t.get("entry_type") == "debit"]
                   print(f"Estornos/Débitos (debit): {len(estornos)}")
