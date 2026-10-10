@@ -1,0 +1,181 @@
+name: Deletar Receitas Discrepantes de Advbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Digite 'confirmar-delecao' para confirmar a deleção das 2 transações"
+        required: true
+        default: ""
+
+jobs:
+  deletar-receitas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar confirmação
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "confirmar-delecao" ]; then
+            echo "❌ Deleção não confirmada. Abortando."
+            echo "Para prosseguir, execute o workflow novamente e digite 'confirmar-delecao' no campo de confirmação."
+            exit 1
+          fi
+          echo "✅ Confirmação recebida. Prosseguindo com a deleção..."
+
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Deletar transações de receita discrepantes
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python - << 'EOF'
+          import os
+          import sys
+          import requests
+          import json
+          from datetime import datetime
+
+          ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
+          ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          if not ADVBOX_TOKEN:
+              print("❌ ADVBOX_TOKEN não definido como variável de ambiente")
+              sys.exit(1)
+
+          headers = {
+              "Authorization": f"Bearer {ADVBOX_TOKEN}",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+          }
+
+          # Transações a remover
+          TRANSACTIONS_TO_DELETE = [
+              {
+                  "id": 17768841,
+                  "name": "LUCAS MONTEIRO GAZEL",
+                  "amount": 11988.86,
+                  "expected_date": "2026-09-09"
+              },
+              {
+                  "id": 17769921,
+                  "name": "WELITON LOPES DE OLIVEIRA",
+                  "amount": 3388.64,
+                  "expected_date": "2026-09-09"
+              }
+          ]
+
+          print("=" * 100)
+          print("REMOVER TRANSAÇÕES DE RECEITA DISCREPANTES - ADVBOX")
+          print("=" * 100)
+          print(f"\nData/Hora: {datetime.now().isoformat()}")
+          print("\nTransações a remover:")
+          for tx in TRANSACTIONS_TO_DELETE:
+              print(f"  • ID {tx['id']}: {tx['name']} (R$ {tx['amount']:.2f})")
+
+          print("\n" + "-" * 100)
+          print("1. VERIFICANDO TRANSAÇÕES ANTES DA REMOÇÃO")
+          print("-" * 100)
+
+          # Verify the transactions exist before deletion
+          print("\nVerificando se as transações existem em Advbox...")
+          verified_transactions = []
+
+          for tx in TRANSACTIONS_TO_DELETE:
+              try:
+                  resp = requests.get(
+                      f"{ADVBOX_BASE}/transactions/{tx['id']}",
+                      headers=headers,
+                      timeout=30
+                  )
+                  if resp.status_code == 200:
+                      data = resp.json()
+                      tx_data = data if isinstance(data, dict) and 'entry_type' in data else data.get('data', {})
+
+                      print(f"\n✅ ID {tx['id']} encontrado:")
+                      print(f"   Nome: {tx_data.get('name', 'N/A')}")
+                      print(f"   Valor: R$ {tx_data.get('amount', 'N/A')}")
+                      print(f"   Data: {tx_data.get('date_payment', 'N/A')}")
+                      print(f"   Tipo: {tx_data.get('entry_type', 'N/A')}")
+                      verified_transactions.append(tx)
+                  else:
+                      print(f"\n⚠️  ID {tx['id']}: Retornou status {resp.status_code}")
+                      if resp.status_code == 404:
+                          print(f"   ⚠️  Transação não encontrada (pode já estar deletada)")
+              except Exception as e:
+                  print(f"\n❌ Erro ao verificar ID {tx['id']}: {e}")
+
+          print("\n" + "-" * 100)
+          print("2. DELETANDO TRANSAÇÕES")
+          print("-" * 100)
+
+          deleted_count = 0
+          failed_count = 0
+
+          for tx in verified_transactions:
+              tx_id = tx['id']
+              try:
+                  print(f"\nDeletando ID {tx_id} ({tx['name']})...")
+                  resp = requests.delete(
+                      f"{ADVBOX_BASE}/transactions/{tx_id}",
+                      headers=headers,
+                      timeout=30
+                  )
+
+                  if resp.status_code in (200, 204, 202):
+                      print(f"   ✅ DELETADO com sucesso! (Status: {resp.status_code})")
+                      deleted_count += 1
+                  else:
+                      print(f"   ❌ Erro: Status {resp.status_code}")
+                      if resp.text:
+                          try:
+                              error_data = resp.json()
+                              print(f"   Resposta: {json.dumps(error_data, indent=2)}")
+                          except:
+                              print(f"   Resposta: {resp.text[:300]}")
+                      failed_count += 1
+              except Exception as e:
+                  print(f"   ❌ Erro na requisição: {e}")
+                  failed_count += 1
+
+          print("\n" + "=" * 100)
+          print("RESUMO FINAL")
+          print("=" * 100)
+          print(f"\nTransações verificadas: {len(verified_transactions)}")
+          print(f"Transações deletadas: {deleted_count}")
+          print(f"Transações com falha: {failed_count}")
+
+          if deleted_count == len(verified_transactions) and deleted_count > 0:
+              print("\n✅ SUCESSO - Todas as transações foram deletadas!")
+              sys.exit(0)
+          elif deleted_count > 0:
+              print(f"\n⚠️  PARCIAL - {deleted_count} transação(ões) foi/foram deletada(s)")
+              sys.exit(0)
+          else:
+              print("\n❌ FALHA - Nenhuma transação foi deletada")
+              sys.exit(1)
+          EOF
+
+      - name: Resultado da deleção
+        if: success()
+        run: |
+          echo "✅ Workflow concluído com sucesso!"
+          echo ""
+          echo "Próximas etapas:"
+          echo "1. Executar nova análise de reconciliação"
+          echo "2. Confirmar que as transações foram removidas"
+          echo "3. Atualizar relatório de reconciliação"
+
+      - name: Erro na deleção
+        if: failure()
+        run: |
+          echo "❌ Erro ao deletar as transações"
+          echo "Verifique o log acima para detalhes"
+          exit 1
