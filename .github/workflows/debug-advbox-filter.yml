@@ -1,0 +1,113 @@
+name: Debug Advbox Filter
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests -q
+
+      - name: Debug Advbox
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, requests
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          if not TOKEN:
+              print("NO TOKEN")
+              exit(1)
+
+          tz = ZoneInfo("America/Manaus")
+          headers = {
+              "Authorization": f"Bearer {TOKEN}",
+              "User-Agent": "Mozilla/5.0",
+              "Accept": "application/json"
+          }
+
+          print("=" * 80)
+          print("DEBUGGING ADVBOX DATA")
+          print("=" * 80)
+
+          all_data = []
+          offset = 0
+
+          for page in range(10):
+              r = requests.get(
+                  "https://app.advbox.com.br/api/v1/transactions",
+                  headers=headers,
+                  params={"limit": 1000, "offset": offset},
+                  timeout=30
+              )
+
+              if r.status_code != 200:
+                  print(f"ERROR: {r.status_code}")
+                  break
+
+              data = r.json()
+              items = data if isinstance(data, list) else data.get("data", [])
+
+              print(f"\nPage {page+1}: {len(items)} items")
+
+              if not items:
+                  break
+
+              all_data.extend(items)
+              offset += 1000
+
+              if len(items) < 1000:
+                  break
+
+          print(f"\nTOTAL: {len(all_data)} transactions\n")
+
+          # Show structure of first item
+          if all_data:
+              print("STRUCTURE OF FIRST ITEM:")
+              first = all_data[0]
+              for key in list(first.keys())[:15]:
+                  print(f"  {key}: {str(first[key])[:60]}")
+
+          # Count by bank
+          from collections import Counter
+          banks = Counter((tx.get("debit_bank") or tx.get("bank") or "UNKNOWN") for tx in all_data)
+          print(f"\nBY BANK:")
+          for bank, count in banks.most_common(10):
+              print(f"  {bank}: {count}")
+
+          # Count by date
+          dates = Counter(tx.get("date", "NO_DATE")[:10] for tx in all_data)
+          print(f"\nBY DATE (first 10):")
+          for date, count in sorted(dates.items(), reverse=True)[:10]:
+              print(f"  {date}: {count}")
+
+          # Show Sep transactions
+          sep_txs = [tx for tx in all_data if tx.get("date", "").startswith("2026-09")]
+          print(f"\nSEPTEMBER TRANSACTIONS: {len(sep_txs)}")
+
+          if sep_txs:
+              print("\nFIRST 10 SEPTEMBER TRANSACTIONS:")
+              for i, tx in enumerate(sep_txs[:10], 1):
+                  print(f"\n{i}. Date: {tx.get('date')}")
+                  print(f"   Name: {tx.get('name', 'N/A')[:50]}")
+                  print(f"   Amount: {tx.get('amount')}")
+                  print(f"   Bank: {tx.get('debit_bank') or tx.get('bank') or 'N/A'}")
+                  print(f"   Type: {tx.get('entry_type')}")
+
+          PYEOF
