@@ -1,0 +1,118 @@
+name: Get Advbox Data - Sep 01-10
+
+on:
+  workflow_dispatch:
+
+jobs:
+  advbox:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests -q
+
+      - name: Get Advbox Data
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, requests
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          if not TOKEN:
+              print("NO TOKEN")
+              exit(1)
+
+          tz = ZoneInfo("America/Manaus")
+          headers = {
+              "Authorization": f"Bearer {TOKEN}",
+              "User-Agent": "Mozilla/5.0",
+              "Accept": "application/json"
+          }
+
+          all_data = []
+          offset = 0
+
+          for page in range(10):
+              r = requests.get(
+                  "https://app.advbox.com.br/api/v1/transactions",
+                  headers=headers,
+                  params={"limit": 1000, "offset": offset},
+                  timeout=30
+              )
+
+              if r.status_code != 200:
+                  print(f"ERROR: {r.status_code}")
+                  break
+
+              data = r.json()
+              items = data if isinstance(data, list) else data.get("data", [])
+
+              if not items:
+                  break
+
+              all_data.extend(items)
+              offset += 1000
+
+              if len(items) < 1000:
+                  break
+
+          # Filter
+          start = datetime(2026, 9, 1, tzinfo=tz).date()
+          end = datetime(2026, 9, 10, tzinfo=tz).date()
+
+          filtered = []
+          for tx in all_data:
+              bank = (tx.get("debit_bank") or tx.get("bank") or "").upper()
+              if bank != "ASAAS":
+                  continue
+
+              date_str = tx.get("date")
+              if date_str:
+                  try:
+                      tx_date = datetime.fromisoformat(date_str).date()
+                      if start <= tx_date <= end:
+                          filtered.append({
+                              "date": date_str,
+                              "name": tx.get("name", ""),
+                              "amount": float(tx.get("amount", 0) or 0),
+                              "type": tx.get("entry_type", ""),
+                              "id": tx.get("id")
+                          })
+                  except:
+                      pass
+
+          print(f"FOUND: {len(filtered)} transactions")
+          for tx in filtered:
+              print(f"  {tx['date']} | R$ {tx['amount']:>10,.2f} | {tx['name'][:40]}")
+
+          with open("advbox_data.json", "w") as f:
+              json.dump({"transactions": filtered, "count": len(filtered), "total": sum(t["amount"] for t in filtered)}, f)
+
+          PYEOF
+
+      - name: Display result
+        run: cat advbox_data.json | python3 -m json.tool
+
+      - name: Commit and push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "actions"
+          git config user.email "actions@github.com"
+          cp advbox_data.json advbox_data_$(date +%Y%m%d_%H%M%S).json
+          git add advbox_data_*.json
+          git commit -m "Add Advbox data export" || true
+          git push
