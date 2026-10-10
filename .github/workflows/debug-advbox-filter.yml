@@ -24,7 +24,7 @@ jobs:
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
         run: |
-          python3 << 'PYEOF'
+          python3 << 'PYEOF' | tee debug_output.txt
           import os, json, requests
           from datetime import datetime
           from zoneinfo import ZoneInfo
@@ -111,3 +111,17 @@ jobs:
                   print(f"   Type: {tx.get('entry_type')}")
 
           PYEOF
+
+      - name: Save debug output
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f debug_output.txt ]; then
+            git config user.name "actions"
+            git config user.email "actions@github.com"
+            cp debug_output.txt debug_advbox_$(date +%Y%m%d_%H%M%S).txt
+            git add debug_advbox_*.txt
+            git commit -m "Add debug output" || true
+            git push
+          fi
