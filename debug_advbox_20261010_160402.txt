@@ -1,0 +1,52 @@
+================================================================================
+DEBUGGING ADVBOX DATA
+================================================================================
+
+Page 1: 1000 items
+
+Page 2: 1000 items
+
+Page 3: 1000 items
+
+Page 4: 1000 items
+
+Page 5: 1000 items
+
+Page 6: 1000 items
+
+Page 7: 1000 items
+
+Page 8: 1000 items
+
+Page 9: 1000 items
+
+Page 10: 1000 items
+
+TOTAL: 10000 transactions
+
+STRUCTURE OF FIRST ITEM:
+  id: 1400383
+  entry_type: expense
+  date_due: 2022-05-31
+  date_payment: 2022-06-30
+  competence: 05/2022
+  amount: 2300
+  description: None
+  is_internal: False
+  is_recurrent: True
+  responsible: THIAGO CALANDRINI DE OLIVEIRA DOS ANJOS
+  category: ALUGUEL
+  lawsuit_id: None
+  process_number: None
+  protocol_number: None
+  name: None
+
+BY BANK:
+  CONTA PRINCIPAL: 7957
+  ASAAS: 2039
+  DINHEIRO: 4
+
+BY DATE (first 10):
+  NO_DATE: 10000
+
+SEPTEMBER TRANSACTIONS: 0
