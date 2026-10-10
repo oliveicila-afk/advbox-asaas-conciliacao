@@ -146,6 +146,33 @@ jobs:
                   print(f"Estornos/Débitos:     R$ {total_estornos:,.2f}")
                   print(f"Saldo Final:          R$ {saldo_final:,.2f}")
                   print("=" * 80)
+
+                  # Salvar resultado em JSON
+                  result_data = {
+                      "timestamp": datetime.now().isoformat(),
+                      "period": "2026-09-01 to 2026-09-10",
+                      "total_transactions": len(transactions),
+                      "receitas": {
+                          "count": len(receitas),
+                          "total": total_receitas,
+                          "transactions": [
+                              {
+                                  "date": t.get("date"),
+                                  "description": t.get("description"),
+                                  "amount": float(t.get("amount", 0))
+                              }
+                              for t in receitas
+                          ]
+                      },
+                      "estornos": {
+                          "count": len(estornos),
+                          "total": total_estornos
+                      },
+                      "saldo_final": saldo_final
+                  }
+
+                  with open("output/resultado_advbox.json", "w") as f:
+                      json.dump(result_data, f, indent=2, ensure_ascii=False)
               else:
                   print(f"❌ Erro {r.status_code}")
                   print(f"Resposta: {r.text[:500]}")
@@ -169,12 +196,14 @@ jobs:
 
       - name: Commit resultado
         if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           if [ -f output/resultado_advbox.txt ]; then
             cp output/resultado_advbox.txt auditoria_resultado_advbox.txt
             git add auditoria_resultado_advbox.txt
-            git commit -m "Update Advbox transaction data - $(date -u +%Y-%m-%d\ %H:%M:%S)" || true
-            git push || true
+            git commit -m "Update Advbox transaction data - $(date -u +%Y-%m-%d\ %H:%M:%S)" || echo "No changes to commit"
+            git push || echo "Push failed"
           fi
