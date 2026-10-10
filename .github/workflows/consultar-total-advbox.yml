@@ -166,3 +166,15 @@ jobs:
           name: resultado-advbox
           path: output/
           retention-days: 7
+
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          if [ -f output/resultado_advbox.txt ]; then
+            cp output/resultado_advbox.txt auditoria_resultado_advbox.txt
+            git add auditoria_resultado_advbox.txt
+            git commit -m "Update Advbox transaction data - $(date -u +%Y-%m-%d\ %H:%M:%S)" || true
+            git push || true
+          fi
