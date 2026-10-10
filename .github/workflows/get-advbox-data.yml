@@ -79,7 +79,7 @@ jobs:
               if bank != "ASAAS":
                   continue
 
-              date_str = tx.get("date")
+              date_str = tx.get("date_payment")
               if date_str:
                   try:
                       tx_date = datetime.fromisoformat(date_str).date()
