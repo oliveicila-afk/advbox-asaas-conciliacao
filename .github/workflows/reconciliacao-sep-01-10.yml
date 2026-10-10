@@ -1,0 +1,181 @@
+name: Reconciliação Completa - Sep 01-10, 2026
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reconciliation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests fpdf2 -q
+
+      - name: Run reconciliation
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          python3 << 'PYTHON_EOF'
+          import os
+          import sys
+          import json
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          import requests
+
+          ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+          ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
+          TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
+          tz = ZoneInfo(TIMEZONE)
+
+          UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+          print("=" * 80)
+          print("RECONCILIAÇÃO: Advbox Transações (Sep 01-10, 2026)")
+          print("=" * 80)
+
+          if not ADVBOX_TOKEN:
+              print("❌ Token não encontrado")
+              exit(1)
+
+          print(f"✓ Token recebido: {len(ADVBOX_TOKEN)} caracteres")
+
+          # Buscar todas as transações
+          print("\n📥 Consultando Advbox...")
+          headers = {
+              "Authorization": f"Bearer {ADVBOX_TOKEN}",
+              "User-Agent": UA,
+              "Accept": "application/json"
+          }
+
+          all_txs = []
+          offset = 0
+          limite = 1000
+
+          for page_num in range(1, 11):  # Máximo 10 páginas
+              params = {"limit": limite, "offset": offset}
+              try:
+                  r = requests.get(f"{ADVBOX_BASE}/transactions", headers=headers, params=params, timeout=30)
+                  print(f"  Página {page_num}: status {r.status_code}")
+
+                  if r.status_code != 200:
+                      print(f"    ❌ Erro: {r.text[:200]}")
+                      break
+
+                  data = r.json()
+                  itens = data if isinstance(data, list) else data.get("data", [])
+
+                  if not itens:
+                      print(f"  (Fim da paginação)")
+                      break
+
+                  all_txs.extend(itens)
+                  print(f"    Total acumulado: {len(all_txs)} transações")
+
+                  if len(itens) < limite:
+                      print(f"  (Última página com {len(itens)} itens)")
+                      break
+
+                  offset += limite
+
+              except Exception as e:
+                  print(f"  ❌ Erro na requisição: {e}")
+                  break
+
+          print(f"\n✓ Total obtido: {len(all_txs)} transações\n")
+
+          # Filtrar para Advbox = "ASAAS" e período Sep 01-10
+          start = datetime(2026, 9, 1, tzinfo=tz).date()
+          end = datetime(2026, 9, 10, tzinfo=tz).date()
+
+          filtered_txs = []
+          for tx in all_txs:
+              # Verificar se é do banco ASAAS
+              bank = (tx.get("debit_bank") or tx.get("bank") or "").upper()
+              if bank != "ASAAS":
+                  continue
+
+              # Verificar data
+              date_str = tx.get("date")
+              if date_str:
+                  try:
+                      tx_date = datetime.fromisoformat(date_str).date()
+                      if start <= tx_date <= end:
+                          filtered_txs.append(tx)
+                  except:
+                      pass
+
+          print("=" * 80)
+          print(f"TRANSAÇÕES SELECIONADAS: {len(filtered_txs)}")
+          print("=" * 80)
+
+          total = 0
+          for i, tx in enumerate(filtered_txs, 1):
+              amount = float(tx.get("amount", 0) or 0)
+              total += amount
+              date = tx.get("date", "N/A")
+              name = tx.get("name", "N/A")[:50]
+              entry_type = tx.get("entry_type", "N/A")
+
+              print(f"\n{i:2d}. {date} | R$ {amount:>12,.2f} | {entry_type:8s} | {name}")
+
+          print("\n" + "=" * 80)
+          print(f"TOTAL: R$ {total:,.2f}")
+          print(f"QUANTIDADE: {len(filtered_txs)} transações")
+          print("=" * 80)
+
+          # Salvar em JSON
+          resultado = {
+              "timestamp": datetime.now(tz).isoformat(),
+              "total_transacoes": len(filtered_txs),
+              "total_valor": total,
+              "transacoes": [
+                  {
+                      "date": tx.get("date"),
+                      "name": tx.get("name"),
+                      "amount": float(tx.get("amount", 0) or 0),
+                      "entry_type": tx.get("entry_type"),
+                      "description": tx.get("description"),
+                      "id": tx.get("id")
+                  }
+                  for tx in filtered_txs
+              ]
+          }
+
+          with open("resultado_reconciliacao.json", "w") as f:
+              json.dump(resultado, f, indent=2, ensure_ascii=False)
+
+          print("\n✓ Resultado salvo em resultado_reconciliacao.json")
+
+          PYTHON_EOF
+
+      - name: Upload resultado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-reconciliacao
+          path: resultado_reconciliacao.json
+          retention-days: 7
+
+      - name: Save to repository
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f resultado_reconciliacao.json ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            cp resultado_reconciliacao.json auditoria_reconciliacao_$(date +%Y%m%d_%H%M%S).json
+            git add auditoria_reconciliacao_*.json
+            git commit -m "Save reconciliation result - Advbox Sep 01-10" || echo "No changes"
+            git push || echo "Push may have failed"
+          fi
