@@ -1,0 +1,146 @@
+name: Consultar Total Advbox - Sep 01-10
+
+on:
+  workflow_dispatch:
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests -q
+
+      - name: Consultar Total Advbox
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          mkdir -p output
+          python3 << 'PYTHON_EOF' | tee output/resultado_advbox.txt
+          import os
+          import requests
+
+          ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+          ADVBOX_BASE = "https://api.advbox.com.br/public/v2"
+          ADVBOX_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+          print("=" * 80)
+          print("TOTAL EM ADVBOX: 1 a 10 de Setembro de 2026")
+          print("=" * 80)
+
+          if not ADVBOX_TOKEN:
+              print("❌ Token não encontrado")
+              exit(1)
+
+          print(f"✓ Token recebido: {len(ADVBOX_TOKEN)} caracteres")
+
+          try:
+              # Headers com autenticação Bearer e User-Agent
+              headers = {
+                  "Authorization": f"Bearer {ADVBOX_TOKEN}",
+                  "User-Agent": ADVBOX_USER_AGENT,
+                  "Accept": "application/json"
+              }
+              
+              # Parâmetros da consulta
+              params = {
+                  "startDate": "2026-09-01",
+                  "endDate": "2026-09-10",
+                  "limit": 100
+              }
+
+              print("\nConsultando API do Advbox (conta ASAAS)...")
+              r = requests.get(
+                  f"{ADVBOX_BASE}/account/193264/transaction",
+                  headers=headers,
+                  params=params,
+                  timeout=30
+              )
+
+              print(f"Status: {r.status_code}")
+              
+              if r.status_code == 200:
+                  data = r.json()
+                  transactions = data.get("data", []) if isinstance(data, dict) else data
+                  
+                  print(f"\nTotal de transações no Advbox: {len(transactions)}")
+                  
+                  # Filtrar receitas (entry_type = "credit")
+                  receitas = [t for t in transactions if t.get("entry_type") == "credit"]
+                  print(f"Receitas (credit): {len(receitas)}")
+                  
+                  # Filtrar estornos/débitos (entry_type = "debit")
+                  estornos = [t for t in transactions if t.get("entry_type") == "debit"]
+                  print(f"Estornos/Débitos (debit): {len(estornos)}")
+                  
+                  print("\n" + "-" * 80)
+                  print("DETALHAMENTO DAS RECEITAS:")
+                  print("-" * 80)
+                  
+                  total_receitas = 0
+                  for i, t in enumerate(receitas, 1):
+                      value = float(t.get("amount", 0))
+                      date = t.get("date", "")
+                      desc = t.get("description", "")
+                      
+                      print(f"\n{i}. Data: {date}")
+                      print(f"   Descrição: {desc}")
+                      print(f"   Valor: R$ {value:,.2f}")
+                      
+                      total_receitas += value
+                  
+                  print("\n" + "-" * 80)
+                  print("DETALHAMENTO DOS ESTORNOS:")
+                  print("-" * 80)
+                  
+                  total_estornos = 0
+                  if estornos:
+                      for i, t in enumerate(estornos, 1):
+                          value = float(t.get("amount", 0))
+                          date = t.get("date", "")
+                          desc = t.get("description", "")
+                          
+                          print(f"\n{i}. Data: {date}")
+                          print(f"   Descrição: {desc}")
+                          print(f"   Valor: R$ {value:,.2f}")
+                          
+                          total_estornos += value
+                  else:
+                      print("Nenhum estorno registrado")
+                  
+                  saldo_final = total_receitas - total_estornos
+                  
+                  print("\n" + "=" * 80)
+                  print("RESUMO ADVBOX (Sep 01-10, 2026):")
+                  print("=" * 80)
+                  print(f"Receitas (credit):    R$ {total_receitas:,.2f}")
+                  print(f"Estornos/Débitos:     R$ {total_estornos:,.2f}")
+                  print(f"Saldo Final:          R$ {saldo_final:,.2f}")
+                  print("=" * 80)
+              else:
+                  print(f"❌ Erro {r.status_code}")
+                  print(f"Resposta: {r.text[:500]}")
+                  exit(1)
+                  
+          except Exception as e:
+              print(f"❌ Erro na requisição: {e}")
+              import traceback
+              traceback.print_exc()
+              exit(1)
+
+          PYTHON_EOF
+
+      - name: Upload resultado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-advbox
+          path: output/
+          retention-days: 7
