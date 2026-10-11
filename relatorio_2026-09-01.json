@@ -1,0 +1,25 @@
+{
+  "data": "2026-09-01",
+  "gerado_em": "2026-10-11T15:53:11.785337",
+  "asaas": {
+    "total_lancamentos": 0,
+    "total_valor": 0,
+    "tipos_buscados": [
+      "PAYMENT_RECEIVED",
+      "ANTICIPATED_RECEIVED"
+    ],
+    "lancamentos": []
+  },
+  "advbox": {
+    "total_lancamentos": 0,
+    "total_valor": 0,
+    "lancamentos": []
+  },
+  "conciliacao": {
+    "matches": 0,
+    "so_asaas": 0,
+    "so_advbox": 0,
+    "diferenca": 0,
+    "status": "✅ CONCILIADO"
+  }
+}
