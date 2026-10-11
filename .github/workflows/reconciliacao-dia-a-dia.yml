@@ -1,0 +1,235 @@
+name: Reconciliação Dia a Dia - Receitas
+
+on:
+  workflow_dispatch:
+    inputs:
+      data:
+        description: "Data para análise (formato: YYYY-MM-DD, ex: 2026-09-01)"
+        required: true
+        default: "2026-09-01"
+
+jobs:
+  analisar-receitas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Analisar Receitas - Asaas vs Advbox
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TARGET_DATE: ${{ github.event.inputs.data }}
+        run: python - << 'EOF'
+import os
+import requests
+import json
+from datetime import datetime
+
+ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "").strip()
+ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+TARGET_DATE = os.environ.get("TARGET_DATE", "2026-09-01").strip()
+
+print("=" * 100)
+print(f"RECONCILIAÇÃO DE RECEITAS - {TARGET_DATE}")
+print("=" * 100)
+print("\n")
+
+# ============================================================================
+# 1. BUSCAR RECEITAS DO ASAAS
+# ============================================================================
+print(f"ETAPA 1: Buscando receitas do Asaas para {TARGET_DATE}")
+print("-" * 100)
+
+asaas_transactions = []
+
+try:
+    headers = {
+        "Authorization": f"Bearer {ASAAS_TOKEN}",
+        "Accept": "application/json"
+    }
+
+    response = requests.get(
+        "https://api.asaas.com/v3/financialTransactions",
+        headers=headers,
+        params={
+            "dateFilter": TARGET_DATE,
+            "type": "PAYMENT_RECEIVED",
+            "limit": 100
+        },
+        timeout=30
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        asaas_transactions = data.get("data", [])
+        print(f"✓ {len(asaas_transactions)} transações encontradas no Asaas")
+    else:
+        print(f"❌ Erro ao buscar Asaas: Status {response.status_code}")
+        print(f"   Resposta: {response.text[:200]}")
+
+except Exception as e:
+    print(f"❌ Erro ao conectar Asaas: {e}")
+
+asaas_total = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
+print(f"✓ Total Asaas: R$ {asaas_total:.2f}\n")
+
+# ============================================================================
+# 2. BUSCAR RECEITAS DO ADVBOX
+# ============================================================================
+print(f"ETAPA 2: Buscando receitas do Advbox para {TARGET_DATE}")
+print("-" * 100)
+
+advbox_transactions = []
+
+try:
+    headers = {
+        "Authorization": f"Bearer {ADVBOX_TOKEN}",
+        "Accept": "application/json"
+    }
+
+    # Buscar transações de receita do Advbox
+    response = requests.get(
+        "https://app.advbox.com.br/api/v1/transactions",
+        headers=headers,
+        params={
+            "type": "income",
+            "date_from": TARGET_DATE,
+            "date_to": TARGET_DATE,
+            "per_page": 100
+        },
+        timeout=30
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        # Trata tanto estrutura com 'data' quanto 'transactions'
+        advbox_transactions = data.get("data", []) or data.get("transactions", [])
+        print(f"✓ {len(advbox_transactions)} transações encontradas no Advbox")
+    else:
+        print(f"❌ Erro ao buscar Advbox: Status {response.status_code}")
+        print(f"   Resposta: {response.text[:200]}")
+
+except Exception as e:
+    print(f"❌ Erro ao conectar Advbox: {e}")
+
+advbox_total = sum(float(str(tx.get("value", tx.get("amount", 0))).replace(",", ".")) for tx in advbox_transactions)
+print(f"✓ Total Advbox: R$ {advbox_total:.2f}\n")
+
+# ============================================================================
+# 3. COMPARAÇÃO
+# ============================================================================
+print("=" * 100)
+print("RESUMO - RECEITAS")
+print("=" * 100)
+
+print(f"\n{'Sistema':<20} | {'Transações':<15} | {'Total':<15}")
+print("-" * 100)
+print(f"{'Asaas':<20} | {len(asaas_transactions):<15} | R$ {asaas_total:>12.2f}")
+print(f"{'Advbox':<20} | {len(advbox_transactions):<15} | R$ {advbox_total:>12.2f}")
+print("-" * 100)
+
+diferenca = advbox_total - asaas_total
+print(f"\n{'DIFERENÇA':<20} | {'':<15} | R$ {diferenca:>12.2f}")
+
+if diferenca == 0:
+    print("\n✅ PERFEITO! Os totais batem!")
+elif diferenca > 0:
+    print(f"\n⚠️  Advbox tem R$ {diferenca:.2f} A MAIS que Asaas")
+else:
+    print(f"\n⚠️  Advbox tem R$ {-diferenca:.2f} A MENOS que Asaas")
+
+# ============================================================================
+# 4. DETALHAMENTO
+# ============================================================================
+print("\n" + "=" * 100)
+print("DETALHAMENTO - ASAAS")
+print("=" * 100)
+
+if asaas_transactions:
+    print(f"\n{'Cliente/Descrição':<50} | {'Valor':>12}")
+    print("-" * 100)
+    for tx in asaas_transactions:
+        descricao = tx.get("description", "N/A")[:50]
+        valor = float(tx.get("value", 0))
+        print(f"{descricao:<50} | R$ {valor:>10.2f}")
+else:
+    print("Nenhuma transação encontrada")
+
+print("\n" + "=" * 100)
+print("DETALHAMENTO - ADVBOX")
+print("=" * 100)
+
+if advbox_transactions:
+    print(f"\n{'Nome/Descrição':<50} | {'Valor':>12}")
+    print("-" * 100)
+    for tx in advbox_transactions:
+        descricao = tx.get("description", tx.get("name", "N/A"))[:50]
+        valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+        print(f"{descricao:<50} | R$ {valor:>10.2f}")
+else:
+    print("Nenhuma transação encontrada")
+
+# ============================================================================
+# 5. SALVAR RELATÓRIO
+# ============================================================================
+relatorio = {
+    "data": TARGET_DATE,
+    "asaas": {
+        "total_transacoes": len(asaas_transactions),
+        "total_valor": asaas_total,
+        "transacoes": [
+            {
+                "descricao": tx.get("description", ""),
+                "valor": float(tx.get("value", 0))
+            }
+            for tx in asaas_transactions
+        ]
+    },
+    "advbox": {
+        "total_transacoes": len(advbox_transactions),
+        "total_valor": advbox_total,
+        "transacoes": [
+            {
+                "descricao": tx.get("description", tx.get("name", "")),
+                "valor": float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+            }
+            for tx in advbox_transactions
+        ]
+    },
+    "diferenca": diferenca,
+    "status": "OK" if diferenca == 0 else "DISCREPANCIA"
+}
+
+with open(f"relatorio_{TARGET_DATE}.json", "w") as f:
+    json.dump(relatorio, f, indent=2, ensure_ascii=False)
+
+print(f"\n✓ Relatório salvo: relatorio_{TARGET_DATE}.json")
+
+EOF
+
+      - name: Upload do relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-receitas
+          path: relatorio_*.json
+          retention-days: 30
+
+      - name: Resultado
+        if: success()
+        run: |
+          echo "✅ Análise de receitas concluída!"
+          echo ""
+          echo "Próximas ações:"
+          echo "1. Revisar o relatório JSON gerado"
+          echo "2. Verificar se os totais batem"
+          echo "3. Se houver diferença, investigar as transações não correspondentes"
