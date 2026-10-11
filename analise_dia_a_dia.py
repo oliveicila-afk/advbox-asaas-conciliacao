@@ -21,6 +21,13 @@ print(f"RECONCILIAÇÃO DE RECEITAS - {TARGET_DATE}")
 print("=" * 100)
 print("\n")
 
+# Debug: verificar se tokens foram recebidos
+print("🔍 DEBUG - Verificando configuração:")
+print(f"   ASAAS_TOKEN recebido: {'✓ Sim' if ASAAS_TOKEN else '❌ NÃO'}")
+print(f"   ADVBOX_TOKEN recebido: {'✓ Sim' if ADVBOX_TOKEN else '❌ NÃO'}")
+print(f"   TARGET_DATE: {TARGET_DATE}")
+print("\n")
+
 # ============================================================================
 # 1. BUSCAR RECEITAS DO ASAAS
 # ============================================================================
@@ -50,9 +57,12 @@ try:
         data = response.json()
         asaas_transactions = data.get("data", [])
         print(f"✓ {len(asaas_transactions)} transações encontradas no Asaas")
+        if not asaas_transactions:
+            print(f"   Resposta completa: {json.dumps(data, indent=2, ensure_ascii=False)[:500]}")
     else:
         print(f"❌ Erro ao buscar Asaas: Status {response.status_code}")
-        print(f"   Resposta: {response.text[:200]}")
+        print(f"   Resposta: {response.text}")
+        print(f"   Headers enviados: {dict(headers)}")
 
 except Exception as e:
     print(f"❌ Erro ao conectar Asaas: {e}")
@@ -92,9 +102,12 @@ try:
         # Trata tanto estrutura com 'data' quanto 'transactions'
         advbox_transactions = data.get("data", []) or data.get("transactions", [])
         print(f"✓ {len(advbox_transactions)} transações encontradas no Advbox")
+        if not advbox_transactions:
+            print(f"   Resposta completa: {json.dumps(data, indent=2, ensure_ascii=False)[:500]}")
     else:
         print(f"❌ Erro ao buscar Advbox: Status {response.status_code}")
-        print(f"   Resposta: {response.text[:200]}")
+        print(f"   Resposta: {response.text}")
+        print(f"   Headers enviados: {dict(headers)}")
 
 except Exception as e:
     print(f"❌ Erro ao conectar Advbox: {e}")
