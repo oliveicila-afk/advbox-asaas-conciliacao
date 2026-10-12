@@ -157,16 +157,16 @@ for income_type in ASAAS_INCOME_TYPES:
             break
 
 if asaas_transactions:
-        print(f"✓ {len(asaas_transactions)} lançamentos encontrados\n")
-        print(f"{'#':<4} {'Tipo':<25} {'Descrição':<45} {'Valor':>12}")
-        print("-" * 100)
-        for i, tx in enumerate(asaas_transactions, 1):
-            tipo  = tx.get("type", "N/A")
-            desc  = tx.get("description", "N/A")[:45]
-            valor = float(tx.get("value", 0))
-            print(f"{i:<4} {tipo:<25} {desc:<45} R$ {valor:>10.2f}")
-    else:
-        print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
+    print(f"✓ {len(asaas_transactions)} lançamentos encontrados\n")
+    print(f"{'#':<4} {'Tipo':<25} {'Descrição':<45} {'Valor':>12}")
+    print("-" * 100)
+    for i, tx in enumerate(asaas_transactions, 1):
+        tipo  = tx.get("type", "N/A")
+        desc  = tx.get("description", "N/A")[:45]
+        valor = float(tx.get("value", 0))
+        print(f"{i:<4} {tipo:<25} {desc:<45} R$ {valor:>10.2f}")
+else:
+    print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
 
 total_asaas = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
 print(f"\n{'':>80} TOTAL ASAAS: R$ {total_asaas:>10.2f}")
