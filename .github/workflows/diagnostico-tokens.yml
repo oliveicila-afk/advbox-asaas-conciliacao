@@ -1,0 +1,128 @@
+name: 🔍 Diagnóstico de Tokens e Variáveis
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Data para testar (AAAA-MM-DD)"
+        required: false
+        default: "2026-09-01"
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: "1️⃣ Verificar Secrets Configurados"
+        run: |
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  VERIFICAÇÃO DE SECRETS                                   ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "✓ ASAAS_TOKEN: $(if [ -z '${{ secrets.ASAAS_TOKEN }}' ]; then echo '❌ NÃO CONFIGURADO'; else echo '✅ CONFIGURADO'; fi)"
+          echo "✓ ADVBOX_TOKEN: $(if [ -z '${{ secrets.ADVBOX_TOKEN }}' ]; then echo '❌ NÃO CONFIGURADO'; else echo '✅ CONFIGURADO'; fi)"
+          echo "✓ SMTP_USER: $(if [ -z '${{ secrets.SMTP_USER }}' ]; then echo '❌ NÃO CONFIGURADO'; else echo '✅ CONFIGURADO'; fi)"
+          echo "✓ SMTP_PASS: $(if [ -z '${{ secrets.SMTP_PASS }}' ]; then echo '❌ NÃO CONFIGURADO'; else echo '✅ CONFIGURADO'; fi)"
+          echo "✓ EMAIL_DESTINO: $(if [ -z '${{ secrets.EMAIL_DESTINO }}' ]; then echo '❌ NÃO CONFIGURADO'; else echo '✅ CONFIGURADO'; fi)"
+          echo ""
+
+      - name: "2️⃣ Inputs Recebidos"
+        run: |
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  INPUTS DO WORKFLOW_DISPATCH                              ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Target Date: ${{ github.event.inputs.target_date }}"
+          echo ""
+
+      - name: "3️⃣ Testar Passagem de Variáveis de Ambiente"
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+        run: |
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  VARIÁVEIS DE AMBIENTE (no step)                          ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "SHELL BASH:"
+          echo "  ASAAS_TOKEN length: ${#ASAAS_TOKEN}"
+          echo "  ADVBOX_TOKEN length: ${#ADVBOX_TOKEN}"
+          echo "  TARGET_DATE: $TARGET_DATE"
+          echo ""
+
+      - name: "4️⃣ Teste com Python"
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
+        run: |
+          python3 << 'EOF'
+          import os
+          print("╔═══════════════════════════════════════════════════════════╗")
+          print("║  VARIÁVEIS RECEBIDAS PELO PYTHON                          ║")
+          print("╚═══════════════════════════════════════════════════════════╝")
+          print()
+
+          vars_to_check = [
+              ("ASAAS_TOKEN", "API Token Asaas"),
+              ("ADVBOX_TOKEN", "API Token Advbox"),
+              ("TARGET_DATE", "Data Alvo"),
+              ("SMTP_USER", "Usuário SMTP"),
+              ("SMTP_PASS", "Senha SMTP"),
+              ("EMAIL_DESTINO", "Email Destino"),
+          ]
+
+          for var_name, description in vars_to_check:
+              value = os.environ.get(var_name, "")
+              if value:
+                  masked = f"{value[:4]}...{value[-4:]}" if len(value) > 8 else "***"
+                  print(f"✅ {var_name:20} ({description:20}): {masked}")
+              else:
+                  print(f"❌ {var_name:20} ({description:20}): VAZIO/NÃO DEFINIDO")
+
+          print()
+          print("═══════════════════════════════════════════════════════════")
+
+          # Resumo
+          asaas = bool(os.environ.get("ASAAS_TOKEN", "").strip())
+          advbox = bool(os.environ.get("ADVBOX_TOKEN", "").strip())
+
+          if asaas and advbox:
+              print("✅ STATUS: PRONTO PARA EXECUTAR RECONCILIAÇÃO")
+          else:
+              print("❌ STATUS: TOKENS FALTANDO - RECONCILIAÇÃO NÃO VAI RODAR")
+              if not asaas:
+                  print("   - Falta: ASAAS_TOKEN")
+              if not advbox:
+                  print("   - Falta: ADVBOX_TOKEN")
+
+          EOF
+
+      - name: "5️⃣ Resultado Final"
+        run: |
+          echo ""
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  PRÓXIMOS PASSOS                                          ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Se TODOS os secrets aparecem com ✅:"
+          echo "  → O problema está em OUTRO LUGAR (não é falta de secrets)"
+          echo ""
+          echo "Se algum secret aparece com ❌:"
+          echo "  → CONFIGURE O SECRET NO GITHUB:"
+          echo "  → Settings → Secrets and variables → Actions"
+          echo ""
