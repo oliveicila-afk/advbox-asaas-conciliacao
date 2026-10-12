@@ -57,3 +57,16 @@ jobs:
             relatorio_*.json
             debug_*.log
           retention-days: 30
+
+      - name: Commit relatório ao repositório
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f relatorio_*.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add relatorio_*.json debug_*.log
+            git commit -m "Atualizar relatório e logs da reconciliação (${{ github.event.inputs.target_date }})" || true
+            git push
+          fi
