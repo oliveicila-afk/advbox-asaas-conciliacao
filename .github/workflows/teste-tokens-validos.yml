@@ -40,15 +40,24 @@ jobs:
           print(f"✅ ASAAS_TOKEN recebido (primeiros 10 chars): {token[:10]}...")
 
           # Tenta fazer uma chamada simples para confirmar se o token é válido
-          headers = {"access_token": token}
-          url = "https://api.asaas.com/v3/accounts"
+          # Usando o mesmo formato que o script principal usa (Bearer token)
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/json"
+          }
+          url = "https://api.asaas.com/v3/financialTransactions"
 
           try:
-              response = requests.get(url, headers=headers, timeout=10)
+              params = {
+                  "startDate": "2026-10-12",
+                  "finishDate": "2026-10-12",
+                  "limit": 1
+              }
+              response = requests.get(url, headers=headers, params=params, timeout=10)
 
               if response.status_code == 200:
                   print(f"✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
-                  print(f"   Dados da conta recebidos com sucesso")
+                  print(f"   Conexão com API Asaas estabelecida com sucesso")
               elif response.status_code == 401:
                   print(f"❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
                   print(f"   Response: {response.text[:200]}")
@@ -86,15 +95,20 @@ jobs:
           print(f"✅ ADVBOX_TOKEN recebido (primeiros 10 chars): {token[:10]}...")
 
           # Tenta fazer uma chamada simples para confirmar se o token é válido
-          headers = {"Authorization": f"Bearer {token}"}
-          url = "https://api.advbox.com/api/v1/account"
+          # Usando o mesmo endpoint que o script principal usa (transactions, não account)
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/json"
+          }
+          url = "https://app.advbox.com.br/api/v1/transactions"
 
           try:
-              response = requests.get(url, headers=headers, timeout=10)
+              params = {"limit": 1, "offset": 0}
+              response = requests.get(url, headers=headers, params=params, timeout=10)
 
               if response.status_code == 200:
                   print(f"✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
-                  print(f"   Dados da conta recebidos com sucesso")
+                  print(f"   Conexão com API Advbox estabelecida com sucesso")
               elif response.status_code == 401:
                   print(f"❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
                   print(f"   Response: {response.text[:200]}")
