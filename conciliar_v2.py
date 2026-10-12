@@ -992,14 +992,7 @@ def enriquecer_receita_faltando_com_processo(
                     categoria_sugerida_por_tarefas = analise_tarefas["categoria"]
                     confianca_categoria = analise_tarefas["confianca"]
 
-            # CAMADA 3: Verifica juros/multas (validação adicional)
-            info_juros_multas = None
-            if numero_processo:
-                info_juros_multas = verificar_juros_multas_por_diferenca(
-                    valor_receita, numero_processo, lawsuits, advbox_itens
-                )
-
-            # CAMADA 4: Sugere centro de custo por origem se ainda não tiver
+            # CAMADA 3: Sugere centro de custo por origem se ainda não tiver
             origem_cliente = None
             if not centro_custo_sugerido and customer_id:
                 cliente = advbox_get_customer(customer_id)
@@ -1031,7 +1024,6 @@ def enriquecer_receita_faltando_com_processo(
                 "categoria_final": categoria_final,
                 "confianca_categoria": confianca_categoria,
                 "centro_custo_sugerido": centro_custo_sugerido,
-                "info_juros_multas": info_juros_multas,
                 "origem_cliente": origem_cliente,
                 "protocolo": protocolo,
                 "tese": tese,
