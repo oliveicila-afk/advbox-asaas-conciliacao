@@ -115,7 +115,7 @@ def fetch_asaas_transactions():
     """Busca Asaas com logging COMPLETO"""
     transactions = []
     headers_asaas = {
-        "access_token": ASAAS_TOKEN,
+        "Authorization": f"Bearer {ASAAS_TOKEN}",
         "Accept": "application/json"
     }
 
