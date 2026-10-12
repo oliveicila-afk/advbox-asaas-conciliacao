@@ -26,19 +26,25 @@ jobs:
       - name: Instalar dependências
         run: pip install requests
 
+      - name: Verificar variáveis de ambiente
+        run: |
+          echo "TARGET_DATE: ${{ github.event.inputs.target_date }}"
+          echo "DRY_RUN: ${{ github.event.inputs.dry_run }}"
+          echo "ASAAS_TOKEN: $(if [ -z '${{ secrets.ASAAS_TOKEN }}' ]; then echo 'NÃO CONFIGURADO'; else echo '✓ Configurado'; fi)"
+          echo "ADVBOX_TOKEN: $(if [ -z '${{ secrets.ADVBOX_TOKEN }}' ]; then echo 'NÃO CONFIGURADO'; else echo '✓ Configurado'; fi)"
+
       - name: Rodar conciliação com correções automáticas
         env:
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           TARGET_DATE: ${{ github.event.inputs.target_date }}
-        run: |
-          export DRY_RUN=${{ github.event.inputs.dry_run }}
-          python3 analise_dia_a_dia.py
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: python3 analise_dia_a_dia.py
 
       - name: Upload relatório
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: relatorio-conciliacao-${{ github.event.inputs.target_date }}
+          name: relatorio-conciliacao
           path: relatorio_*.json
           retention-days: 30
