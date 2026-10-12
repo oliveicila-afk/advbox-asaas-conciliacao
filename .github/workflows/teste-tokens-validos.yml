@@ -85,7 +85,7 @@ jobs:
           token = os.environ.get("ADVBOX_TOKEN", "").strip()
 
           print("\n" + "=" * 80)
-          print("TESTE DE TOKEN ADVBOX")
+          print("TESTE DE TOKEN ADVBOX - COM DEBUGGING DETALHADO")
           print("=" * 80)
 
           if not token:
@@ -93,6 +93,7 @@ jobs:
               sys.exit(1)
 
           print(f"✅ ADVBOX_TOKEN recebido (primeiros 10 chars): {token[:10]}...")
+          print(f"   Comprimento do token: {len(token)} chars")
 
           # Tenta fazer uma chamada simples para confirmar se o token é válido
           # Usando o mesmo endpoint que o script principal usa (transactions, não account)
@@ -102,24 +103,38 @@ jobs:
           }
           url = "https://app.advbox.com.br/api/v1/transactions"
 
+          print(f"\n📍 URL: {url}")
+          print(f"🔐 Headers: {{'Authorization': 'Bearer ...', 'Accept': 'application/json'}}")
+          print(f"📋 Params: limit=1, offset=0")
+
           try:
               params = {"limit": 1, "offset": 0}
+              print(f"\n🔄 Enviando requisição...")
               response = requests.get(url, headers=headers, params=params, timeout=10)
 
+              print(f"✓ Resposta recebida!")
+              print(f"  Status Code: {response.status_code}")
+              print(f"  Headers: {dict(response.headers)}")
+              print(f"  Body (primeiros 300 chars): {response.text[:300]}")
+
               if response.status_code == 200:
-                  print(f"✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
+                  print(f"\n✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
                   print(f"   Conexão com API Advbox estabelecida com sucesso")
               elif response.status_code == 401:
-                  print(f"❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
+                  print(f"\n❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
                   print(f"   Response: {response.text[:200]}")
               elif response.status_code == 403:
-                  print(f"❌ PERMISSÃO NEGADA! (Status 403)")
+                  print(f"\n❌ PERMISSÃO NEGADA! (Status 403)")
                   print(f"   Response: {response.text[:200]}")
               else:
-                  print(f"⚠️  Status: {response.status_code}")
+                  print(f"\n⚠️  Status Inesperado: {response.status_code}")
                   print(f"   Response: {response.text[:200]}")
           except Exception as e:
-              print(f"❌ ERRO na requisição: {str(e)}")
+              import traceback
+              print(f"\n❌ ERRO na requisição!")
+              print(f"   Tipo: {type(e).__name__}")
+              print(f"   Mensagem: {str(e)}")
+              print(f"   Traceback: {traceback.format_exc()}")
               sys.exit(1)
 
           EOF
