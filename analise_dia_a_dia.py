@@ -273,6 +273,14 @@ def fetch_advbox_transactions():
 # ---------------------------------------------------------------------------
 if not ASAAS_TOKEN or not ADVBOX_TOKEN:
     log_msg(f"\n❌ ERRO CRÍTICO: Tokens não fornecidos!", True)
+    if ASAAS_TOKEN:
+        log_msg(f"  ✓ ASAAS_TOKEN: definido ({len(ASAAS_TOKEN)} chars)", True)
+    else:
+        log_msg(f"  ✗ ASAAS_TOKEN: VAZIO ou NÃO DEFINIDO", True)
+    if ADVBOX_TOKEN:
+        log_msg(f"  ✓ ADVBOX_TOKEN: definido ({len(ADVBOX_TOKEN)} chars)", True)
+    else:
+        log_msg(f"  ✗ ADVBOX_TOKEN: VAZIO ou NÃO DEFINIDO", True)
     sys.exit(1)
 
 log_msg(f"\n🔄 INICIANDO LOOP DE RECONCILIAÇÃO", True)
