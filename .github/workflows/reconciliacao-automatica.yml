@@ -1,0 +1,44 @@
+name: Reconciliação Automática — Asaas vs Advbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Data para conciliar (AAAA-MM-DD). Ex: 2026-09-01"
+        required: true
+      dry_run:
+        description: "true = simular (sem gravar). false = executar correções reais"
+        required: false
+        default: "true"
+
+jobs:
+  reconciliar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Rodar conciliação com correções automáticas
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+        run: |
+          export DRY_RUN=${{ github.event.inputs.dry_run }}
+          python3 analise_dia_a_dia.py
+
+      - name: Upload relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-conciliacao-${{ github.event.inputs.target_date }}
+          path: relatorio_*.json
+          retention-days: 30
