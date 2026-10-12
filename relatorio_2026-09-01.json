@@ -1,6 +1,6 @@
 {
   "data": "2026-09-01",
-  "gerado_em": "2026-10-11T15:53:11.785337",
+  "gerado_em": "2026-10-12T13:31:48.236732",
   "asaas": {
     "total_lancamentos": 0,
     "total_valor": 0,
@@ -17,9 +17,16 @@
   },
   "conciliacao": {
     "matches": 0,
-    "so_asaas": 0,
-    "so_advbox": 0,
-    "diferenca": 0,
+    "faltando_no_advbox": 0,
+    "fantasmas_no_advbox": 0,
+    "diferenca_antes": 0,
+    "diferenca_depois": 0,
     "status": "✅ CONCILIADO"
+  },
+  "correcoes": {
+    "total_realizadas": 0,
+    "total_falhadas": 0,
+    "detalhes": [],
+    "falhas": []
   }
 }

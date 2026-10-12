@@ -37,7 +37,7 @@ TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
 ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "ANTICIPATED_RECEIVED"]
 
 # Modo DRY-RUN: se True, mostra o que FARIA, sem executar as correções
-DRY_RUN = False  # Mude para True para apenas ver o que seria corrigido
+DRY_RUN = os.environ.get("DRY_RUN", "false").lower() in ["true", "1", "yes"]
 
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE CORREÇÃO — Advbox API Operations
@@ -98,6 +98,14 @@ else:
     print("(MODO CORRETIVO — executando correções)")
 print("=" * 100)
 
+# Verificar se os tokens necessários foram fornecidos
+if not ASAAS_TOKEN or not ADVBOX_TOKEN:
+    print("\n❌ ERRO CRÍTICO: Tokens não fornecidos!")
+    print(f"  ASAAS_TOKEN: {'✓ Definido' if ASAAS_TOKEN else '✗ FALTANDO'}")
+    print(f"  ADVBOX_TOKEN: {'✓ Definido' if ADVBOX_TOKEN else '✗ FALTANDO'}")
+    print("\nVerifique se os secrets do repositório GitHub estão configurados corretamente.")
+    sys.exit(1)
+
 # ---------------------------------------------------------------------------
 # 1. ASAAS — buscar TODAS as receitas do dia
 # ---------------------------------------------------------------------------
@@ -106,52 +114,49 @@ print("-" * 100)
 
 asaas_transactions = []
 
-if not ASAAS_TOKEN:
-    print("❌ ASAAS_TOKEN não definido — verifique os secrets do repositório")
-else:
-    headers_asaas = {
-        "Authorization": f"Bearer {ASAAS_TOKEN}",
-        "Accept": "application/json"
-    }
+headers_asaas = {
+    "Authorization": f"Bearer {ASAAS_TOKEN}",
+    "Accept": "application/json"
+}
 
-    for income_type in ASAAS_INCOME_TYPES:
-        offset = 0
-        limit  = 100
+for income_type in ASAAS_INCOME_TYPES:
+    offset = 0
+    limit  = 100
 
-        while True:
-            try:
-                resp = requests.get(
-                    "https://api.asaas.com/v3/financialTransactions",
-                    headers=headers_asaas,
-                    params={
-                        "startDate": TARGET_DATE,   # data de crédito na conta
-                        "finishDate": TARGET_DATE,
-                        "type": income_type,
-                        "limit": limit,
-                        "offset": offset,
-                    },
-                    timeout=30
-                )
+    while True:
+        try:
+            resp = requests.get(
+                "https://api.asaas.com/v3/financialTransactions",
+                headers=headers_asaas,
+                params={
+                    "startDate": TARGET_DATE,   # data de crédito na conta
+                    "finishDate": TARGET_DATE,
+                    "type": income_type,
+                    "limit": limit,
+                    "offset": offset,
+                },
+                timeout=30
+            )
 
-                if resp.status_code != 200:
-                    print(f"❌ Asaas ({income_type}): status {resp.status_code} — {resp.text[:300]}")
-                    break
-
-                data = resp.json()
-                batch = data.get("data", [])
-                asaas_transactions.extend(batch)
-
-                # Paginação: continua enquanto houver mais páginas
-                has_more = data.get("hasMore", False)
-                if not has_more or len(batch) == 0:
-                    break
-                offset += limit
-
-            except Exception as e:
-                print(f"❌ Erro ao conectar Asaas ({income_type}): {e}")
+            if resp.status_code != 200:
+                print(f"❌ Asaas ({income_type}): status {resp.status_code} — {resp.text[:300]}")
                 break
 
-    if asaas_transactions:
+            data = resp.json()
+            batch = data.get("data", [])
+            asaas_transactions.extend(batch)
+
+            # Paginação: continua enquanto houver mais páginas
+            has_more = data.get("hasMore", False)
+            if not has_more or len(batch) == 0:
+                break
+            offset += limit
+
+        except Exception as e:
+            print(f"❌ Erro ao conectar Asaas ({income_type}): {e}")
+            break
+
+if asaas_transactions:
         print(f"✓ {len(asaas_transactions)} lançamentos encontrados\n")
         print(f"{'#':<4} {'Tipo':<25} {'Descrição':<45} {'Valor':>12}")
         print("-" * 100)
@@ -174,61 +179,58 @@ print("-" * 100)
 
 advbox_transactions = []
 
-if not ADVBOX_TOKEN:
-    print("❌ ADVBOX_TOKEN não definido — verifique os secrets do repositório")
-else:
-    headers_advbox = {
-        "Authorization": f"Bearer {ADVBOX_TOKEN}",
-        "Accept": "application/json"
-    }
+headers_advbox = {
+    "Authorization": f"Bearer {ADVBOX_TOKEN}",
+    "Accept": "application/json"
+}
 
-    page = 1
+page = 1
 
-    while True:
-        try:
-            resp = requests.get(
-                "https://app.advbox.com.br/api/v1/transactions",
-                headers=headers_advbox,
-                params={
-                    "type": "income",            # apenas receitas
-                    "payment_date_from": TARGET_DATE,  # filtra por DATA DE PAGAMENTO
-                    "payment_date_to":   TARGET_DATE,  # (não data de vencimento)
-                    "status": "paid",            # apenas lançamentos efetivamente recebidos
-                    "account_type": "asaas",     # FILTRAR APENAS CONTA ASAAS
-                    "per_page": 100,
-                    "page": page,
-                },
-                timeout=30
-            )
+while True:
+    try:
+        resp = requests.get(
+            "https://app.advbox.com.br/api/v1/transactions",
+            headers=headers_advbox,
+            params={
+                "type": "income",            # apenas receitas
+                "payment_date_from": TARGET_DATE,  # filtra por DATA DE PAGAMENTO
+                "payment_date_to":   TARGET_DATE,  # (não data de vencimento)
+                "status": "paid",            # apenas lançamentos efetivamente recebidos
+                "account_type": "asaas",     # FILTRAR APENAS CONTA ASAAS
+                "per_page": 100,
+                "page": page,
+            },
+            timeout=30
+        )
 
-            if resp.status_code != 200:
-                print(f"❌ Advbox: status {resp.status_code} — {resp.text[:300]}")
-                break
-
-            data = resp.json()
-            batch = data.get("data", []) or data.get("transactions", [])
-            advbox_transactions.extend(batch)
-
-            # Paginação
-            total_pages = data.get("last_page", data.get("meta", {}).get("last_page", 1))
-            if page >= total_pages or len(batch) == 0:
-                break
-            page += 1
-
-        except Exception as e:
-            print(f"❌ Erro ao conectar Advbox: {e}")
+        if resp.status_code != 200:
+            print(f"❌ Advbox: status {resp.status_code} — {resp.text[:300]}")
             break
 
-    if advbox_transactions:
-        print(f"✓ {len(advbox_transactions)} lançamentos encontrados\n")
-        print(f"{'#':<4} {'Descrição':<50} {'Valor':>12}")
-        print("-" * 100)
-        for i, tx in enumerate(advbox_transactions, 1):
-            desc  = tx.get("description", tx.get("name", "N/A"))[:50]
-            valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-            print(f"{i:<4} {desc:<50} R$ {valor:>10.2f}")
-    else:
-        print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
+        data = resp.json()
+        batch = data.get("data", []) or data.get("transactions", [])
+        advbox_transactions.extend(batch)
+
+        # Paginação
+        total_pages = data.get("last_page", data.get("meta", {}).get("last_page", 1))
+        if page >= total_pages or len(batch) == 0:
+            break
+        page += 1
+
+    except Exception as e:
+        print(f"❌ Erro ao conectar Advbox: {e}")
+        break
+
+if advbox_transactions:
+    print(f"✓ {len(advbox_transactions)} lançamentos encontrados\n")
+    print(f"{'#':<4} {'Descrição':<50} {'Valor':>12}")
+    print("-" * 100)
+    for i, tx in enumerate(advbox_transactions, 1):
+        desc  = tx.get("description", tx.get("name", "N/A"))[:50]
+        valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+        print(f"{i:<4} {desc:<50} R$ {valor:>10.2f}")
+else:
+    print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
 
 total_advbox = sum(
     float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
