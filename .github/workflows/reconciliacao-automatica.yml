@@ -46,10 +46,12 @@ jobs:
           EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
         run: python3 analise_dia_a_dia.py
 
-      - name: Upload relatório
+      - name: Upload relatório e logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: relatorio-conciliacao
-          path: relatorio_*.json
+          path: |
+            relatorio_*.json
+            debug_*.log
           retention-days: 30
