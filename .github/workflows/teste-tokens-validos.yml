@@ -1,0 +1,120 @@
+name: 🧪 Teste de Tokens Válidos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  teste:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar requests
+        run: pip install requests
+
+      - name: Teste Asaas API
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import os
+          import requests
+          import sys
+
+          token = os.environ.get("ASAAS_TOKEN", "").strip()
+
+          print("=" * 80)
+          print("TESTE DE TOKEN ASAAS")
+          print("=" * 80)
+
+          if not token:
+              print("❌ ERRO: ASAAS_TOKEN está VAZIO!")
+              sys.exit(1)
+
+          print(f"✅ ASAAS_TOKEN recebido (primeiros 10 chars): {token[:10]}...")
+
+          # Tenta fazer uma chamada simples para confirmar se o token é válido
+          headers = {"access_token": token}
+          url = "https://api.asaas.com/v3/accounts"
+
+          try:
+              response = requests.get(url, headers=headers, timeout=10)
+
+              if response.status_code == 200:
+                  print(f"✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
+                  print(f"   Dados da conta recebidos com sucesso")
+              elif response.status_code == 401:
+                  print(f"❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
+                  print(f"   Response: {response.text[:200]}")
+              elif response.status_code == 403:
+                  print(f"❌ PERMISSÃO NEGADA! (Status 403)")
+                  print(f"   Response: {response.text[:200]}")
+              else:
+                  print(f"⚠️  Status: {response.status_code}")
+                  print(f"   Response: {response.text[:200]}")
+          except Exception as e:
+              print(f"❌ ERRO na requisição: {str(e)}")
+              sys.exit(1)
+
+          EOF
+
+      - name: Teste Advbox API
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 << 'EOF'
+          import os
+          import requests
+          import sys
+
+          token = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          print("\n" + "=" * 80)
+          print("TESTE DE TOKEN ADVBOX")
+          print("=" * 80)
+
+          if not token:
+              print("❌ ERRO: ADVBOX_TOKEN está VAZIO!")
+              sys.exit(1)
+
+          print(f"✅ ADVBOX_TOKEN recebido (primeiros 10 chars): {token[:10]}...")
+
+          # Tenta fazer uma chamada simples para confirmar se o token é válido
+          headers = {"Authorization": f"Bearer {token}"}
+          url = "https://api.advbox.com/api/v1/account"
+
+          try:
+              response = requests.get(url, headers=headers, timeout=10)
+
+              if response.status_code == 200:
+                  print(f"✅ TOKEN VÁLIDO! Resposta: {response.status_code}")
+                  print(f"   Dados da conta recebidos com sucesso")
+              elif response.status_code == 401:
+                  print(f"❌ TOKEN INVÁLIDO ou EXPIRADO! (Status 401)")
+                  print(f"   Response: {response.text[:200]}")
+              elif response.status_code == 403:
+                  print(f"❌ PERMISSÃO NEGADA! (Status 403)")
+                  print(f"   Response: {response.text[:200]}")
+              else:
+                  print(f"⚠️  Status: {response.status_code}")
+                  print(f"   Response: {response.text[:200]}")
+          except Exception as e:
+              print(f"❌ ERRO na requisição: {str(e)}")
+              sys.exit(1)
+
+          EOF
+
+      - name: 📊 Resumo
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════════════════════════════╗"
+          echo "║ Se você vê ✅ em ambos os testes: TOKENS ESTÃO OK             ║"
+          echo "║ Se você vê ❌ em algum: CONFIGURE O SECRET NO GITHUB           ║"
+          echo "╚════════════════════════════════════════════════════════════════╝"
+          echo ""
