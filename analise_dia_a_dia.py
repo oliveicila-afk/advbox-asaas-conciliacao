@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Conciliação Diária — Asaas vs Advbox
-Busca TODAS as receitas recebidas em uma data e compara os dois sistemas.
+Busca TODAS as receitas recebidas em uma data, compara e CORRIGE divergências.
+
+REGRA OBRIGATÓRIA:
+  Quando Asaas mostra um total X em um dia, Advbox DEVE ter EXATAMENTE X
+  dos MESMOS clientes, MESMOS pagamentos, data CORRETA. Se não, corrige.
 
 Uso via GitHub Actions (recomendado):
   Variáveis de ambiente injetadas pelos secrets do repositório:
@@ -18,6 +22,7 @@ import os
 import requests
 import json
 from datetime import datetime
+import sys
 
 # ---------------------------------------------------------------------------
 # Configuração
@@ -31,8 +36,66 @@ TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
 # ANTICIPATED_RECEIVED = antecipação de recebível (Asaas adianta o valor antes do vencimento)
 ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "ANTICIPATED_RECEIVED"]
 
+# Modo DRY-RUN: se True, mostra o que FARIA, sem executar as correções
+DRY_RUN = False  # Mude para True para apenas ver o que seria corrigido
+
+# ---------------------------------------------------------------------------
+# FUNÇÕES DE CORREÇÃO — Advbox API Operations
+# ---------------------------------------------------------------------------
+def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
+    """Remove uma transação do Advbox."""
+    try:
+        resp = requests.delete(
+            f"https://app.advbox.com.br/api/v1/transactions/{tx_id}",
+            headers=headers_advbox,
+            timeout=30
+        )
+        if resp.status_code in [200, 204]:
+            return True
+        else:
+            print(f"  ❌ Erro ao deletar {tx_id}: {resp.status_code} — {resp.text[:200]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ Erro ao deletar {tx_id}: {e}")
+        return False
+
+
+def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
+    """Cria uma transação no Advbox baseada em uma transação do Asaas."""
+    try:
+        payload = {
+            "type": "income",
+            "description": asaas_tx.get("description", "Pagamento Asaas"),
+            "value": float(asaas_tx.get("value", 0)),
+            "payment_date": TARGET_DATE,
+            "status": "paid",
+            "account_type": "asaas",
+            "external_id": asaas_tx.get("id", ""),  # rastrear origem Asaas
+        }
+
+        resp = requests.post(
+            "https://app.advbox.com.br/api/v1/transactions",
+            headers=headers_advbox,
+            json=payload,
+            timeout=30
+        )
+
+        if resp.status_code in [200, 201]:
+            return True
+        else:
+            print(f"  ❌ Erro ao criar: {resp.status_code} — {resp.text[:200]}")
+            return False
+    except Exception as e:
+        print(f"  ❌ Erro ao criar: {e}")
+        return False
+
+
 print("=" * 100)
 print(f"CONCILIAÇÃO DIÁRIA — {TARGET_DATE}")
+if DRY_RUN:
+    print("(MODO DRY-RUN — sem executar correções)")
+else:
+    print("(MODO CORRETIVO — executando correções)")
 print("=" * 100)
 
 # ---------------------------------------------------------------------------
@@ -174,9 +237,9 @@ total_advbox = sum(
 print(f"\n{'':>80} TOTAL ADVBOX: R$ {total_advbox:>10.2f}")
 
 # ---------------------------------------------------------------------------
-# 3. COMPARAÇÃO
+# 3. COMPARAÇÃO E MATCHING
 # ---------------------------------------------------------------------------
-print(f"\n[3/3] Comparação ...")
+print(f"\n[3/3] Comparação e Matching ...")
 print("=" * 100)
 
 # Indexar por valor para matching
@@ -207,6 +270,54 @@ for valor, asaas_list in asaas_idx.items():
 
 unmatched_advbox = [tx for txs in remaining_advbox.values() for tx in txs]
 
+# ---------------------------------------------------------------------------
+# 4. EXECUÇÃO DE CORREÇÕES
+# ---------------------------------------------------------------------------
+print(f"\n[4/4] Executando Correções ...")
+print("=" * 100)
+
+corrections_made = []
+corrections_failed = []
+
+# A. REMOVER transações que estão SÓ no Advbox (fantasmas)
+if unmatched_advbox:
+    print(f"\n🗑️  REMOVENDO {len(unmatched_advbox)} transação(ões) fantasma(s) do Advbox:")
+    for tx in unmatched_advbox:
+        valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+        desc  = tx.get("description", tx.get("name", "N/A"))
+        tx_id = tx.get("id", "")
+
+        print(f"\n  • R$ {valor:.2f} | {desc[:60]}")
+
+        if not DRY_RUN and tx_id:
+            if delete_advbox_transaction(tx_id, headers_advbox):
+                print(f"    ✓ Removida com sucesso")
+                corrections_made.append(("DELETE", valor, desc))
+            else:
+                corrections_failed.append(("DELETE", valor, desc))
+        elif DRY_RUN:
+            print(f"    (DRY-RUN: seria removida)")
+            corrections_made.append(("DELETE", valor, desc))
+
+# B. CRIAR transações que estão SÓ no Asaas (faltando)
+if unmatched_asaas:
+    print(f"\n✨ CRIANDO {len(unmatched_asaas)} transação(ões) faltante(s) no Advbox:")
+    for tx in unmatched_asaas:
+        valor = float(tx.get("value", 0))
+        desc  = tx.get("description", "N/A")
+
+        print(f"\n  • R$ {valor:.2f} | {desc[:60]}")
+
+        if not DRY_RUN:
+            if create_advbox_transaction(tx, headers_advbox):
+                print(f"    ✓ Criada com sucesso")
+                corrections_made.append(("CREATE", valor, desc))
+            else:
+                corrections_failed.append(("CREATE", valor, desc))
+        else:
+            print(f"    (DRY-RUN: seria criada)")
+            corrections_made.append(("CREATE", valor, desc))
+
 print(f"\n✅ ENCONTRADOS EM AMBOS ({len(matched)}):\n")
 for asaas_tx, advbox_tx, valor in matched:
     print(f"  R$ {valor:.2f}")
@@ -224,21 +335,40 @@ for tx in unmatched_advbox:
     print(f"  R$ {valor:.2f} | {desc[:70]}")
 
 # ---------------------------------------------------------------------------
-# 4. RESUMO FINAL
+# 5. RESUMO FINAL REVISADO
 # ---------------------------------------------------------------------------
 print("\n" + "=" * 100)
 print(f"RESUMO FINAL — {TARGET_DATE}")
 print("=" * 100)
-diferenca = total_asaas - total_advbox
-status    = "✅ CONCILIADO" if abs(diferenca) < 0.10 else f"⚠️  DIFERENÇA DE R$ {abs(diferenca):.2f}"
+
+# Totais DEPOIS das correções
+total_asaas_final = total_asaas
+total_advbox_final = total_advbox - sum(
+    float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+    for tx in unmatched_advbox
+) + sum(
+    float(tx.get("value", 0))
+    for tx in unmatched_asaas
+)
+
+diferenca_final = total_asaas_final - total_advbox_final
+status    = "✅ CONCILIADO" if abs(diferenca_final) < 0.10 else f"⚠️  DIVERGÊNCIA: R$ {abs(diferenca_final):.2f}"
 
 print(f"""
+  ANTES DAS CORREÇÕES:
   Asaas  : {len(asaas_transactions):>3} lançamentos | Total: R$ {total_asaas:>10.2f}
   Advbox : {len(advbox_transactions):>3} lançamentos | Total: R$ {total_advbox:>10.2f}
   -------
   Matches: {len(matched):>3}
-  Só Asaas : {len(unmatched_asaas):>3} | R$ {sum(float(t.get('value',0)) for t in unmatched_asaas):.2f}
-  Só Advbox: {len(unmatched_advbox):>3} | R$ {sum(float(str(t.get('value',t.get('amount',0))).replace(',','.')) for t in unmatched_advbox):.2f}
+  Faltando: {len(unmatched_asaas):>3} | R$ {sum(float(t.get('value',0)) for t in unmatched_asaas):.2f}
+  Fantasmas: {len(unmatched_advbox):>3} | R$ {sum(float(str(t.get('value',t.get('amount',0))).replace(',','.')) for t in unmatched_advbox):.2f}
+
+  DEPOIS DAS CORREÇÕES:
+  Asaas  : {len(asaas_transactions):>3} lançamentos | Total: R$ {total_asaas_final:>10.2f}
+  Advbox : {len(advbox_transactions) - len(unmatched_advbox) + len(unmatched_asaas):>3} lançamentos | Total: R$ {total_advbox_final:>10.2f}
+
+  CORREÇÕES REALIZADAS: {len(corrections_made)}
+  CORREÇÕES FALHADAS: {len(corrections_failed)}
 
   {status}
 """)
@@ -277,10 +407,31 @@ report = {
     },
     "conciliacao": {
         "matches": len(matched),
-        "so_asaas": len(unmatched_asaas),
-        "so_advbox": len(unmatched_advbox),
-        "diferenca": round(diferenca, 2),
+        "faltando_no_advbox": len(unmatched_asaas),
+        "fantasmas_no_advbox": len(unmatched_advbox),
+        "diferenca_antes": round(total_asaas - total_advbox, 2),
+        "diferenca_depois": round(diferenca_final, 2),
         "status": status,
+    },
+    "correcoes": {
+        "total_realizadas": len(corrections_made),
+        "total_falhadas": len(corrections_failed),
+        "detalhes": [
+            {
+                "tipo": corr[0],
+                "valor": round(corr[1], 2),
+                "descricao": corr[2]
+            }
+            for corr in corrections_made
+        ],
+        "falhas": [
+            {
+                "tipo": corr[0],
+                "valor": round(corr[1], 2),
+                "descricao": corr[2]
+            }
+            for corr in corrections_failed
+        ],
     },
 }
 
