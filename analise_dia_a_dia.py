@@ -56,6 +56,9 @@ CATEGORIAS_HONORARIOS_INCUMBENCIAL = [57, 58]
 # Cost centers para análise CAMADA 4 (origin)
 COST_CENTER_ASAAS_PADRAO = 60814
 
+# DEBUG: Ativa logging extremamente detalhado
+DEBUG_MODE = os.environ.get("DEBUG_MODE", "true").lower() in ["true", "1", "yes"]
+
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE CORREÇÃO — Advbox API Operations
 # ---------------------------------------------------------------------------
@@ -136,22 +139,32 @@ def analisar_origin(tx: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# FUNÇÕES REUTILIZÁVEIS DE LEITURA
+# FUNÇÕES REUTILIZÁVEIS DE LEITURA COM DEBUG
 # ---------------------------------------------------------------------------
 def fetch_asaas_transactions():
-    """Busca todas as receitas do Asaas para TARGET_DATE"""
+    """Busca todas as receitas do Asaas para TARGET_DATE com logging detalhado"""
     transactions = []
     headers_asaas = {
         "Authorization": f"Bearer {ASAAS_TOKEN}",
         "Accept": "application/json"
     }
 
+    if DEBUG_MODE:
+        print(f"\n[DEBUG ASAAS] Iniciando fetch para data: {TARGET_DATE}")
+        print(f"[DEBUG ASAAS] Tipos de receita a buscar: {ASAAS_INCOME_TYPES}")
+
     for income_type in ASAAS_INCOME_TYPES:
         offset = 0
         limit = 100
 
+        if DEBUG_MODE:
+            print(f"\n[DEBUG ASAAS] === Tipo de receita: {income_type} ===")
+
         while True:
             try:
+                if DEBUG_MODE:
+                    print(f"[DEBUG ASAAS] Requisição: offset={offset}, limit={limit}")
+
                 resp = requests.get(
                     "https://api.asaas.com/v3/financialTransactions",
                     headers=headers_asaas,
@@ -165,39 +178,79 @@ def fetch_asaas_transactions():
                     timeout=30
                 )
 
+                if DEBUG_MODE:
+                    print(f"[DEBUG ASAAS] Status Code: {resp.status_code}")
+
                 if resp.status_code != 200:
                     print(f"❌ Asaas ({income_type}): status {resp.status_code}")
+                    if DEBUG_MODE:
+                        print(f"[DEBUG ASAAS] Corpo da resposta de erro: {resp.text[:500]}")
                     break
 
                 data = resp.json()
+
+                if DEBUG_MODE:
+                    print(f"[DEBUG ASAAS] Chaves da resposta: {list(data.keys())}")
+                    print(f"[DEBUG ASAAS] hasMore: {data.get('hasMore', False)}")
+
                 batch = data.get("data", [])
+
+                if DEBUG_MODE:
+                    print(f"[DEBUG ASAAS] Transações neste batch: {len(batch)}")
+                    if batch:
+                        print(f"[DEBUG ASAAS] Primeira transação (exemplo):")
+                        print(f"  {json.dumps(batch[0], indent=2, default=str)}")
+
                 transactions.extend(batch)
 
                 has_more = data.get("hasMore", False)
                 if not has_more or len(batch) == 0:
+                    if DEBUG_MODE:
+                        print(f"[DEBUG ASAAS] Fim da paginação para {income_type}")
                     break
                 offset += limit
 
             except Exception as e:
                 print(f"❌ Erro ao conectar Asaas ({income_type}): {e}")
+                if DEBUG_MODE:
+                    print(f"[DEBUG ASAAS] Exceção completa: {type(e).__name__}: {str(e)}")
                 break
+
+    if DEBUG_MODE:
+        print(f"\n[DEBUG ASAAS] TOTAL FINAL: {len(transactions)} transações do Asaas")
+        if transactions:
+            print(f"[DEBUG ASAAS] Campos encontrados na primeira transação: {list(transactions[0].keys())}")
 
     return transactions
 
 
 def fetch_advbox_transactions():
-    """Busca todas as receitas do Advbox para TARGET_DATE e filtra"""
+    """Busca todas as receitas do Advbox para TARGET_DATE e filtra com logging detalhado"""
     transactions = []
     headers_advbox = {
         "Authorization": f"Bearer {ADVBOX_TOKEN}",
         "Accept": "application/json"
     }
 
+    if DEBUG_MODE:
+        print(f"\n[DEBUG ADVBOX] Iniciando fetch para data: {TARGET_DATE}")
+
     offset = 0
     limit = 100
+    all_transactions_raw = []
+    filtered_out_reasons = {
+        "type_not_income": 0,
+        "status_not_paid": 0,
+        "debit_bank_not_asaas": 0,
+        "date_mismatch": 0,
+        "kept": 0,
+    }
 
     while True:
         try:
+            if DEBUG_MODE:
+                print(f"\n[DEBUG ADVBOX] Requisição: offset={offset}, limit={limit}")
+
             resp = requests.get(
                 "https://app.advbox.com.br/api/v1/transactions",
                 headers=headers_advbox,
@@ -208,34 +261,89 @@ def fetch_advbox_transactions():
                 timeout=30
             )
 
+            if DEBUG_MODE:
+                print(f"[DEBUG ADVBOX] Status Code: {resp.status_code}")
+
             if resp.status_code != 200:
                 print(f"❌ Advbox: status {resp.status_code}")
+                if DEBUG_MODE:
+                    print(f"[DEBUG ADVBOX] Corpo da resposta de erro: {resp.text[:500]}")
                 break
 
             data = resp.json()
+
+            if DEBUG_MODE:
+                print(f"[DEBUG ADVBOX] Chaves da resposta: {list(data.keys())}")
+
             batch = data.get("data", []) or data.get("transactions", [])
 
-            for tx in batch:
-                if tx.get("type") != "income":
+            if DEBUG_MODE:
+                print(f"[DEBUG ADVBOX] Transações neste batch (RAW): {len(batch)}")
+                if batch:
+                    print(f"[DEBUG ADVBOX] Primeira transação (exemplo):")
+                    print(f"  {json.dumps(batch[0], indent=2, default=str)}")
+
+            for tx_idx, tx in enumerate(batch):
+                all_transactions_raw.append(tx)
+
+                # Validações com logging
+                tx_type = tx.get("type")
+                if tx_type != "income":
+                    filtered_out_reasons["type_not_income"] += 1
+                    if DEBUG_MODE:
+                        print(f"  [FILTRADO tx#{tx_idx}] type={tx_type} (esperava 'income')")
                     continue
-                if tx.get("status") != "paid":
+
+                tx_status = tx.get("status")
+                if tx_status != "paid":
+                    filtered_out_reasons["status_not_paid"] += 1
+                    if DEBUG_MODE:
+                        print(f"  [FILTRADO tx#{tx_idx}] status={tx_status} (esperava 'paid')")
                     continue
-                if tx.get("debit_bank") != "ASAAS":
+
+                tx_debit_bank = tx.get("debit_bank")
+                if tx_debit_bank != "ASAAS":
+                    filtered_out_reasons["debit_bank_not_asaas"] += 1
+                    if DEBUG_MODE:
+                        print(f"  [FILTRADO tx#{tx_idx}] debit_bank={tx_debit_bank} (esperava 'ASAAS')")
                     continue
 
                 payment_date = tx.get("payment_date", tx.get("date", ""))
                 if payment_date and payment_date[:10] != TARGET_DATE:
+                    filtered_out_reasons["date_mismatch"] += 1
+                    if DEBUG_MODE:
+                        print(f"  [FILTRADO tx#{tx_idx}] payment_date={payment_date} (esperava {TARGET_DATE})")
                     continue
 
+                # Passou em todos os filtros
+                filtered_out_reasons["kept"] += 1
                 transactions.append(tx)
+                if DEBUG_MODE:
+                    print(f"  [MANTIDA tx#{tx_idx}] valor={tx.get('value', tx.get('amount', 0))}")
 
             if len(batch) < limit:
+                if DEBUG_MODE:
+                    print(f"[DEBUG ADVBOX] Fim da paginação (batch menor que limit)")
                 break
             offset += limit
 
         except Exception as e:
             print(f"❌ Erro ao conectar Advbox: {e}")
+            if DEBUG_MODE:
+                print(f"[DEBUG ADVBOX] Exceção completa: {type(e).__name__}: {str(e)}")
             break
+
+    if DEBUG_MODE:
+        print(f"\n[DEBUG ADVBOX] === RESUMO DE FILTROS ===")
+        print(f"  Total RAW (antes de filtros): {len(all_transactions_raw)}")
+        print(f"  Removidas (type != 'income'): {filtered_out_reasons['type_not_income']}")
+        print(f"  Removidas (status != 'paid'): {filtered_out_reasons['status_not_paid']}")
+        print(f"  Removidas (debit_bank != 'ASAAS'): {filtered_out_reasons['debit_bank_not_asaas']}")
+        print(f"  Removidas (data mismatch): {filtered_out_reasons['date_mismatch']}")
+        print(f"  MANTIDAS (passa em todos filtros): {filtered_out_reasons['kept']}")
+        print(f"[DEBUG ADVBOX] TOTAL FINAL: {len(transactions)} transações do Advbox")
+        if transactions:
+            print(f"[DEBUG ADVBOX] Campos encontrados na primeira transação: {list(transactions[0].keys())}")
 
     return transactions
 
@@ -249,6 +357,8 @@ if DRY_RUN:
     print("(MODO DRY-RUN — sem executar correções)")
 else:
     print("(MODO CORRETIVO — com dupla checagem)")
+if DEBUG_MODE:
+    print("(MODO DEBUG ATIVADO — logging extremamente detalhado)")
 print("=" * 100)
 
 if not ASAAS_TOKEN or not ADVBOX_TOKEN:
@@ -292,7 +402,7 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
         for tx in advbox_transactions
     )
 
-    print(f"  Asaas:  {len(asaas_transactions)} transações | R$ {total_asaas:.2f}")
+    print(f"\n  Asaas:  {len(asaas_transactions)} transações | R$ {total_asaas:.2f}")
     print(f"  Advbox: {len(advbox_transactions)} transações | R$ {total_advbox:.2f}")
 
     # Matching
