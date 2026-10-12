@@ -210,9 +210,15 @@ if asaas_transactions:
         tipo  = tx.get("type", "N/A")
         desc  = tx.get("description", "N/A")[:45]
         valor = float(tx.get("value", 0))
-        print(f"{i:<4} {tipo:<25} {desc:<45} R$ {valor:>10.2f}")
+        data  = tx.get("dateTime", "N/A")[:10] if tx.get("dateTime") else "N/A"
+        print(f"{i:<4} {tipo:<25} {desc:<45} R$ {valor:>10.2f} ({data})")
 else:
     print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
+
+# DEBUG: Mostrar estrutura completa da primeira transação Asaas
+if asaas_transactions:
+    print(f"\n[DEBUG ASAAS] Estrutura da primeira transação:")
+    print(f"  {asaas_transactions[0]}\n")
 
 total_asaas = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
 print(f"\n{'':>80} TOTAL ASAAS: R$ {total_asaas:>10.2f}")
@@ -254,26 +260,48 @@ while True:
         data = resp.json()
         batch = data.get("data", []) or data.get("transactions", [])
 
+        # DEBUG: Log de transações brutas recebidas (apenas no primeiro batch)
+        if offset == 0 and batch:
+            print(f"\n[DEBUG ADVBOX] Primeiras 2 transações brutas da API:")
+            for i, tx in enumerate(batch[:2]):
+                print(f"  Tx {i+1}: {tx}\n")
+
         # Filtragem em Python: apenas receitas da Asaas que foram pagas no dia
+        batch_antes = len(batch)
         for tx in batch:
             # Filtro 1: Apenas receitas (income)
-            if tx.get("type") != "income":
+            tipo = tx.get("type")
+            if tipo != "income":
+                if offset == 0:  # Log apenas no primeiro batch
+                    print(f"[FILTER 1] Tx removida: type={tipo} (esperado 'income')")
                 continue
 
             # Filtro 2: Apenas lançamentos efetivamente recebidos (status paid)
-            if tx.get("status") != "paid":
+            status = tx.get("status")
+            if status != "paid":
+                if offset == 0:
+                    print(f"[FILTER 2] Tx removida: status={status} (esperado 'paid')")
                 continue
 
             # Filtro 3: Apenas da conta Asaas (debit_bank == "ASAAS")
-            if tx.get("debit_bank") != "ASAAS":
+            debit_bank = tx.get("debit_bank")
+            if debit_bank != "ASAAS":
+                if offset == 0:
+                    print(f"[FILTER 3] Tx removida: debit_bank={debit_bank} (esperado 'ASAAS')")
                 continue
 
             # Filtro 4: Data de pagamento = TARGET_DATE
             payment_date = tx.get("payment_date", tx.get("date", ""))
             if payment_date and payment_date[:10] != TARGET_DATE:
+                if offset == 0:
+                    print(f"[FILTER 4] Tx removida: payment_date={payment_date[:10]} (esperado {TARGET_DATE})")
                 continue
 
             advbox_transactions.append(tx)
+
+        # DEBUG: Contagem de filtros
+        if offset == 0:
+            print(f"\n[DEBUG ADVBOX] Batch 1: {batch_antes} transações → {len(advbox_transactions)} após filtros\n")
 
         # Paginação: continua se houver mais dados
         if len(batch) < limit:
@@ -292,8 +320,18 @@ if advbox_transactions:
         desc  = tx.get("description", tx.get("name", "N/A"))[:50]
         valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
         print(f"{i:<4} {desc:<50} R$ {valor:>10.2f}")
+
+    # DEBUG: Mostrar estrutura da primeira transação Advbox que passou nos filtros
+    print(f"\n[DEBUG ADVBOX] Estrutura da primeira transação filtrada:")
+    print(f"  {advbox_transactions[0]}\n")
 else:
     print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
+    print(f"\n[DEBUG ADVBOX] Nenhuma transação passou nos filtros!")
+    print(f"  Verifique os campos esperados na API do Advbox:")
+    print(f"  - type (esperado: 'income')")
+    print(f"  - status (esperado: 'paid')")
+    print(f"  - debit_bank (esperado: 'ASAAS')")
+    print(f"  - payment_date ou date (esperado: {TARGET_DATE})\n")
 
 total_advbox = sum(
     float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
@@ -321,6 +359,12 @@ advbox_idx = index_by_value(
     lambda tx: float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
 )
 
+print(f"\n[DEBUG MATCHING] Índices criados:")
+print(f"  Asaas:  {len(asaas_idx)} valores únicos")
+print(f"  Advbox: {len(advbox_idx)} valores únicos")
+print(f"\n[DEBUG MATCHING] Valores Asaas: {sorted(asaas_idx.keys())}")
+print(f"[DEBUG MATCHING] Valores Advbox: {sorted(advbox_idx.keys())}")
+
 matched         = []
 unmatched_asaas = []
 remaining_advbox = {v: list(txs) for v, txs in advbox_idx.items()}
@@ -330,10 +374,15 @@ for valor, asaas_list in asaas_idx.items():
         if valor in remaining_advbox and remaining_advbox[valor]:
             advbox_tx = remaining_advbox[valor].pop(0)
             matched.append((asaas_tx, advbox_tx, valor))
+            print(f"[MATCH] R$ {valor:.2f} | {asaas_tx.get('description', '')[:40]} = {advbox_tx.get('description', advbox_tx.get('name', ''))[:40]}")
         else:
             unmatched_asaas.append(asaas_tx)
+            print(f"[UNMATCHED ASAAS] R$ {valor:.2f} não encontrado no Advbox")
 
 unmatched_advbox = [tx for txs in remaining_advbox.values() for tx in txs]
+for tx in unmatched_advbox:
+    valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+    print(f"[PHANTOM ADVBOX] R$ {valor:.2f} | {tx.get('description', tx.get('name', ''))[:40]}")
 
 # ---------------------------------------------------------------------------
 # 4. EXECUÇÃO DE CORREÇÕES
