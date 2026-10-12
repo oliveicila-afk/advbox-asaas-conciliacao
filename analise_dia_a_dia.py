@@ -188,6 +188,8 @@ def fetch_advbox_transactions():
     offset = 0
     limit = 100
     all_raw = []
+    max_pages = 20  # Limite máximo de páginas para não ficar puxando dados eternamente
+    page_count = 0
     filter_counts = {
         "type_not_income": 0,
         "status_not_paid": 0,
@@ -196,7 +198,7 @@ def fetch_advbox_transactions():
         "kept": 0,
     }
 
-    while True:
+    while page_count < max_pages:
         try:
             params = {"limit": limit, "offset": offset}
             log_msg(f"  Requisição: offset={offset}, limit={limit}", False)
@@ -251,6 +253,8 @@ def fetch_advbox_transactions():
                 filter_counts["kept"] += 1
                 transactions.append(tx)
                 log_msg(f"    → MANTIDA", False)
+
+            page_count += 1
 
             if len(batch) < limit:
                 log_msg(f"  Fim da paginação", True)
