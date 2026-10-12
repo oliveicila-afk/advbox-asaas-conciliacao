@@ -131,6 +131,7 @@ else:
                     "payment_date_from": TARGET_DATE,  # filtra por DATA DE PAGAMENTO
                     "payment_date_to":   TARGET_DATE,  # (não data de vencimento)
                     "status": "paid",            # apenas lançamentos efetivamente recebidos
+                    "account_type": "asaas",     # FILTRAR APENAS CONTA ASAAS
                     "per_page": 100,
                     "page": page,
                 },
