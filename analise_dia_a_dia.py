@@ -5,7 +5,12 @@ Busca TODAS as receitas recebidas em uma data, compara e CORRIGE divergências.
 
 REGRA OBRIGATÓRIA:
   Quando Asaas mostra um total X em um dia, Advbox DEVE ter EXATAMENTE X
-  dos MESMOS clientes, MESMOS pagamentos, data CORRETA. Se não, corrige.
+  dos MESMOS clientes, MESMOS pagamentos, data CORRETA. Se não, corrige
+  e continua tentando até ficarem iguais.
+
+DUPLA CHECAGEM:
+  Após cada correção, refaz a leitura de ambos os sistemas e valida se
+  os totais batem EXATAMENTE. Só marca como "OK" quando estão iguais.
 
 Uso via GitHub Actions (recomendado):
   Variáveis de ambiente injetadas pelos secrets do repositório:
@@ -34,17 +39,19 @@ TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
 TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
 
 # Tipos de lançamento do Asaas que representam RECEITA recebida
-# PAYMENT_RECEIVED  = cobrança paga pelo cliente (boleto, Pix, cartão)
-# ANTICIPATED_RECEIVED = antecipação de recebível (Asaas adianta o valor antes do vencimento)
 ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "ANTICIPATED_RECEIVED"]
 
 # Modo DRY-RUN: se True, mostra o que FARIA, sem executar as correções
 DRY_RUN = os.environ.get("DRY_RUN", "false").lower() in ["true", "1", "yes"]
 
+# Configuração de reconciliação
+MAX_RECONCILIATION_ATTEMPTS = 5
+TOLERANCE = 0.01
+
 # IDs de categorias para análise CAMADA 2 (categoria)
-CATEGORIAS_HONORARIOS_INICIAIS = [51, 52, 53]  # ajuste conforme sua Advbox
-CATEGORIAS_HONORARIOS_EXITO = [54, 55, 56]     # ajuste conforme sua Advbox
-CATEGORIAS_HONORARIOS_INCUMBENCIAL = [57, 58]  # ajuste conforme sua Advbox
+CATEGORIAS_HONORARIOS_INICIAIS = [51, 52, 53]
+CATEGORIAS_HONORARIOS_EXITO = [54, 55, 56]
+CATEGORIAS_HONORARIOS_INCUMBENCIAL = [57, 58]
 
 # Cost centers para análise CAMADA 4 (origin)
 COST_CENTER_ASAAS_PADRAO = 60814
@@ -63,7 +70,7 @@ def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
         if resp.status_code in [200, 204]:
             return True
         else:
-            print(f"  ❌ Erro ao deletar {tx_id}: {resp.status_code} — {resp.text[:200]}")
+            print(f"  ❌ Erro ao deletar {tx_id}: {resp.status_code}")
             return False
     except Exception as e:
         print(f"  ❌ Erro ao deletar {tx_id}: {e}")
@@ -73,7 +80,6 @@ def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
 def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
     """Cria uma transação no Advbox baseada em uma transação do Asaas."""
     try:
-        # Análise CAMADA 2 (categoria) e CAMADA 4 (cost center)
         description = asaas_tx.get("description", "Pagamento Asaas")
         category_id = inferir_categoria(description)
         cost_center = COST_CENTER_ASAAS_PADRAO
@@ -85,7 +91,7 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
             "payment_date": TARGET_DATE,
             "status": "paid",
             "debit_bank": "ASAAS",
-            "external_id": asaas_tx.get("id", ""),  # rastrear origem Asaas
+            "external_id": asaas_tx.get("id", ""),
             "categories_id": category_id,
             "cost_center": cost_center,
         }
@@ -100,7 +106,7 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
         if resp.status_code in [200, 201]:
             return True
         else:
-            print(f"  ❌ Erro ao criar: {resp.status_code} — {resp.text[:200]}")
+            print(f"  ❌ Erro ao criar: {resp.status_code}")
             return False
     except Exception as e:
         print(f"  ❌ Erro ao criar: {e}")
@@ -110,74 +116,92 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
 def inferir_categoria(description: str) -> int:
     """
     CAMADA 2: Infere a categoria de honorário baseado na descrição.
-    Retorna o ID da categoria apropriada.
     """
     desc_lower = description.lower()
-
-    # Análise de keywords para classificação
-    if any(kw in desc_lower for kw in ["êxito", "sucesso", "êxito", "honorário de êxito"]):
+    if any(kw in desc_lower for kw in ["êxito", "sucesso"]):
         return CATEGORIAS_HONORARIOS_EXITO[0]
-    elif any(kw in desc_lower for kw in ["inicial", "protocolo", "entrada", "primeira"]):
+    elif any(kw in desc_lower for kw in ["inicial", "protocolo", "entrada"]):
         return CATEGORIAS_HONORARIOS_INICIAIS[0]
     elif any(kw in desc_lower for kw in ["incumbencial", "mensal", "recursal"]):
         return CATEGORIAS_HONORARIOS_INCUMBENCIAL[0]
-
-    # Padrão: honorários iniciais
     return CATEGORIAS_HONORARIOS_INICIAIS[0]
 
 
 def analisar_origin(tx: dict) -> str:
-    """
-    CAMADA 4: Infere a origem/cost center baseado nos dados da transação.
-    """
+    """CAMADA 4: Infere a origem/cost center baseado nos dados da transação."""
     debit_bank = tx.get("debit_bank", "")
     if debit_bank == "ASAAS":
         return "ASAAS"
     return "MANUAL"
 
 
-print("=" * 100)
-print(f"CONCILIAÇÃO DIÁRIA — {TARGET_DATE}")
-if DRY_RUN:
-    print("(MODO DRY-RUN — sem executar correções)")
-else:
-    print("(MODO CORRETIVO — executando correções)")
-print("=" * 100)
-
-# Verificar se os tokens necessários foram fornecidos
-if not ASAAS_TOKEN or not ADVBOX_TOKEN:
-    print("\n❌ ERRO CRÍTICO: Tokens não fornecidos!")
-    print(f"  ASAAS_TOKEN: {'✓ Definido' if ASAAS_TOKEN else '✗ FALTANDO'}")
-    print(f"  ADVBOX_TOKEN: {'✓ Definido' if ADVBOX_TOKEN else '✗ FALTANDO'}")
-    print("\nVerifique se os secrets do repositório GitHub estão configurados corretamente.")
-    sys.exit(1)
-
 # ---------------------------------------------------------------------------
-# 1. ASAAS — buscar TODAS as receitas do dia
+# FUNÇÕES REUTILIZÁVEIS DE LEITURA
 # ---------------------------------------------------------------------------
-print(f"\n[1/3] Asaas — buscando receitas de {TARGET_DATE} ...")
-print("-" * 100)
+def fetch_asaas_transactions():
+    """Busca todas as receitas do Asaas para TARGET_DATE"""
+    transactions = []
+    headers_asaas = {
+        "Authorization": f"Bearer {ASAAS_TOKEN}",
+        "Accept": "application/json"
+    }
 
-asaas_transactions = []
+    for income_type in ASAAS_INCOME_TYPES:
+        offset = 0
+        limit = 100
 
-headers_asaas = {
-    "Authorization": f"Bearer {ASAAS_TOKEN}",
-    "Accept": "application/json"
-}
+        while True:
+            try:
+                resp = requests.get(
+                    "https://api.asaas.com/v3/financialTransactions",
+                    headers=headers_asaas,
+                    params={
+                        "startDate": TARGET_DATE,
+                        "finishDate": TARGET_DATE,
+                        "type": income_type,
+                        "limit": limit,
+                        "offset": offset,
+                    },
+                    timeout=30
+                )
 
-for income_type in ASAAS_INCOME_TYPES:
+                if resp.status_code != 200:
+                    print(f"❌ Asaas ({income_type}): status {resp.status_code}")
+                    break
+
+                data = resp.json()
+                batch = data.get("data", [])
+                transactions.extend(batch)
+
+                has_more = data.get("hasMore", False)
+                if not has_more or len(batch) == 0:
+                    break
+                offset += limit
+
+            except Exception as e:
+                print(f"❌ Erro ao conectar Asaas ({income_type}): {e}")
+                break
+
+    return transactions
+
+
+def fetch_advbox_transactions():
+    """Busca todas as receitas do Advbox para TARGET_DATE e filtra"""
+    transactions = []
+    headers_advbox = {
+        "Authorization": f"Bearer {ADVBOX_TOKEN}",
+        "Accept": "application/json"
+    }
+
     offset = 0
-    limit  = 100
+    limit = 100
 
     while True:
         try:
             resp = requests.get(
-                "https://api.asaas.com/v3/financialTransactions",
-                headers=headers_asaas,
+                "https://app.advbox.com.br/api/v1/transactions",
+                headers=headers_advbox,
                 params={
-                    "startDate": TARGET_DATE,   # data de crédito na conta
-                    "finishDate": TARGET_DATE,
-                    "type": income_type,
                     "limit": limit,
                     "offset": offset,
                 },
@@ -185,366 +209,219 @@ for income_type in ASAAS_INCOME_TYPES:
             )
 
             if resp.status_code != 200:
-                print(f"❌ Asaas ({income_type}): status {resp.status_code} — {resp.text[:300]}")
+                print(f"❌ Advbox: status {resp.status_code}")
                 break
 
             data = resp.json()
-            batch = data.get("data", [])
-            asaas_transactions.extend(batch)
+            batch = data.get("data", []) or data.get("transactions", [])
 
-            # Paginação: continua enquanto houver mais páginas
-            has_more = data.get("hasMore", False)
-            if not has_more or len(batch) == 0:
+            for tx in batch:
+                if tx.get("type") != "income":
+                    continue
+                if tx.get("status") != "paid":
+                    continue
+                if tx.get("debit_bank") != "ASAAS":
+                    continue
+
+                payment_date = tx.get("payment_date", tx.get("date", ""))
+                if payment_date and payment_date[:10] != TARGET_DATE:
+                    continue
+
+                transactions.append(tx)
+
+            if len(batch) < limit:
                 break
             offset += limit
 
         except Exception as e:
-            print(f"❌ Erro ao conectar Asaas ({income_type}): {e}")
+            print(f"❌ Erro ao conectar Advbox: {e}")
             break
 
-if asaas_transactions:
-    print(f"✓ {len(asaas_transactions)} lançamentos encontrados\n")
-    print(f"{'#':<4} {'Tipo':<25} {'Descrição':<45} {'Valor':>12}")
-    print("-" * 100)
-    for i, tx in enumerate(asaas_transactions, 1):
-        tipo  = tx.get("type", "N/A")
-        desc  = tx.get("description", "N/A")[:45]
-        valor = float(tx.get("value", 0))
-        data  = tx.get("dateTime", "N/A")[:10] if tx.get("dateTime") else "N/A"
-        print(f"{i:<4} {tipo:<25} {desc:<45} R$ {valor:>10.2f} ({data})")
+    return transactions
+
+
+# ---------------------------------------------------------------------------
+# INÍCIO DO PROGRAMA
+# ---------------------------------------------------------------------------
+print("=" * 100)
+print(f"CONCILIAÇÃO DIÁRIA — {TARGET_DATE}")
+if DRY_RUN:
+    print("(MODO DRY-RUN — sem executar correções)")
 else:
-    print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
+    print("(MODO CORRETIVO — com dupla checagem)")
+print("=" * 100)
 
-# DEBUG: Mostrar estrutura completa da primeira transação Asaas
-if asaas_transactions:
-    print(f"\n[DEBUG ASAAS] Estrutura da primeira transação:")
-    print(f"  {asaas_transactions[0]}\n")
-
-total_asaas = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
-print(f"\n{'':>80} TOTAL ASAAS: R$ {total_asaas:>10.2f}")
+if not ASAAS_TOKEN or not ADVBOX_TOKEN:
+    print("\n❌ ERRO CRÍTICO: Tokens não fornecidos!")
+    print(f"  ASAAS_TOKEN: {'✓ Definido' if ASAAS_TOKEN else '✗ FALTANDO'}")
+    print(f"  ADVBOX_TOKEN: {'✓ Definido' if ADVBOX_TOKEN else '✗ FALTANDO'}")
+    sys.exit(1)
 
 # ---------------------------------------------------------------------------
-# 2. ADVBOX — buscar todas as receitas RECEBIDAS (pagas) no dia
+# LOOP PRINCIPAL DE RECONCILIAÇÃO COM DUPLA CHECAGEM
 # ---------------------------------------------------------------------------
-print(f"\n[2/3] Advbox — buscando receitas de {TARGET_DATE} ...")
-print("-" * 100)
-
-advbox_transactions = []
+print(f"\n🔄 INICIANDO LOOP DE RECONCILIAÇÃO COM DUPLA CHECAGEM")
+print(f"   Máximo de tentativas: {MAX_RECONCILIATION_ATTEMPTS}")
+print("=" * 100)
 
 headers_advbox = {
     "Authorization": f"Bearer {ADVBOX_TOKEN}",
     "Accept": "application/json"
 }
 
-offset = 0
-limit = 100
+attempt = 0
+reconciliation_complete = False
+all_corrections = []
+total_asaas_final = 0
+total_advbox_final = 0
 
-while True:
-    try:
-        # IMPORTANTE: Advbox API não suporta filtros por data/status na query
-        # Buscamos TUDO e filtramos em Python
-        resp = requests.get(
-            "https://app.advbox.com.br/api/v1/transactions",
-            headers=headers_advbox,
-            params={
-                "limit": limit,
-                "offset": offset,
-            },
-            timeout=30
-        )
+while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
+    attempt += 1
+    print(f"\n{'='*100}")
+    print(f"TENTATIVA {attempt}/{MAX_RECONCILIATION_ATTEMPTS}")
+    print(f"{'='*100}")
 
-        if resp.status_code != 200:
-            print(f"❌ Advbox: status {resp.status_code} — {resp.text[:300]}")
-            break
+    # Leitura 1: Buscar dados
+    print(f"\n[LEITURA 1] Buscando transações...")
+    asaas_transactions = fetch_asaas_transactions()
+    advbox_transactions = fetch_advbox_transactions()
 
-        data = resp.json()
-        batch = data.get("data", []) or data.get("transactions", [])
+    total_asaas = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
+    total_advbox = sum(
+        float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+        for tx in advbox_transactions
+    )
 
-        # DEBUG: Log de transações brutas recebidas (apenas no primeiro batch)
-        if offset == 0 and batch:
-            print(f"\n[DEBUG ADVBOX] Primeiras 2 transações brutas da API:")
-            for i, tx in enumerate(batch[:2]):
-                print(f"  Tx {i+1}: {tx}\n")
+    print(f"  Asaas:  {len(asaas_transactions)} transações | R$ {total_asaas:.2f}")
+    print(f"  Advbox: {len(advbox_transactions)} transações | R$ {total_advbox:.2f}")
 
-        # Filtragem em Python: apenas receitas da Asaas que foram pagas no dia
-        batch_antes = len(batch)
-        for tx in batch:
-            # Filtro 1: Apenas receitas (income)
-            tipo = tx.get("type")
-            if tipo != "income":
-                if offset == 0:  # Log apenas no primeiro batch
-                    print(f"[FILTER 1] Tx removida: type={tipo} (esperado 'income')")
-                continue
+    # Matching
+    print(f"\n[MATCHING] Identificando divergências...")
 
-            # Filtro 2: Apenas lançamentos efetivamente recebidos (status paid)
-            status = tx.get("status")
-            if status != "paid":
-                if offset == 0:
-                    print(f"[FILTER 2] Tx removida: status={status} (esperado 'paid')")
-                continue
+    def index_by_value(txs, value_key_fn):
+        idx = {}
+        for tx in txs:
+            v = round(value_key_fn(tx), 2)
+            idx.setdefault(v, []).append(tx)
+        return idx
 
-            # Filtro 3: Apenas da conta Asaas (debit_bank == "ASAAS")
-            debit_bank = tx.get("debit_bank")
-            if debit_bank != "ASAAS":
-                if offset == 0:
-                    print(f"[FILTER 3] Tx removida: debit_bank={debit_bank} (esperado 'ASAAS')")
-                continue
+    asaas_idx = index_by_value(asaas_transactions, lambda tx: float(tx.get("value", 0)))
+    advbox_idx = index_by_value(
+        advbox_transactions,
+        lambda tx: float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+    )
 
-            # Filtro 4: Data de pagamento = TARGET_DATE
-            payment_date = tx.get("payment_date", tx.get("date", ""))
-            if payment_date and payment_date[:10] != TARGET_DATE:
-                if offset == 0:
-                    print(f"[FILTER 4] Tx removida: payment_date={payment_date[:10]} (esperado {TARGET_DATE})")
-                continue
+    matched = []
+    unmatched_asaas = []
+    remaining_advbox = {v: list(txs) for v, txs in advbox_idx.items()}
 
-            advbox_transactions.append(tx)
-
-        # DEBUG: Contagem de filtros
-        if offset == 0:
-            print(f"\n[DEBUG ADVBOX] Batch 1: {batch_antes} transações → {len(advbox_transactions)} após filtros\n")
-
-        # Paginação: continua se houver mais dados
-        if len(batch) < limit:
-            break
-        offset += limit
-
-    except Exception as e:
-        print(f"❌ Erro ao conectar Advbox: {e}")
-        break
-
-if advbox_transactions:
-    print(f"✓ {len(advbox_transactions)} lançamentos encontrados\n")
-    print(f"{'#':<4} {'Descrição':<50} {'Valor':>12}")
-    print("-" * 100)
-    for i, tx in enumerate(advbox_transactions, 1):
-        desc  = tx.get("description", tx.get("name", "N/A"))[:50]
-        valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-        print(f"{i:<4} {desc:<50} R$ {valor:>10.2f}")
-
-    # DEBUG: Mostrar estrutura da primeira transação Advbox que passou nos filtros
-    print(f"\n[DEBUG ADVBOX] Estrutura da primeira transação filtrada:")
-    print(f"  {advbox_transactions[0]}\n")
-else:
-    print(f"⚠️  Nenhuma receita encontrada para {TARGET_DATE}")
-    print(f"\n[DEBUG ADVBOX] Nenhuma transação passou nos filtros!")
-    print(f"  Verifique os campos esperados na API do Advbox:")
-    print(f"  - type (esperado: 'income')")
-    print(f"  - status (esperado: 'paid')")
-    print(f"  - debit_bank (esperado: 'ASAAS')")
-    print(f"  - payment_date ou date (esperado: {TARGET_DATE})\n")
-
-total_advbox = sum(
-    float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-    for tx in advbox_transactions
-)
-print(f"\n{'':>80} TOTAL ADVBOX: R$ {total_advbox:>10.2f}")
-
-# ---------------------------------------------------------------------------
-# 3. COMPARAÇÃO E MATCHING
-# ---------------------------------------------------------------------------
-print(f"\n[3/3] Comparação e Matching ...")
-print("=" * 100)
-
-# Indexar por valor para matching
-def index_by_value(txs, value_key_fn):
-    idx = {}
-    for tx in txs:
-        v = round(value_key_fn(tx), 2)
-        idx.setdefault(v, []).append(tx)
-    return idx
-
-asaas_idx  = index_by_value(asaas_transactions, lambda tx: float(tx.get("value", 0)))
-advbox_idx = index_by_value(
-    advbox_transactions,
-    lambda tx: float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-)
-
-print(f"\n[DEBUG MATCHING] Índices criados:")
-print(f"  Asaas:  {len(asaas_idx)} valores únicos")
-print(f"  Advbox: {len(advbox_idx)} valores únicos")
-print(f"\n[DEBUG MATCHING] Valores Asaas: {sorted(asaas_idx.keys())}")
-print(f"[DEBUG MATCHING] Valores Advbox: {sorted(advbox_idx.keys())}")
-
-matched         = []
-unmatched_asaas = []
-remaining_advbox = {v: list(txs) for v, txs in advbox_idx.items()}
-
-for valor, asaas_list in asaas_idx.items():
-    for asaas_tx in asaas_list:
-        if valor in remaining_advbox and remaining_advbox[valor]:
-            advbox_tx = remaining_advbox[valor].pop(0)
-            matched.append((asaas_tx, advbox_tx, valor))
-            print(f"[MATCH] R$ {valor:.2f} | {asaas_tx.get('description', '')[:40]} = {advbox_tx.get('description', advbox_tx.get('name', ''))[:40]}")
-        else:
-            unmatched_asaas.append(asaas_tx)
-            print(f"[UNMATCHED ASAAS] R$ {valor:.2f} não encontrado no Advbox")
-
-unmatched_advbox = [tx for txs in remaining_advbox.values() for tx in txs]
-for tx in unmatched_advbox:
-    valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-    print(f"[PHANTOM ADVBOX] R$ {valor:.2f} | {tx.get('description', tx.get('name', ''))[:40]}")
-
-# ---------------------------------------------------------------------------
-# 4. EXECUÇÃO DE CORREÇÕES
-# ---------------------------------------------------------------------------
-print(f"\n[4/4] Executando Correções ...")
-print("=" * 100)
-
-corrections_made = []
-corrections_failed = []
-
-# A. REMOVER transações que estão SÓ no Advbox (fantasmas)
-if unmatched_advbox:
-    print(f"\n🗑️  REMOVENDO {len(unmatched_advbox)} transação(ões) fantasma(s) do Advbox:")
-    for tx in unmatched_advbox:
-        valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-        desc  = tx.get("description", tx.get("name", "N/A"))
-        tx_id = tx.get("id", "")
-
-        print(f"\n  • R$ {valor:.2f} | {desc[:60]}")
-
-        if not DRY_RUN and tx_id:
-            if delete_advbox_transaction(tx_id, headers_advbox):
-                print(f"    ✓ Removida com sucesso")
-                corrections_made.append(("DELETE", valor, desc))
+    for valor, asaas_list in asaas_idx.items():
+        for asaas_tx in asaas_list:
+            if valor in remaining_advbox and remaining_advbox[valor]:
+                advbox_tx = remaining_advbox[valor].pop(0)
+                matched.append((asaas_tx, advbox_tx, valor))
             else:
-                corrections_failed.append(("DELETE", valor, desc))
-        elif DRY_RUN:
-            print(f"    (DRY-RUN: seria removida)")
-            corrections_made.append(("DELETE", valor, desc))
+                unmatched_asaas.append(asaas_tx)
 
-# B. CRIAR transações que estão SÓ no Asaas (faltando)
-if unmatched_asaas:
-    print(f"\n✨ CRIANDO {len(unmatched_asaas)} transação(ões) faltante(s) no Advbox:")
-    for tx in unmatched_asaas:
-        valor = float(tx.get("value", 0))
-        desc  = tx.get("description", "N/A")
+    unmatched_advbox = [tx for txs in remaining_advbox.values() for tx in txs]
 
-        print(f"\n  • R$ {valor:.2f} | {desc[:60]}")
+    print(f"  Matches: {len(matched)}")
+    print(f"  Faltando no Advbox: {len(unmatched_asaas)}")
+    print(f"  Fantasmas no Advbox: {len(unmatched_advbox)}")
 
-        if not DRY_RUN:
+    # Executar correções
+    if unmatched_advbox and not DRY_RUN:
+        print(f"\n[CORRIGINDO] Removendo {len(unmatched_advbox)} transação(ões) fantasma(s)...")
+        for tx in unmatched_advbox:
+            valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+            tx_id = tx.get("id", "")
+            if tx_id:
+                if delete_advbox_transaction(tx_id, headers_advbox):
+                    all_corrections.append(("DELETE", valor))
+                    print(f"  ✓ Removida: R$ {valor:.2f}")
+
+    if unmatched_asaas and not DRY_RUN:
+        print(f"\n[CORRIGINDO] Criando {len(unmatched_asaas)} transação(ões) faltante(s)...")
+        for tx in unmatched_asaas:
+            valor = float(tx.get("value", 0))
             if create_advbox_transaction(tx, headers_advbox):
-                print(f"    ✓ Criada com sucesso")
-                corrections_made.append(("CREATE", valor, desc))
-            else:
-                corrections_failed.append(("CREATE", valor, desc))
+                all_corrections.append(("CREATE", valor))
+                print(f"  ✓ Criada: R$ {valor:.2f}")
+
+    # DUPLA CHECAGEM: Relê os dados
+    print(f"\n[DUPLA CHECAGEM] Relendo ambos os sistemas...")
+    asaas_transactions_check = fetch_asaas_transactions()
+    advbox_transactions_check = fetch_advbox_transactions()
+
+    total_asaas_final = sum(float(tx.get("value", 0)) for tx in asaas_transactions_check)
+    total_advbox_final = sum(
+        float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+        for tx in advbox_transactions_check
+    )
+
+    diferenca = abs(total_asaas_final - total_advbox_final)
+
+    print(f"\n  Asaas (dupla):  R$ {total_asaas_final:.2f}")
+    print(f"  Advbox (dupla): R$ {total_advbox_final:.2f}")
+    print(f"  Diferença: R$ {diferenca:.2f}")
+
+    # Verificar se bateu
+    if diferenca < TOLERANCE:
+        print(f"\n✅ SUCESSO! Valores batem dentro da tolerância (R$ {TOLERANCE:.2f})")
+        reconciliation_complete = True
+    else:
+        if attempt < MAX_RECONCILIATION_ATTEMPTS:
+            print(f"\n⚠️  Valores ainda não batem. Tentando novamente...")
         else:
-            print(f"    (DRY-RUN: seria criada)")
-            corrections_made.append(("CREATE", valor, desc))
-
-print(f"\n✅ ENCONTRADOS EM AMBOS ({len(matched)}):\n")
-for asaas_tx, advbox_tx, valor in matched:
-    print(f"  R$ {valor:.2f}")
-    print(f"    Asaas:  {asaas_tx.get('description', '')[:60]}")
-    print(f"    Advbox: {advbox_tx.get('description', advbox_tx.get('name', ''))[:60]}\n")
-
-print(f"\n⚠️  SÓ NO ASAAS — não encontrados no Advbox ({len(unmatched_asaas)}):\n")
-for tx in unmatched_asaas:
-    print(f"  R$ {float(tx.get('value', 0)):.2f} | {tx.get('description', 'N/A')[:70]}")
-
-print(f"\n⚠️  SÓ NO ADVBOX — não encontrados no Asaas ({len(unmatched_advbox)}):\n")
-for tx in unmatched_advbox:
-    valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-    desc  = tx.get("description", tx.get("name", "N/A"))
-    print(f"  R$ {valor:.2f} | {desc[:70]}")
+            print(f"\n❌ FALHA: Atingido limite de {MAX_RECONCILIATION_ATTEMPTS} tentativas")
+            print(f"   Asaas: R$ {total_asaas_final:.2f}")
+            print(f"   Advbox: R$ {total_advbox_final:.2f}")
+            print(f"   Diferença: R$ {diferenca:.2f}")
 
 # ---------------------------------------------------------------------------
-# 5. RESUMO FINAL REVISADO
+# RESULTADO FINAL
 # ---------------------------------------------------------------------------
-print("\n" + "=" * 100)
-print(f"RESUMO FINAL — {TARGET_DATE}")
-print("=" * 100)
+print(f"\n{'='*100}")
+print(f"RESULTADO FINAL DA RECONCILIAÇÃO")
+print(f"{'='*100}")
 
-# Totais DEPOIS das correções
-total_asaas_final = total_asaas
-total_advbox_final = total_advbox - sum(
-    float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-    for tx in unmatched_advbox
-) + sum(
-    float(tx.get("value", 0))
-    for tx in unmatched_asaas
-)
-
-diferenca_final = total_asaas_final - total_advbox_final
-status    = "✅ CONCILIADO" if abs(diferenca_final) < 0.10 else f"⚠️  DIVERGÊNCIA: R$ {abs(diferenca_final):.2f}"
-
-print(f"""
-  ANTES DAS CORREÇÕES:
-  Asaas  : {len(asaas_transactions):>3} lançamentos | Total: R$ {total_asaas:>10.2f}
-  Advbox : {len(advbox_transactions):>3} lançamentos | Total: R$ {total_advbox:>10.2f}
-  -------
-  Matches: {len(matched):>3}
-  Faltando: {len(unmatched_asaas):>3} | R$ {sum(float(t.get('value',0)) for t in unmatched_asaas):.2f}
-  Fantasmas: {len(unmatched_advbox):>3} | R$ {sum(float(str(t.get('value',t.get('amount',0))).replace(',','.')) for t in unmatched_advbox):.2f}
-
-  DEPOIS DAS CORREÇÕES:
-  Asaas  : {len(asaas_transactions):>3} lançamentos | Total: R$ {total_asaas_final:>10.2f}
-  Advbox : {len(advbox_transactions) - len(unmatched_advbox) + len(unmatched_asaas):>3} lançamentos | Total: R$ {total_advbox_final:>10.2f}
-
-  CORREÇÕES REALIZADAS: {len(corrections_made)}
-  CORREÇÕES FALHADAS: {len(corrections_failed)}
-
-  {status}
-""")
+if reconciliation_complete:
+    print(f"\n✅ CONCILIAÇÃO COMPLETADA COM SUCESSO")
+    print(f"   Tentativas: {attempt}/{MAX_RECONCILIATION_ATTEMPTS}")
+    print(f"   Correções realizadas: {len(all_corrections)}")
+    print(f"   Total Asaas: R$ {total_asaas_final:.2f}")
+    print(f"   Total Advbox: R$ {total_advbox_final:.2f}")
+    status_final = "✅ CONCILIADO"
+else:
+    print(f"\n❌ CONCILIAÇÃO NÃO COMPLETADA")
+    print(f"   Tentativas: {attempt}/{MAX_RECONCILIATION_ATTEMPTS}")
+    print(f"   Total Asaas: R$ {total_asaas_final:.2f}")
+    print(f"   Total Advbox: R$ {total_advbox_final:.2f}")
+    print(f"   Diferença pendente: R$ {abs(total_asaas_final - total_advbox_final):.2f}")
+    status_final = f"❌ DIVERGÊNCIA: R$ {abs(total_asaas_final - total_advbox_final):.2f}"
 
 # ---------------------------------------------------------------------------
-# 5. SALVAR RELATÓRIO JSON
+# SALVAR RELATÓRIO JSON
 # ---------------------------------------------------------------------------
 report = {
     "data": TARGET_DATE,
     "gerado_em": datetime.now().isoformat(),
-    "asaas": {
-        "total_lancamentos": len(asaas_transactions),
-        "total_valor": round(total_asaas, 2),
-        "tipos_buscados": ASAAS_INCOME_TYPES,
-        "lancamentos": [
-            {
-                "tipo": tx.get("type"),
-                "descricao": tx.get("description", ""),
-                "valor": float(tx.get("value", 0)),
-                "data": tx.get("dateTime", "")[:10] if tx.get("dateTime") else "",
-            }
-            for tx in asaas_transactions
-        ],
-    },
-    "advbox": {
-        "total_lancamentos": len(advbox_transactions),
-        "total_valor": round(total_advbox, 2),
-        "lancamentos": [
-            {
-                "descricao": tx.get("description", tx.get("name", "")),
-                "valor": float(str(tx.get("value", tx.get("amount", 0))).replace(",", ".")),
-                "data_pagamento": tx.get("payment_date", tx.get("date", "")),
-            }
-            for tx in advbox_transactions
-        ],
-    },
-    "conciliacao": {
-        "matches": len(matched),
-        "faltando_no_advbox": len(unmatched_asaas),
-        "fantasmas_no_advbox": len(unmatched_advbox),
-        "diferenca_antes": round(total_asaas - total_advbox, 2),
-        "diferenca_depois": round(diferenca_final, 2),
-        "status": status,
+    "status": "CONCILIADO" if reconciliation_complete else "NAO_CONCILIADO",
+    "tentativas": attempt,
+    "max_tentativas": MAX_RECONCILIATION_ATTEMPTS,
+    "totais_finais": {
+        "asaas": round(total_asaas_final, 2),
+        "advbox": round(total_advbox_final, 2),
+        "diferenca": round(abs(total_asaas_final - total_advbox_final), 2),
     },
     "correcoes": {
-        "total_realizadas": len(corrections_made),
-        "total_falhadas": len(corrections_failed),
+        "total_realizadas": len(all_corrections),
         "detalhes": [
             {
                 "tipo": corr[0],
-                "valor": round(corr[1], 2),
-                "descricao": corr[2]
+                "valor": round(corr[1], 2)
             }
-            for corr in corrections_made
-        ],
-        "falhas": [
-            {
-                "tipo": corr[0],
-                "valor": round(corr[1], 2),
-                "descricao": corr[2]
-            }
-            for corr in corrections_failed
+            for corr in all_corrections
         ],
     },
 }
@@ -553,4 +430,5 @@ nome_arquivo = f"relatorio_{TARGET_DATE}.json"
 with open(nome_arquivo, "w", encoding="utf-8") as f:
     json.dump(report, f, indent=2, ensure_ascii=False)
 
-print(f"  📄 Relatório salvo: {nome_arquivo}\n")
+print(f"\n📄 Relatório salvo: {nome_arquivo}")
+print(f"\n{status_final}\n")
