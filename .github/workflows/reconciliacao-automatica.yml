@@ -24,12 +24,13 @@ jobs:
           python-version: "3.11"
 
       - name: Instalar dependências
-        run: pip install requests
+        run: pip install requests fpdf2
 
       - name: Verificar variáveis de ambiente
         run: |
           echo "TARGET_DATE: ${{ github.event.inputs.target_date }}"
           echo "DRY_RUN: ${{ github.event.inputs.dry_run }}"
+          echo "TIMEZONE: America/Manaus"
           echo "ASAAS_TOKEN: $(if [ -z '${{ secrets.ASAAS_TOKEN }}' ]; then echo 'NÃO CONFIGURADO'; else echo '✓ Configurado'; fi)"
           echo "ADVBOX_TOKEN: $(if [ -z '${{ secrets.ADVBOX_TOKEN }}' ]; then echo 'NÃO CONFIGURADO'; else echo '✓ Configurado'; fi)"
 
@@ -39,6 +40,10 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           TARGET_DATE: ${{ github.event.inputs.target_date }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          TIMEZONE: America/Manaus
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
         run: python3 analise_dia_a_dia.py
 
       - name: Upload relatório

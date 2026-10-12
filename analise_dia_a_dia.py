@@ -22,6 +22,7 @@ import os
 import requests
 import json
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import sys
 
 # ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@ import sys
 ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "").strip()
 ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
 TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
+TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
 
 # Tipos de lançamento do Asaas que representam RECEITA recebida
 # PAYMENT_RECEIVED  = cobrança paga pelo cliente (boleto, Pix, cartão)
@@ -38,6 +40,14 @@ ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "ANTICIPATED_RECEIVED"]
 
 # Modo DRY-RUN: se True, mostra o que FARIA, sem executar as correções
 DRY_RUN = os.environ.get("DRY_RUN", "false").lower() in ["true", "1", "yes"]
+
+# IDs de categorias para análise CAMADA 2 (categoria)
+CATEGORIAS_HONORARIOS_INICIAIS = [51, 52, 53]  # ajuste conforme sua Advbox
+CATEGORIAS_HONORARIOS_EXITO = [54, 55, 56]     # ajuste conforme sua Advbox
+CATEGORIAS_HONORARIOS_INCUMBENCIAL = [57, 58]  # ajuste conforme sua Advbox
+
+# Cost centers para análise CAMADA 4 (origin)
+COST_CENTER_ASAAS_PADRAO = 60814
 
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE CORREÇÃO — Advbox API Operations
@@ -63,14 +73,21 @@ def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
 def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
     """Cria uma transação no Advbox baseada em uma transação do Asaas."""
     try:
+        # Análise CAMADA 2 (categoria) e CAMADA 4 (cost center)
+        description = asaas_tx.get("description", "Pagamento Asaas")
+        category_id = inferir_categoria(description)
+        cost_center = COST_CENTER_ASAAS_PADRAO
+
         payload = {
             "type": "income",
-            "description": asaas_tx.get("description", "Pagamento Asaas"),
+            "description": description,
             "value": float(asaas_tx.get("value", 0)),
             "payment_date": TARGET_DATE,
             "status": "paid",
-            "account_type": "asaas",
+            "debit_bank": "ASAAS",
             "external_id": asaas_tx.get("id", ""),  # rastrear origem Asaas
+            "categories_id": category_id,
+            "cost_center": cost_center,
         }
 
         resp = requests.post(
@@ -88,6 +105,35 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
     except Exception as e:
         print(f"  ❌ Erro ao criar: {e}")
         return False
+
+
+def inferir_categoria(description: str) -> int:
+    """
+    CAMADA 2: Infere a categoria de honorário baseado na descrição.
+    Retorna o ID da categoria apropriada.
+    """
+    desc_lower = description.lower()
+
+    # Análise de keywords para classificação
+    if any(kw in desc_lower for kw in ["êxito", "sucesso", "êxito", "honorário de êxito"]):
+        return CATEGORIAS_HONORARIOS_EXITO[0]
+    elif any(kw in desc_lower for kw in ["inicial", "protocolo", "entrada", "primeira"]):
+        return CATEGORIAS_HONORARIOS_INICIAIS[0]
+    elif any(kw in desc_lower for kw in ["incumbencial", "mensal", "recursal"]):
+        return CATEGORIAS_HONORARIOS_INCUMBENCIAL[0]
+
+    # Padrão: honorários iniciais
+    return CATEGORIAS_HONORARIOS_INICIAIS[0]
+
+
+def analisar_origin(tx: dict) -> str:
+    """
+    CAMADA 4: Infere a origem/cost center baseado nos dados da transação.
+    """
+    debit_bank = tx.get("debit_bank", "")
+    if debit_bank == "ASAAS":
+        return "ASAAS"
+    return "MANUAL"
 
 
 print("=" * 100)
@@ -184,21 +230,19 @@ headers_advbox = {
     "Accept": "application/json"
 }
 
-page = 1
+offset = 0
+limit = 100
 
 while True:
     try:
+        # IMPORTANTE: Advbox API não suporta filtros por data/status na query
+        # Buscamos TUDO e filtramos em Python
         resp = requests.get(
             "https://app.advbox.com.br/api/v1/transactions",
             headers=headers_advbox,
             params={
-                "type": "income",            # apenas receitas
-                "payment_date_from": TARGET_DATE,  # filtra por DATA DE PAGAMENTO
-                "payment_date_to":   TARGET_DATE,  # (não data de vencimento)
-                "status": "paid",            # apenas lançamentos efetivamente recebidos
-                "account_type": "asaas",     # FILTRAR APENAS CONTA ASAAS
-                "per_page": 100,
-                "page": page,
+                "limit": limit,
+                "offset": offset,
             },
             timeout=30
         )
@@ -209,13 +253,32 @@ while True:
 
         data = resp.json()
         batch = data.get("data", []) or data.get("transactions", [])
-        advbox_transactions.extend(batch)
 
-        # Paginação
-        total_pages = data.get("last_page", data.get("meta", {}).get("last_page", 1))
-        if page >= total_pages or len(batch) == 0:
+        # Filtragem em Python: apenas receitas da Asaas que foram pagas no dia
+        for tx in batch:
+            # Filtro 1: Apenas receitas (income)
+            if tx.get("type") != "income":
+                continue
+
+            # Filtro 2: Apenas lançamentos efetivamente recebidos (status paid)
+            if tx.get("status") != "paid":
+                continue
+
+            # Filtro 3: Apenas da conta Asaas (debit_bank == "ASAAS")
+            if tx.get("debit_bank") != "ASAAS":
+                continue
+
+            # Filtro 4: Data de pagamento = TARGET_DATE
+            payment_date = tx.get("payment_date", tx.get("date", ""))
+            if payment_date and payment_date[:10] != TARGET_DATE:
+                continue
+
+            advbox_transactions.append(tx)
+
+        # Paginação: continua se houver mais dados
+        if len(batch) < limit:
             break
-        page += 1
+        offset += limit
 
     except Exception as e:
         print(f"❌ Erro ao conectar Advbox: {e}")
