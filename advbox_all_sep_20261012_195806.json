@@ -1,0 +1,33 @@
+{
+  "transactions": [
+    {
+      "id": 10758631,
+      "date": "2026-09-07",
+      "name": "DIVAN HENRIQUE FERNANDES BARCELOS",
+      "amount": 397.0,
+      "type": "income",
+      "category": "HONORÁRIOS INICIAIS",
+      "description": "12/12"
+    },
+    {
+      "id": 11446339,
+      "date": "2026-09-10",
+      "name": "JOSÉ RIBAMAR SIQUEIRA DA CRUZ",
+      "amount": 67.0,
+      "type": "income",
+      "category": "HONORÁRIOS CONTRATUAIS",
+      "description": "11/12"
+    },
+    {
+      "id": 11530876,
+      "date": "2026-09-01",
+      "name": "PRISCILA DE SOUZA ROSA BARRONCAS",
+      "amount": 521.46,
+      "type": "income",
+      "category": "HONORÁRIOS CONTRATUAIS",
+      "description": "10/12 IMPLEMENTAÇÃO"
+    }
+  ],
+  "count": 3,
+  "total": 985.46
+}
