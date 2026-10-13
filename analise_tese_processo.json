@@ -1,0 +1,20 @@
+{
+ "antes_de_2026-09-01": {
+  "total": 7717,
+  "resultado": {
+   "sem_processo": 7717
+  },
+  "natureza_inferida_nos_resolvidos": {},
+  "tipos_de_processo_sem_categoria(top15)": []
+ },
+ "dia_2026-09-01": {
+  "total": 2,
+  "resultado": {
+   "sem_processo": 2
+  },
+  "natureza_inferida_nos_resolvidos": {},
+  "tipos_de_processo_sem_categoria(top15)": []
+ },
+ "lawsuits_lidos": 8435,
+ "clientes_com_processo": 4531
+}
