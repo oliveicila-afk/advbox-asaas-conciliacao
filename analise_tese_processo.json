@@ -2,19 +2,95 @@
  "antes_de_2026-09-01": {
   "total": 7717,
   "resultado": {
-   "sem_processo": 7717
+   "tipo_sem_categoria": 6125,
+   "ok": 1013,
+   "sem_processo": 393,
+   "varios_processos_com_categoria": 186
   },
-  "natureza_inferida_nos_resolvidos": {},
-  "tipos_de_processo_sem_categoria(top15)": []
+  "natureza_inferida_nos_resolvidos": {
+   "INICIAIS?": 1013
+  },
+  "tipos_de_processo_sem_categoria(top15)": [
+   [
+    "PROMOCAO HORIZONTAL - SEDUC",
+    1804
+   ],
+   [
+    "AGRAVO DE INSTRUMENTO",
+    1413
+   ],
+   [
+    "ANULACAO DE QUESTAO E/OU DISCURSIVA",
+    898
+   ],
+   [
+    "AGRAVO INTERNO - 2 GRAU",
+    623
+   ],
+   [
+    "EMBARGOS DE DECLARACAO - 2 GRAU",
+    497
+   ],
+   [
+    "1/3 DE FERIAS",
+    296
+   ],
+   [
+    "SINDICANCIA/INVESTIGACAO SOCIAL",
+    285
+   ],
+   [
+    "PM/AM - ITEM \"B\"",
+    265
+   ],
+   [
+    "PM/AM - TAF",
+    221
+   ],
+   [
+    "AVALIACAO PSICOLOGICA - ANULACAO",
+    189
+   ],
+   [
+    "IRREGULARIDADE CONVOCACAO/NOMEACAO",
+    183
+   ],
+   [
+    "PROMOCAO HORIZONTAL E VERTICAL - SEDUC",
+    183
+   ],
+   [
+    "PM/CE - ANULACAO DE QUESTAO OBJETIVA",
+    181
+   ],
+   [
+    "PROMOCAO VERTICAL - SEDUC",
+    179
+   ],
+   [
+    "PRETERICAO A NOMEACAO",
+    174
+   ]
+  ]
  },
  "dia_2026-09-01": {
   "total": 2,
   "resultado": {
-   "sem_processo": 2
+   "tipo_sem_categoria": 2
   },
   "natureza_inferida_nos_resolvidos": {},
-  "tipos_de_processo_sem_categoria(top15)": []
+  "tipos_de_processo_sem_categoria(top15)": [
+   [
+    "PROMOCAO VERTICAL - SEDUC",
+    1
+   ],
+   [
+    "LICENCA PARA ESTUDO",
+    1
+   ]
+  ]
  },
  "lawsuits_lidos": 8435,
- "clientes_com_processo": 4531
+ "clientes_com_processo": 4498,
+ "lancamentos_ligados_a_processo": 1752
 }
