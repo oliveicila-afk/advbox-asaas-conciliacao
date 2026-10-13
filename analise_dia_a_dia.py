@@ -163,6 +163,7 @@ def fetch_advbox_transactions():
     transactions = []
     headers_advbox = {
         "Authorization": f"Bearer {ADVBOX_TOKEN}",
+        "User-Agent": "Mozilla/5.0",
         "Accept": "application/json"
     }
 
@@ -274,6 +275,7 @@ log_msg(f"\n🔄 INICIANDO LOOP DE RECONCILIAÇÃO", True)
 
 headers_advbox = {
     "Authorization": f"Bearer {ADVBOX_TOKEN}",
+        "User-Agent": "Mozilla/5.0",
     "Accept": "application/json"
 }
 
