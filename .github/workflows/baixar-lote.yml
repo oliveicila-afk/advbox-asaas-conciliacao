@@ -33,7 +33,7 @@ jobs:
               p={k:v for k,v in p.items() if v is not None}
               r=requests.put(u,headers=hb,json=p,timeout=30)
               n=requests.get(u,headers=hb,timeout=30).json()
-              res.append({"id":tid,"antes":str(d.get("date_payment"))[:10],"http":r.status_code,"depois":str(n.get("date_payment"))[:10],"banco":n.get("bank")})
+              res.append({"id":tid,"antes":str(d.get("date_payment"))[:10],"http":r.status_code,"resp":r.text[:300],"enviado":{k:p[k] for k in p if k!="description"},"depois":str(n.get("date_payment"))[:10],"banco":n.get("bank")})
               time.sleep(2.2)
           json.dump(res,open("baixa_lote.json","w"),indent=1,default=str); print(res)
           PY
