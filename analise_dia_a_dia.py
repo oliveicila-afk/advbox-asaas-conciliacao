@@ -127,7 +127,7 @@ def classificacao_por_precedente(nome, headers_advbox):
     cands = [t for t in _ADVBOX_RAW
              if t.get("entry_type") == "income"
              and norm_nome(t.get("name")) == alvo
-             and t.get("category") and t["category"] not in GENERICAS and "-" in t["category"]
+             and t.get("category") and t["category"] not in GENERICAS and ("-" in t["category"] or t["category"].startswith("HONORÁRIOS CONSULTORIAS"))
              and t.get("cost_center")]
     if not cands:
         return None
