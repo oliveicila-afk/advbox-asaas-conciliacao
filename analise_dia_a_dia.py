@@ -177,6 +177,33 @@ def aplicar_regra_consultoria(categoria, centro, headers_advbox):
     return categoria_consultoria_cliente(headers_advbox)
 
 
+def categoria_iniciais_da_tese(tipo, headers_advbox):
+    """Categoria 'HONORÁRIOS CONTRATUAIS INICIAIS-<TESE>' pelo tipo do processo (regra: lançamento só 'Honorários Contratuais' é genérico e deve ir para iniciais + tese).
+    Anulação de Questão -> CONCURSO PM/AM ITEM B; FIC -> CONCURSO. Sem categoria para a tese -> None (fica pendente)."""
+    st = carregar_settings_advbox(headers_advbox)
+    pref = "HONORARIOS CONTRATUAIS INICIAIS-"
+    ini = {n: i for n, i in st["cat"].items() if _sem_acento(n).startswith(pref)}
+    t = _sem_acento(tipo)
+    if not t:
+        return None
+    if "ANULACAO DE QUESTAO" in t:
+        alvo = pref + "CONCURSO PM/AM ITEM B"
+    elif t == "FIC" or t.startswith("FIC "):
+        alvo = pref + "CONCURSO"
+    else:
+        ex = [(n, i) for n, i in ini.items() if _sem_acento(n) == pref + t]
+        if len(ex) == 1:
+            return ex[0]
+        c = [(n, i) for n, i in ini.items() if _sem_acento(n)[len(pref):] and _sem_acento(n)[len(pref):] in t]
+        if not c:
+            return None
+        m = max(len(_sem_acento(n)) for n, _ in c)
+        c = [(n, i) for n, i in c if len(_sem_acento(n)) == m]
+        return c[0] if len(c) == 1 else None
+    ex = [(n, i) for n, i in ini.items() if _sem_acento(n) == alvo]
+    return ex[0] if len(ex) == 1 else None
+
+
 def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
     """Define a data de pagamento de um lançamento que JÁ existe. A API exige o payload completo
     (entry_type, conta ASAAS, categoria, centro de custo, cliente, processo). Se a categoria gravada
@@ -190,6 +217,20 @@ def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
          "customers_id": d.get("customers_id"), "lawsuits_id": d.get("lawsuits_id"),
          "amount": f"{float(d.get('amount', valor)):.2f}".replace(".", ","),
          "date_due": str(d.get("date_due"))[:10], "date_payment": data_pag, "description": d.get("description") or ""}
+    st_ = carregar_settings_advbox(headers_advbox)
+    if d.get("categories_id") not in st_["cat"].values():
+        # categoria gravada genérica/antiga ("Honorários Contratuais"): troca por INICIAIS-<tese do processo>
+        lw_ = next((l for l in indice_processos(headers_advbox).values() if l.get("id") == d.get("lawsuits_id")), None)
+        tipo_ = (lw_ or {}).get("type")
+        tipo_ = tipo_.get("name") if isinstance(tipo_, dict) else tipo_
+        ci = categoria_iniciais_da_tese(tipo_, headers_advbox)
+        if ci:
+            log_msg(f"  categoria genérica -> '{ci[0]}'", True)
+            p["categories_id"] = ci[1]
+        else:
+            log_msg("  ⚠️ categoria genérica sem categoria de iniciais para a tese - fica pendente", True)
+            pendentes_sem_tese.append({"valor": round(float(valor), 2), "cliente_asaas": "(lançamento %s)" % tx_id,
+                                       "motivo": "categoria genérica e tese sem categoria de iniciais"})
     nova = aplicar_regra_consultoria(d.get("category"), d.get("cost_center"), headers_advbox)
     if nova:
         log_msg(f"  consultoria de cliente -> categoria '{nova[0]}'", True)
