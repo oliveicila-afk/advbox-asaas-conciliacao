@@ -479,6 +479,34 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
         else:
             matched.append((a_tx, restantes_adv.pop(achou), v))
 
+    # Passo 1b: pagadores judiciais (Caixa, Banco do Brasil, etc.) pagam êxito em nome do cliente
+    # Nesses casos, o Asaas registra o banco como pagador mas o lançamento certo já está no Advbox.
+    # Aceitar como conciliado se: pagador Asaas contém "CAIXA" ou "CEF" e o lançamento Advbox
+    # tem categoria de êxito (EXITO na categoria) — match apenas por valor.
+    PAGADORES_JUDICIAIS = ("CAIXA", "CEF", "BANCO DO BRASIL", "BB PAGAMENTOS", "SICOOB", "BRADESCO")
+    sobra_asaas2 = []
+    for a_tx in sobra_asaas:
+        n_asaas = norm_nome(a_tx.get("_nome") or "")
+        eh_pagador_judicial = any(p in n_asaas for p in PAGADORES_JUDICIAIS)
+        if not eh_pagador_judicial:
+            sobra_asaas2.append(a_tx)
+            continue
+        v = round(float(a_tx.get("value", 0)), 2)
+        # Buscar lançamento Advbox com mesmo valor e categoria de êxito
+        achou = None
+        for i, b_tx in enumerate(restantes_adv):
+            if val_adv(b_tx) == v:
+                cat = str(b_tx.get("category_name") or b_tx.get("category") or "").upper()
+                if "EXITO" in cat or "ÊXITO" in cat or "SUCUMB" in cat:
+                    achou = i
+                    break
+        if achou is None:
+            sobra_asaas2.append(a_tx)
+        else:
+            log_msg(f"  ✅ Pagador judicial ({n_asaas[:20]}) aceito como conciliado por valor R${v}", True)
+            matched.append((a_tx, restantes_adv.pop(achou), v))
+    sobra_asaas = sobra_asaas2
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
