@@ -12,6 +12,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import sys
 import time
+import re
 
 # ---------------------------------------------------------------------------
 # Configuração
@@ -140,6 +141,75 @@ def classificacao_por_precedente(nome, headers_advbox):
     return {"categories_id": cat_id, "cost_centers_id": cc_id,
             "categoria": ref["category"], "centro_custo": ref["cost_center"]}
 
+
+def indice_processos(headers_advbox):
+    """Índice {20 dígitos do processo: processo Advbox} (lido uma vez, respeitando o limite da API)."""
+    global _LAWSUIT_IDX
+    if _LAWSUIT_IDX is not None:
+        return _LAWSUIT_IDX
+    idx, off = {}, 0
+    while True:
+        r = None
+        for _ in range(6):
+            r = requests.get("https://app.advbox.com.br/api/v1/lawsuits", headers=headers_advbox,
+                             params={"limit": 1000, "offset": off}, timeout=90)
+            if r.status_code != 429:
+                break
+            time.sleep(30)
+        time.sleep(2.2)
+        if r.status_code != 200:
+            log_msg(f"  ⚠️ lawsuits HTTP {r.status_code}", True)
+            break
+        b = r.json().get("data", [])
+        for l in b:
+            for k in ("process_number", "protocol_number"):
+                d = re.sub(r"\D", "", str(l.get(k) or ""))
+                if len(d) == 20:
+                    idx[d] = l
+        if len(b) < 1000:
+            break
+        off += 1000
+    _LAWSUIT_IDX = idx
+    return idx
+
+
+def processo_do_repasse(a_tx, headers_advbox):
+    """Acha o processo no Advbox pelo número que vem na cobrança do Asaas (testa toda janela de 20 dígitos)."""
+    idx = indice_processos(headers_advbox)
+    for ds in a_tx.get("_proc_longas") or []:
+        for off in range(0, len(ds) - 19):
+            if ds[off:off + 20] in idx:
+                return idx[ds[off:off + 20]]
+    return None
+
+
+def detalhe_lancamento(tx_id, headers_advbox):
+    r = requests.get(f"https://app.advbox.com.br/api/v1/transactions/{tx_id}", headers=headers_advbox, timeout=30)
+    time.sleep(2.2)
+    return r.json() if r.status_code == 200 else {}
+
+
+def lancar_receita_exito_caixa(plano, headers_advbox):
+    """Cria a receita CHEIA do repasse (categoria, centro de custo, cliente e processo copiados dos honorários
+    já lançados) e desmarca só o lançamento de honorários antigo. A despesa 'ÊXITO DO CLIENTE' é mantida."""
+    a_tx, fee_tx, lei, v = plano
+    d = detalhe_lancamento(fee_tx.get("id"), headers_advbox)
+    if not (d.get("categories_id") and d.get("cost_centers_id") and d.get("customers_id")):
+        log_msg(f"  Caixa R${v}: modelo sem categoria/centro/cliente - NÃO lançado", True)
+        return False
+    payload = {"users_id": 65747, "entry_type": "income", "debit_account": 193264,
+               "categories_id": d["categories_id"], "cost_centers_id": d["cost_centers_id"],
+               "customers_id": d["customers_id"], "lawsuits_id": lei.get("id"),
+               "amount": f"{v:.2f}".replace(".", ","), "date_due": TARGET_DATE, "date_payment": TARGET_DATE,
+               "description": f"Repasse Caixa (êxito) - fatura {a_tx.get('_fatura_nr')}"}
+    r = requests.post("https://app.advbox.com.br/api/v1/transactions",
+                      headers={**headers_advbox, "Content-Type": "application/json"}, json=payload, timeout=30)
+    ok = r.status_code in (200, 201)
+    log_msg(f"  CREATE receita Caixa R${v}: {r.status_code} - {'✓' if ok else '❌ ' + r.text[:200]}", True)
+    if ok:
+        unpay_advbox_transaction(fee_tx.get("id"), headers_advbox)
+    return ok
+
 def buscar_cliente_advbox(asaas_tx: dict, headers_advbox: dict):
     """Acha o cliente no Advbox pelo CPF/CNPJ (preferido) ou pelo nome exato."""
     try:
@@ -172,6 +242,14 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
             return False
         description = asaas_tx.get("description") or "Pagamento Asaas"
         classif = classificacao_por_precedente(asaas_tx.get("_nome"), headers_advbox)
+        if not classif and round(float(asaas_tx.get("value", 0)), 2) in (67.0, 497.0, 597.0):
+            # regra combinada: valores 67/497/597 podem ser Promoção Horizontal
+            st = carregar_settings_advbox(headers_advbox)
+            cats = [(n, i) for n, i in st["cat"].items()
+                    if "PROMOÇÃO HORIZONTAL" in n.upper() and "ÊXITO" not in n.upper() and "EXITO" not in n.upper()]
+            if len(cats) == 1:
+                classif = {"categories_id": cats[0][1], "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
+                           "categoria": cats[0][0], "centro_custo": "padrão ASAAS"}
         if not classif:
             log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' sem lançamento anterior com tese - NÃO criado (informar a tese)", True)
             pendentes_sem_tese.append({"valor": round(float(asaas_tx.get("value", 0)), 2),
@@ -234,7 +312,13 @@ def asaas_nome(tx, headers):
         if not pid:
             return None
         if pid not in _CACHE_PAG:
-            _CACHE_PAG[pid] = requests.get(f"{base}/payments/{pid}", headers=headers, timeout=30).json().get("customer")
+            pj = requests.get(f"{base}/payments/{pid}", headers=headers, timeout=30).json()
+            _CACHE_PAG[pid] = pj.get("customer")
+            _CACHE_PROC[pid] = [re.sub(r"\D", "", x) for x in re.findall(r"\d[\d\-\.\/]{18,}\d",
+                                f"{pj.get('description') or ''} | {pj.get('externalReference') or ''}")]
+            _CACHE_FAT[pid] = pj.get("invoiceNumber")
+        tx["_proc_longas"] = _CACHE_PROC.get(pid, [])
+        tx["_fatura_nr"] = _CACHE_FAT.get(pid)
         cid = _CACHE_PAG[pid]
         if not cid:
             return None
@@ -299,6 +383,9 @@ def fetch_asaas_transactions():
 
 
 _ADVBOX_CACHE = None
+_CACHE_PROC = {}
+_CACHE_FAT = {}
+_LAWSUIT_IDX = None
 _ADVBOX_RAW = []
 _SETTINGS = {}
 pendentes_sem_tese = []
@@ -610,6 +697,33 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             matched.append((a_tx, achou_combo[0][1], v))
     sobra_asaas = sobra_asaas4
 
+    # Passo 1e: repasse de êxito de pagador judicial (Caixa etc.) — lê o NÚMERO DO PROCESSO na cobrança do Asaas,
+    # acha o processo/cliente/tese no Advbox e prepara a receita cheia (os honorários já lançados viram "modelo").
+    caixa_planos = []
+    sobra_asaas5 = []
+    for a_tx in sobra_asaas:
+        n_asaas = norm_nome(a_tx.get("_nome") or "")
+        if not (any(p in n_asaas for p in PAGADORES_JUDICIAIS) and a_tx.get("_proc_longas")):
+            sobra_asaas5.append(a_tx)
+            continue
+        v = round(float(a_tx.get("value", 0)), 2)
+        lei = processo_do_repasse(a_tx, headers_advbox)
+        modelo = None
+        if lei:
+            for i, b_tx in enumerate(restantes_adv):
+                if b_tx.get("entry_type") == "income" and b_tx.get("lawsuit_id") == lei.get("id") and val_adv(b_tx) < v:
+                    modelo = i
+                    break
+        if lei is None or modelo is None:
+            log_msg(f"  ⚠️ Repasse judicial R${v}: processo/honorários não encontrados no Advbox - fica pendente", True)
+            sobra_asaas5.append(a_tx)
+            continue
+        fee_tx = restantes_adv.pop(modelo)
+        log_msg(f"  ✅ Repasse de êxito R${v}: processo achado (id {lei.get('id')}) - receita cheia será lançada", True)
+        caixa_planos.append((a_tx, fee_tx, lei, v))
+        matched.append((a_tx, fee_tx, v))
+    sobra_asaas = sobra_asaas5
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
@@ -647,6 +761,12 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             if tx_id:
                 if unpay_advbox_transaction(tx_id, headers_advbox):
                     all_corrections.append(("DESMARCAR_PAGAMENTO", valor))
+
+    if caixa_planos and not DRY_RUN:
+        log_msg(f"\n[CORRIGINDO] Lançando receita cheia de {len(caixa_planos)} repasse(s) de êxito...", True)
+        for plano in caixa_planos:
+            if lancar_receita_exito_caixa(plano, headers_advbox):
+                all_corrections.append(("CREATE", plano[3]))
 
     if unmatched_asaas and not DRY_RUN:
         log_msg(f"\n[CORRIGINDO] Criando {len(unmatched_asaas)} faltante(s)...", True)
