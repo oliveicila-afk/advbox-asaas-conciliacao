@@ -32,6 +32,10 @@ CATEGORIAS_HONORARIOS_EXITO = [2]         # HONORÁRIOS FINAIS
 CATEGORIAS_HONORARIOS_INCUMBENCIAL = [3]  # HONORÁRIOS DE SUCUMBÊNCIA
 COST_CENTER_ASAAS_PADRAO = 60814
 
+# Transações de investimento: excluídas da conciliação (já lançadas na conta de investimentos do Advbox)
+NOMES_INVESTIMENTO = ("LVMX", "FII ", "FIDC", "FUNDO DE INVESTIMENTO", "FUNDO IMOBILIARIO",
+                      "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT")
+
 # LOGGING EM ARQUIVO
 LOG_FILE = f"debug_{TARGET_DATE}.log"
 def log_msg(msg, print_also=True):
@@ -461,8 +465,6 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
 
     # Passo 0: excluir transações de investimento do Asaas — já lançadas na conta de investimentos do Advbox
     # Exemplos: "Lvmx I. E. I. L.", fundos de investimento, FIDC, etc.
-    NOMES_INVESTIMENTO = ("LVMX", "FII ", "FIDC", "FUNDO DE INVESTIMENTO", "FUNDO IMOBILIARIO",
-                          "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT")
     investimentos_excluidos = []
     asaas_filtrado = []
     for a_tx in asaas_transactions:
@@ -578,6 +580,11 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     asaas_transactions_check = fetch_asaas_transactions()
     advbox_transactions_check = fetch_advbox_transactions()
 
+    # Aplicar mesmo filtro de investimento na dupla checagem
+    asaas_transactions_check = [
+        tx for tx in asaas_transactions_check
+        if not any(inv in (tx.get("_nome") or "").upper() for inv in NOMES_INVESTIMENTO)
+    ]
     total_asaas_final = sum(float(tx.get("value", 0)) for tx in asaas_transactions_check)
     total_advbox_final = sum(
         float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
