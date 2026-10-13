@@ -1,0 +1,30 @@
+name: Ver conta das despesas ÊXITO DO CLIENTE (somente leitura)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  v:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          out={}
+          for i in (17775009,17774991,17774993,17774995,17774999):
+              d=requests.get(f"https://app.advbox.com.br/api/v1/transactions/{i}",headers=hb,timeout=30).json(); time.sleep(2.2)
+              out[i]={k:d.get(k) for k in ("entry_type","amount","bank","debit_account","category","date_payment")}
+          json.dump(out,open("despesas_exito.json","w"),ensure_ascii=False,indent=1,default=str)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f despesas_exito.json; git commit -m "despesas exito" || true
+          git pull --rebase origin main || true; git push || true
