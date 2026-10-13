@@ -1,0 +1,62 @@
+{
+ "15740961": [
+  {
+   "id": 17475800,
+   "tipo": "income",
+   "valor": 5861.55,
+   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+   "pago": "",
+   "venc": "2027-01-22",
+   "banco": "CONTADORIA"
+  }
+ ],
+ "5173864": [
+  {
+   "id": 12139864,
+   "tipo": "income",
+   "valor": 5852.08,
+   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO",
+   "pago": "",
+   "venc": "2025-12-30",
+   "banco": "ASAAS"
+  }
+ ],
+ "5836169": [
+  {
+   "id": 13803545,
+   "tipo": "income",
+   "valor": 143.56,
+   "cat": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
+   "pago": "",
+   "venc": "2026-01-07",
+   "banco": "ASAAS"
+  }
+ ],
+ "7721868": [
+  {
+   "id": 15408661,
+   "tipo": "income",
+   "valor": 2871.44,
+   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+   "pago": "",
+   "venc": "2026-10-23",
+   "banco": "CONTADORIA"
+  }
+ ],
+ "14766140": [],
+ "2348305": [],
+ "12757688": [],
+ "13114809": [],
+ "7000508": [
+  {
+   "id": 15116112,
+   "tipo": "income",
+   "valor": 34842.75,
+   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO ESCALONAMENTO",
+   "pago": "",
+   "venc": "2026-06-15",
+   "banco": "CONTADORIA"
+  }
+ ],
+ "7843581": []
+}
