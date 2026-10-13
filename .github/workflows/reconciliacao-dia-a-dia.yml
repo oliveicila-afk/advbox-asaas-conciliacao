@@ -8,6 +8,9 @@ on:
         required: true
         default: "2026-09-01"
 
+permissions:
+  contents: write
+
 jobs:
   analisar-receitas:
     runs-on: ubuntu-latest
@@ -48,7 +51,7 @@ jobs:
           git add -f relatorio_*.json debug_*.log 2>/dev/null || true
           git diff --cached --quiet || git commit -m "Relatório da reconciliação (${{ github.event.inputs.data }})"
           git pull --rebase origin main 2>/dev/null || true
-          git push 2>/dev/null || echo "Push retentativas..."
+          git push || echo "Push falhou"
 
       - name: Resultado
         if: success()
