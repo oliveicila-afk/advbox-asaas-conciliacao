@@ -1,17 +1,26 @@
 {
   "data": "2026-09-15",
-  "gerado_em": "2026-10-13T09:51:35.100363",
-  "status": "CONCILIADO",
-  "tentativas": 1,
+  "gerado_em": "2026-10-13T14:15:03.283974",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
-    "asaas": 3820.49,
+    "asaas": 3843.85,
     "advbox": 3820.49,
-    "diferenca": 0.0
+    "diferenca": 23.36
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 11.68,
+        "cliente_asaas": "Elisabeth B. D. C."
+      },
+      {
+        "valor": 11.68,
+        "cliente_asaas": "Elisabeth B. D. C."
+      }
+    ],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],

@@ -1,6 +1,6 @@
 ====================================================================================================
 INÍCIO DO LOG DE DEBUG
-Data/Hora: 2026-10-13 09:50:47.430938
+Data/Hora: 2026-10-13 14:14:05.251535
 Target Date: 2026-09-15
 DRY_RUN: True
 ====================================================================================================
@@ -20,14 +20,14 @@ TENTATIVA 1/5
   Status: 200
 [ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
 [ASAAS] Sem nome resolvido: 0
-[ASAAS] Receitas mantidas: 4 | soma: 3820.49
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
 
-[ASAAS] TOTAL: 4 transações
+[ASAAS] TOTAL: 6 transações
 
 [ADVBOX] Iniciando fetch
   Requisição: offset=0, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:50:50 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '29', 'Set-Cookie': 'advbox_session=6ZUoep195UCFcoB91i6AVUmDiiMaPXJCpNKzdeuI; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=iw90Xvrd0kH3fbCFiLonyvFXDlQMg5EWWvjzaz%2Ba9B7kXNM7u21JLgS3wogi1mCZ6%2FY6hoeYojiGn5aSowrX8S15ihGbOiWGUioDeK836Q1bUH3QDErTPn9fGxFZWC0KrWt7"}]}', 'CF-RAY': 'a49d713e6af8eadb-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:10 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '29', 'Set-Cookie': 'advbox_session=SCIfmNrmCUdcVA6DqrBisCrDr6tdCkIvooSqOnTq; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=lu8ZEqDBFHpo9eGQkOeuZZEhKvRsGvLhz3qsJnO9qz0L%2FfnScEvxl%2Bw9yRVkEzJJsV7RCDXBWIAv0rQ2jkRgrZfm6hyV649r%2FkHxJwPwlKHffSSILMl3ut2cipwITtQwoN%2BK"}]}', 'CF-RAY': 'a49ef2f8ccd25b74-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=expense status=paid debit_bank=CONTA PRINCIPAL date=2022-06-30
@@ -2032,7 +2032,7 @@ TENTATIVA 1/5
     → FILTRADA (debit_bank)
   Requisição: offset=1000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:50:53 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '28', 'Set-Cookie': 'advbox_session=v0E0oMObtZT9lGgShSbON3JpqL5PKDoqq0D2FEcP; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=dvIMUEaAzDnsbEt%2BZlyR4lTdL6z59hoikoyCK%2FRoIGfT3aqj8VS2VBtDtFGS3OUKjSJyh6F17ePBEnKqiljjI86o95Lwg3Ftdn4UoZZgq5DUfmpQZUmKV3nry94F1ANTga8Y"}]}', 'CF-RAY': 'a49d714df817e802-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:13 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '28', 'Set-Cookie': 'advbox_session=NP9W4cCvf8Z0i50zVbWh1kJkXqhdoU1WD8EFohqZ; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=obDbABCggcTNWiY5OkR9DvmMXjYdHM%2B4KBqj9l238CttVejb2RlqNX%2BqfGRW5QVKTgzwU99sbrAW6XxilICyM%2B29q%2B8g32bG8T4Q7AdNMHsMsyvdCx86Dgk73b%2BFoTidT1FN"}]}', 'CF-RAY': 'a49ef30c0a3ff08e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=paid debit_bank=CONTA PRINCIPAL date=2022-10-31
@@ -4037,7 +4037,7 @@ TENTATIVA 1/5
     → FILTRADA (debit_bank)
   Requisição: offset=2000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:50:56 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '27', 'Set-Cookie': 'advbox_session=A2sV8KqMJXWI0ihGbd1JNmv9dgYSpKyIAPBFeG5t; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=mZKCerS8KahAe%2FYcQYFl3QnbKVT9rz0YRE4olgG0t3dQpM6RlMY1tb0yogXlWu432mdPp7LG%2BRIX%2FbR0oQezwgon46Oqm56XEVPzMzA4i1ayx4Sl9Wf2q%2B9Kek%2BMzGPNapb1"}]}', 'CF-RAY': 'a49d715da992e544-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:16 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '27', 'Set-Cookie': 'advbox_session=hLHDv3ezy3EkKYZ9yVnkbJXdH10XBdx3qEIq2Wbp; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=oCX20VIGTtjWrgS0qqpidX8%2BiAqcvFMl2euj5u7%2BaP0OAbNWD9dbECd7PJleP5i9DEsUqkQvGY5%2FNMTTIUPxpGUXkGFdrgDkOVIcBxDjT2gGCKPiHqW7jEk1tnq0riGeozpT"}]}', 'CF-RAY': 'a49ef31c9f5df06e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=paid debit_bank=CONTA PRINCIPAL date=2023-09-21
@@ -6042,7 +6042,7 @@ TENTATIVA 1/5
     → FILTRADA (type)
   Requisição: offset=3000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:50:58 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '26', 'Set-Cookie': 'advbox_session=HQHgKhDwmMFSFRpTpioLXm05FaLysTjvveuKHklL; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Ffcw7yVetn%2BEhxFD1Z1L29%2FrfEk%2Fa6C58oLxk45xq9r9wS2tgT10rFN4RsosDRZG1rLp1Y3l1M9hf8gUlaTxIWzC%2FqYdTXgnPfOJEgJbeKw%2F%2BO9cTm8CHzQVLt1lBpPZNUoI"}]}', 'CF-RAY': 'a49d716f4dad866c-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:18 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '26', 'Set-Cookie': 'advbox_session=2W6x8lFhNFKnW0ZJegDjtlMAMayMWNuuAjRRxFo1; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=x0yObOMt7vSZMHZ8zzs6442VHJMnF78Fnagn4ij4t4wdM3HXohznQwx5act0zEtAfUz5Cd4wUlqFQykiXfJdj2qqKYhgAf6058UCaWQ2Qx3p3zLjJM0Ift%2F8FxaqxNZxgLJ4"}]}', 'CF-RAY': 'a49ef32d3bf12c1e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=expense status=paid debit_bank=CONTA PRINCIPAL date=2023-05-31
@@ -8047,7 +8047,7 @@ TENTATIVA 1/5
     → FILTRADA (debit_bank)
   Requisição: offset=4000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:01 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '25', 'Set-Cookie': 'advbox_session=LhEwaxVAQqnJbvCHwGSn4wu7Vd1exF5DBh0dYPM6; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=BH8Gt4e0hyfCU4Zdnokd7HyuGu4VfoPHLsekOiej%2BnrcOE9nfKMpnbt7N8USDc7%2Bt%2FiNGQ%2BVdMltFJiSIRVOtsjrWmdamxiRbVtddBK8MMqZxe1we8aF%2FYMj3yumI%2Bjkl0mr"}]}', 'CF-RAY': 'a49d717f1fc5eaf9-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:21 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '25', 'Set-Cookie': 'advbox_session=slWUUR02ev2xAgQJB3EIdneooZIGf3EcGpsNT9sE; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=DdnPES%2BlxASMw1%2B7B2ztHBYjN5Sqs6bZLhLR%2F3gFugaiO8cS%2FZsaEHSDBGnKkDlE8J4IrG7lO1PoSQ7YPJ9u%2FFJVz3bLUDD2lDpy4TCUiQBF24fTOHEKD3J8%2BWH1aZnu0k79"}]}', 'CF-RAY': 'a49ef33e59f6e68b-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=paid debit_bank=CONTA PRINCIPAL date=2023-11-08
@@ -10052,7 +10052,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=5000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:03 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '24', 'Set-Cookie': 'advbox_session=VidofT0KBzCcWT3ebPin8gOoaXT31PZTPCmjJFZD; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=yYDrcI72sJDHzRAOHvz1bZD05cx5UzhbU3u53Ri99FaH4WTyZW1YbqFVbg7dxEvassdDJF5PQpwiL8puzqmKvED2euvgxzBxzABGn9%2FCLPEKAmFxZQzl46weQSSdqIkPcMSp"}]}', 'CF-RAY': 'a49d718efd21a577-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:24 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '24', 'Set-Cookie': 'advbox_session=JNN6cD20W4RPwRlh7YwpKXKIp9fd7WKcGbEhxiLj; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=MHQh267NncenthdP5MILjuhQrndq9yrByWeTUQA3eRPvF9PhHUNcRIeUdMe2y%2FVOkBlmSkIR%2BaqqSikL8fsylfpduxZI9GDhffd066%2FNO2ziu97K1vTX%2BPe0Rht7pag5TgqN"}]}', 'CF-RAY': 'a49ef34ef8182c62-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=CONTA PRINCIPAL date=
@@ -12057,7 +12057,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=6000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:06 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '23', 'Set-Cookie': 'advbox_session=HSFrZPjxpBm4hC6lskDwFbnGWPUiBGkuFM7dZdFg; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=FBOyBN5urwE4jKe2pNTQ%2B%2FFN063nAXN8TXy7UiS5JF9a7SeCTd5MLL7FJxLlaH3VQADhhuaJd6hgk44cRTO4v0CfMklaHEGTcCxNuXJrD4eppPwcfB46hoGbooPcOURQUwah"}]}', 'CF-RAY': 'a49d719eeb0b6501-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:27 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '23', 'Set-Cookie': 'advbox_session=NqBEcssvWaO7fgc4b5UQZ3blTLCEbfAKFrnb2meL; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IYf619WMGEdMLqCYyhssMf1ULe%2BsNFaovxmkRkbqEht8RK2P4LQ1ps12nrgQ113BGqUmNF%2FXYbfXaIM4XFYYIoYf8cvPeXLZJkN2PpRCFplywRHu2wVFasH3UMF4i97cd9f4"}]}', 'CF-RAY': 'a49ef3604fad14e1-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=ASAAS date=
@@ -14062,7 +14062,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=7000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:08 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '22', 'Set-Cookie': 'advbox_session=6XSoEChBA73anempuip0dFZQNOTR1MefhwnPpn8H; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=N1xmk87MHZL9vAGlsVreQKtqXoVC5%2FqETN6xdxSnO8EIqfEJkNJcNtiblqY9SMRKzoklU3005qxwTjNlBrCQ4v5qsJCghGfmlQ23jHKJuoNSVY4IIZFXUktlCiaXy2%2FXcgOE"}]}', 'CF-RAY': 'a49d71aeb992e544-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:29 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '22', 'Set-Cookie': 'advbox_session=cwPkaXNfEnWLwe40f3AghZ2aA6EFImc75JRmSmcb; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=dEST69QDx5BJdj90soh9LrkfcRp9IZJfCMkRE1RVABQvsiISyH24LfqW29uYrX8FAE2lvH6BjG4C9x4b%2FpE4Is%2BabPRxwCWTK24N5%2BKdSt5BW64Zy2kBWpHrgjkXMv%2FXwLp7"}]}', 'CF-RAY': 'a49ef3718c261d1e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=CONTA PRINCIPAL date=
@@ -16067,7 +16067,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=8000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:11 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '21', 'Set-Cookie': 'advbox_session=f3sZegMq4oAPNHs7oQb8fEPt5y3e7vjYIEyCj8tk; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=VzD%2BYT3Xw4nHTRMrF0WeX6OF37r4%2BYp2cRNNMuk7Ha1Dch64uFWHDu3r5TNMllU6SL1HVkMLsXAVFkKTH9KibkwMfg3QMwjwPu7xpUz81vUvGOg9Khgg4iTpvR8dz7ZKhbLD"}]}', 'CF-RAY': 'a49d71bedac7866c-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:32 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '21', 'Set-Cookie': 'advbox_session=lykZ46jgXu07YTF2YYJgdTzrzwgaHUogfkwc1VaT; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=d2%2FnOoz3y0C%2BDIUpOyMPaLRMKirHxwqqGpVUt6zRW3ta5VUfkYVypw5VnFCYYgSCx8BwFGDqIEvIGuan31h91oBWS86Ohk3fQYg2%2BV3fVhZjCySzS8ce92zKdVrPpwutJ%2Bd8"}]}', 'CF-RAY': 'a49ef383093ae68b-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=CONTA PRINCIPAL date=
@@ -18072,7 +18072,7 @@ TENTATIVA 1/5
     → FILTRADA (type)
   Requisição: offset=9000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:14 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '20', 'Set-Cookie': 'advbox_session=KXdpN1vOymaPZhxQI37vK70yP37ITm6U55vOrtBZ; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=eC%2FPzSdYJ7h7g4ByQnbr6SZ4npsiAWgC4SykktzsTpYWrFV7Fklns8XQH2pzlqmFgawrSEb1rqJnIbTgp2%2B0EP6EMb4cvpnTQUtT8%2BLNyEYiinSsOUGrDmVIk9o3lRhkYTsY"}]}', 'CF-RAY': 'a49d71cefb18acac-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:35 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '20', 'Set-Cookie': 'advbox_session=vVsqvxcUZ1rj4KjlsUp9w7XDhOLgIaCiRIWBMmaW; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=9TGPJV9kxJnEdFfb0BX61Zpj45TZa5n04U%2BZzbUrPYYrz9Vnv%2FzKvJkdTZqaW53i%2FcGOQM%2BLub2NM%2B%2B0laLq0TsaazJqrw9bDJLMLpBNOm0gpaNZgqM16wxAWo2tlwrSocqJ"}]}', 'CF-RAY': 'a49ef394ac105b74-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=expense status=paid debit_bank=DINHEIRO date=2025-08-10
@@ -18163,7 +18163,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[43] type=income status=paid debit_bank=ASAAS date=2026-09-11
     → FILTRADA (date)
-  TX[44] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[44] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[45] type=income status=paid debit_bank=ASAAS date=2026-10-10
     → FILTRADA (date)
@@ -20077,7 +20077,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=10000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:16 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '19', 'Set-Cookie': 'advbox_session=hDyiP5xBJbRKjpSLGLYQyBMhEEEJcmwgq5W1xp1S; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=WrvGP8XNTk5cW%2F0V9P%2Fo1Evox0dm8OF89hNhup5kVV59HBaGDI1%2Bxu49KYFswuyDgxnsZ%2FnAPFUW4TGXqJnTlNTOgVxWMQeclK0wjrIwwoQ9Q3oO4rFb9f6lYmAOGg91qTLr"}]}', 'CF-RAY': 'a49d71df0b8d1d22-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:38 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '19', 'Set-Cookie': 'advbox_session=9u3uwZ4srlZXAr0E4EoSu3lBflPHMYx6VvW4adal; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=PZtebGY%2BsiyAg0eI5%2FQyUHJdxsXOSVBQlNcJI6lBJcmUkxLw6pd7N3ngmZHjfCqCBExR%2FAWqs2S5x19bQqCRDy6Kr0qF8EmrjdRA8REJPrQl1fLo4fo%2F1TUJjAW3WSWYkVnM"}]}', 'CF-RAY': 'a49ef3a669d12c62-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=ASAAS date=
@@ -21248,7 +21248,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[583] type=income status=paid debit_bank=ASAAS date=2026-06-09
     → FILTRADA (date)
-  TX[584] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[584] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[585] type=income status=None debit_bank=ASAAS date=
     → FILTRADA (status)
@@ -22082,7 +22082,7 @@ TENTATIVA 1/5
     → FILTRADA (type)
   Requisição: offset=11000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:19 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '18', 'Set-Cookie': 'advbox_session=mrUS7gRKiVL4eKSNY0gWqux1KMM8s3QCBn5Kj436; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=yO%2Fvf4oRXIngjFRxrVbDZBTJX%2B6UOJQuZFDoBM2MVpeUjPrEfmorZ8z0SGP0sVz0fg7%2B0RXBUsng0A1EsIdeClS3hSgxRBVQNA%2FDdgYy1AnxUMcXn29%2BjGKRPTObKzzPOqRD"}]}', 'CF-RAY': 'a49d71ef2a24a577-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:41 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '18', 'Set-Cookie': 'advbox_session=l0iAHOZ6PUDt2SGOMhQrTkZ2c8ERS7ZuyKri7XUY; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=E22Qk6rM3%2Bzbzd2sEwjDQXYA0hNwvc08RlTT4OlsOYXhNoUgShy8Eaq9rRcTMXpHtAxIXm6ekY%2FxQ7RNHA0kyj6PPljqQYDAlwhCvlBQA5lGoI0HWwFgJeyOOVGijvN8HjlI"}]}', 'CF-RAY': 'a49ef3b7af3ff08e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=expense status=paid debit_bank=PORTO SEGURO date=2025-12-10
@@ -23585,7 +23585,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[749] type=income status=paid debit_bank=ASAAS date=2026-09-10
     → FILTRADA (date)
-  TX[750] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[750] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[751] type=income status=paid debit_bank=ASAAS date=2026-10-09
     → FILTRADA (date)
@@ -24087,7 +24087,7 @@ TENTATIVA 1/5
     → FILTRADA (type)
   Requisição: offset=12000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:21 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '17', 'Set-Cookie': 'advbox_session=qTOF0u5ncCQfE7wBT30sIVfVb9eU7EkW0RjP0z8T; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=4Ac%2BJVFveETwTkz5CAauK4AJv44l7DA8fjMS8QglDb%2FVEeNVKfcycQifYm0m8XOk4Wyah5hOeSQoUCnE6EGR64kk2yjKsEXiSLyZf8M4dMOrCwIramxT68gQn9NheEvqQ9g3"}]}', 'CF-RAY': 'a49d71ff6e267a9d-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:44 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '17', 'Set-Cookie': 'advbox_session=MyHztGEMBiGrSwFFkrHXeHNCHyScDAwIkOn5hs1F; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=xQBKXeXbTFjiOyVYbbaJdJtI9Yheh%2BDgV%2B5ouqB8ABQusP40xMuuse3IRxlERJu4W%2BmL0xlMNaENl9rrKfVMmpvT10sHntnk4MPZjkyfivOHD5cm6BkvAKxKAyQQGOQ%2BHIGq"}]}', 'CF-RAY': 'a49ef3c8daede68b-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=expense status=paid debit_bank=ASAAS date=2026-01-31
@@ -24944,7 +24944,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[426] type=income status=None debit_bank=ASAAS date=
     → FILTRADA (status)
-  TX[427] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[427] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[428] type=income status=paid debit_bank=ASAAS date=2026-10-09
     → FILTRADA (date)
@@ -25048,7 +25048,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[478] type=income status=paid debit_bank=ASAAS date=2026-09-11
     → FILTRADA (date)
-  TX[479] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[479] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[480] type=income status=paid debit_bank=ASAAS date=2026-10-10
     → FILTRADA (date)
@@ -26092,7 +26092,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   Requisição: offset=13000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:24 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '16', 'Set-Cookie': 'advbox_session=z9zD93I7ZTMEHVOp557UghnAutzCMtbBsYn4u7id; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=TYhW1S%2BtVa7fC9oO60wOVJPcQNVTh%2BWnfZpn7uU2ViKtFDsjMDTQSjjAwI2fiCPVLAkrD5dUhxlW7yDpuSoC1MJ6L6YufHbaYhCQw%2FERwZirabJvio%2FByNVV%2FznatXUPW3fW"}]}', 'CF-RAY': 'a49d720f98696501-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:47 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '16', 'Set-Cookie': 'advbox_session=awVEMuSaimu52UnezKTZF8DEgjSg3VVo8i0RLZBy; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=rpnAVmkm0WfiYNRyzctKJsaf%2FNsQa92lIapwcZb%2BvmOsqjpDAlhcvbvyTdTywpeTGoH2oLDFVZpeGMd6WgZk9xAiYLKgXqZqdnPxTm2y%2FvgQFI1ZJ3W63%2FjBf%2FuHfH8Kf3N9"}]}', 'CF-RAY': 'a49ef3dcce69f06e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=ASAAS date=
@@ -27971,7 +27971,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[937] type=income status=paid debit_bank=ASAAS date=2026-09-11
     → FILTRADA (date)
-  TX[938] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[938] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[939] type=income status=paid debit_bank=ASAAS date=2026-10-10
     → FILTRADA (date)
@@ -28097,7 +28097,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   Requisição: offset=14000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:27 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '15', 'Set-Cookie': 'advbox_session=aSiasYSF6Y1l0dZV1UwqUUZQ3edLczR2gy5uQ1Y0; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=UNh1uO5MnrJ9sWBqokeodycMkDT5NGgvSCmdlHo5VXl5IQdX8vThJwbDFtMVR3ZghNnmBylwz8fhREPF2hM7y8RRJPVZkn6rJnT73yhCDm4X5oZiTH%2F43mBV3r0WzkiFjbRH"}]}', 'CF-RAY': 'a49d721fdf85866c-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:49 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '15', 'Set-Cookie': 'advbox_session=SK7lS3fwxrcwJUt9R8SkfAywyoQweMUKt7m0ZCVa; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=sUh0HgnOd%2FGE5DktBCSZEeyo8zL21b1NlGm4Su4nwYQGoUqN093b3GM46I%2F0PFDGpycM0ArA1h%2FEOEz%2BUuS83h%2BlVRrsPeOoqXW9aRRJnnJXiFP8ZKgzUUxCGoBYl4FWF2eg"}]}', 'CF-RAY': 'a49ef3ee7e25654e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=None debit_bank=ASAAS date=
@@ -29528,7 +29528,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[713] type=income status=paid debit_bank=ASAAS date=2026-09-09
     → FILTRADA (date)
-  TX[714] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[714] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[715] type=income status=paid debit_bank=ASAAS date=2026-10-08
     → FILTRADA (date)
@@ -29570,7 +29570,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[734] type=income status=paid debit_bank=ASAAS date=2026-09-10
     → FILTRADA (date)
-  TX[735] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[735] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[736] type=income status=paid debit_bank=ASAAS date=2026-10-09
     → FILTRADA (date)
@@ -29606,7 +29606,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[752] type=income status=paid debit_bank=ASAAS date=2026-09-11
     → FILTRADA (date)
-  TX[753] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[753] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[754] type=income status=paid debit_bank=ASAAS date=2026-10-10
     → FILTRADA (date)
@@ -30102,7 +30102,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   Requisição: offset=15000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:29 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '14', 'Set-Cookie': 'advbox_session=ALWR4R3EqNVstMMF61ZjqfTaWBF2HsWkE5JL85KP; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=qfa%2F2xjzXruq5canOD5ZIkOrUFdltyCmK8tqL02r%2BPrUm1jxxr%2B9r5QwqYNWNE7DpjcBjIb4o8Bz7%2BahqRQTh0hfa1G77WdeMR8Lyvsn8XurLF%2BKq57Ea90EDZhbpK9ADwZ6"}]}', 'CF-RAY': 'a49d723038ba1d22-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:52 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '14', 'Set-Cookie': 'advbox_session=5ynVqulBMkrV1b38vhEr9wyM7ZDOveRbdMJ01yMS; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=h6hqx7rUwQ0gaMGwiOwPjHf9s4aPMTtrOhZ8mjIhus7ZwJcWzOArz3tfDOEz8MP64sm74N4hm5xkYQZ7zLqUCqdiH50QGlTZXflkiREnEg1eFL2sBRZpgLwbzWGLhtCHw2vJ"}]}', 'CF-RAY': 'a49ef4003a212c62-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
   Batch size (RAW): 1000
   TX[0] type=income status=paid debit_bank=ASAAS date=2026-07-06
@@ -30623,7 +30623,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[258] type=income status=paid debit_bank=ASAAS date=2026-09-09
     → FILTRADA (date)
-  TX[259] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[259] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[260] type=income status=paid debit_bank=ASAAS date=2026-10-08
     → FILTRADA (date)
@@ -30741,7 +30741,7 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[317] type=income status=paid debit_bank=ASAAS date=2026-10-05
     → FILTRADA (date)
-  TX[318] type=income status=paid debit_bank=ASAAS date=2026-09-11
+  TX[318] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[319] type=income status=None debit_bank=CONTADORIA date=
     → FILTRADA (status)
@@ -32031,8 +32031,8 @@ TENTATIVA 1/5
     → FILTRADA (type)
   TX[962] type=income status=paid debit_bank=ASAAS date=2026-09-09
     → FILTRADA (date)
-  TX[963] type=income status=None debit_bank=ASAAS date=
-    → FILTRADA (status)
+  TX[963] type=income status=paid debit_bank=ASAAS date=2026-10-13
+    → FILTRADA (date)
   TX[964] type=income status=None debit_bank=ASAAS date=
     → FILTRADA (status)
   TX[965] type=income status=paid debit_bank=ASAAS date=2026-10-06
@@ -32055,8 +32055,8 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[974] type=income status=None debit_bank=ASAAS date=
     → FILTRADA (status)
-  TX[975] type=income status=None debit_bank=CONTADORIA date=
-    → FILTRADA (status)
+  TX[975] type=income status=paid debit_bank=ASAAS date=2026-09-16
+    → FILTRADA (date)
   TX[976] type=income status=paid debit_bank=ASAAS date=2026-10-05
     → FILTRADA (date)
   TX[977] type=income status=paid debit_bank=ASAAS date=2026-10-02
@@ -32107,9 +32107,9 @@ TENTATIVA 1/5
     → FILTRADA (type)
   Requisição: offset=16000, limit=1000
   Status: 200
-  Headers resposta: {'Date': 'Tue, 13 Oct 2026 09:51:32 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '13', 'Set-Cookie': 'advbox_session=q4MHuWC0Gb9zLM671EyOUVGQfOC01mAU3lL3Voz9; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FpxoC2iwtv483MvWlba4l8oYzbTuz2DIsPzm4RtqSqfMeLWDiANradW3I%2BJk%2Blt2z5FA%2BZ6vUhd20O%2BJTE%2B7OGCd3w7D12mf6JCjrIkT8uXHwg%2FUGDxMB8NBiZ5L81eL6dd5"}]}', 'CF-RAY': 'a49d7240bcd37a9d-ORD'}
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 14:14:55 GMT', 'Content-Type': 'application/json', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'vary': 'Accept-Encoding', 'Cache-Control': 'no-cache, private', 'x-ratelimit-limit': '30', 'x-ratelimit-remaining': '13', 'Set-Cookie': 'advbox_session=bF3t7aWKoffnMKLCPaAKG8qT0LmfrNGVLciZ7Ckd; path=/; secure; httponly', 'x-frame-options': 'SAMEORIGIN', 'x-xss-protection': '1; mode=block', 'x-content-type-options': 'nosniff', 'Content-Encoding': 'gzip', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=NubO%2BL9twKyJmEuVOQZyDpKrVe8ENVL2LkmptVGl3ZaN987g9lcTcc0xQg7wzSYURME9AnIU7dnsdsSJbWCLcOJmkNopaw1Nv4S6tkz5UGm7XcY17nSP9ze6z%2BID5rjWqz4X"}]}', 'CF-RAY': 'a49ef4136d8af08e-DFW'}
   Chaves: ['offset', 'limit', 'totalCount', 'data', 'query']
-  Batch size (RAW): 917
+  Batch size (RAW): 941
   TX[0] type=income status=None debit_bank=CONTADORIA date=
     → FILTRADA (status)
   TX[1] type=income status=None debit_bank=CONTADORIA date=
@@ -32322,7 +32322,7 @@ TENTATIVA 1/5
     → FILTRADA (type)
   TX[105] type=expense status=paid debit_bank=ASAAS date=2026-09-03
     → FILTRADA (type)
-  TX[106] type=income status=paid debit_bank=ASAAS date=2026-09-09
+  TX[106] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[107] type=income status=paid debit_bank=ASAAS date=2026-10-08
     → FILTRADA (date)
@@ -32388,7 +32388,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[138] type=income status=None debit_bank=CONTADORIA date=
     → FILTRADA (status)
-  TX[139] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[139] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[140] type=income status=paid debit_bank=ASAAS date=2026-10-09
     → FILTRADA (date)
@@ -32430,7 +32430,7 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[159] type=income status=None debit_bank=CONTADORIA date=
     → FILTRADA (status)
-  TX[160] type=income status=paid debit_bank=ASAAS date=2026-09-10
+  TX[160] type=income status=paid debit_bank=ASAAS date=2026-10-13
     → FILTRADA (date)
   TX[161] type=income status=paid debit_bank=ASAAS date=2026-10-09
     → FILTRADA (date)
@@ -32896,22 +32896,22 @@ TENTATIVA 1/5
     → FILTRADA (status)
   TX[392] type=income status=None debit_bank=CONTADORIA date=
     → FILTRADA (status)
-  TX[393] type=income status=paid debit_bank=ASAAS date=2026-09-14
-    → FILTRADA (date)
-  TX[394] type=income status=paid debit_bank=ASAAS date=2026-09-14
-    → FILTRADA (date)
+  TX[393] type=income status=None debit_bank=ASAAS date=
+    → FILTRADA (status)
+  TX[394] type=income status=None debit_bank=ASAAS date=
+    → FILTRADA (status)
   TX[395] type=expense status=paid debit_bank=ASAAS date=2026-09-14
     → FILTRADA (type)
-  TX[396] type=income status=paid debit_bank=ASAAS date=2026-09-14
-    → FILTRADA (date)
+  TX[396] type=income status=None debit_bank=ASAAS date=
+    → FILTRADA (status)
   TX[397] type=expense status=paid debit_bank=ASAAS date=2026-09-14
     → FILTRADA (type)
-  TX[398] type=income status=paid debit_bank=ASAAS date=2026-09-17
-    → FILTRADA (date)
+  TX[398] type=income status=None debit_bank=ASAAS date=
+    → FILTRADA (status)
   TX[399] type=expense status=paid debit_bank=ASAAS date=2026-09-17
     → FILTRADA (type)
-  TX[400] type=income status=paid debit_bank=ASAAS date=2026-09-18
-    → FILTRADA (date)
+  TX[400] type=income status=None debit_bank=ASAAS date=
+    → FILTRADA (status)
   TX[401] type=expense status=paid debit_bank=ASAAS date=2026-09-18
     → FILTRADA (type)
   TX[402] type=income status=paid debit_bank=ASAAS date=2026-09-15
@@ -33944,19 +33944,67 @@ TENTATIVA 1/5
     → FILTRADA (date)
   TX[916] type=income status=paid debit_bank=ASAAS date=2026-09-08
     → FILTRADA (date)
+  TX[917] type=income status=paid debit_bank=ASAAS date=2026-09-14
+    → FILTRADA (date)
+  TX[918] type=income status=paid debit_bank=ASAAS date=2026-09-14
+    → FILTRADA (date)
+  TX[919] type=income status=paid debit_bank=ASAAS date=2026-09-14
+    → FILTRADA (date)
+  TX[920] type=income status=paid debit_bank=ASAAS date=2026-09-17
+    → FILTRADA (date)
+  TX[921] type=income status=paid debit_bank=ASAAS date=2026-09-18
+    → FILTRADA (date)
+  TX[922] type=expense status=paid debit_bank=ASAAS date=2026-10-13
+    → FILTRADA (type)
+  TX[923] type=income status=paid debit_bank=ASAAS date=2026-09-14
+    → FILTRADA (date)
+  TX[924] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[925] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[926] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[927] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[928] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[929] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[930] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[931] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[932] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[933] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[934] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[935] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[936] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[937] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[938] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[939] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
+  TX[940] type=income status=None debit_bank=INVESTIMENTOS date=
+    → FILTRADA (status)
   Fim da paginação
 
 [ADVBOX] === RESUMO DE FILTROS ===
-  Raw: 16917 | type!=income: 3270 | status!=paid: 8207 | debit!=ASAAS: 2742 | date!=target: 2694 | MANTIDAS: 4
+  Raw: 16941 | type!=income: 3271 | status!=paid: 8227 | debit!=ASAAS: 2742 | date!=target: 2697 | MANTIDAS: 4
 [ADVBOX] TOTAL: 4 transações
 
-Asaas:  4 tx | R$ 3820.49
+Asaas:  6 tx | R$ 3843.85
 Advbox: 4 tx | R$ 3820.49
 
 [MATCHING] Identificando divergências...
   ✅ Pagador judicial (CAIXA ECONOMICA FEDE) aceito como conciliado por valor R$2961.99
-Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 0 | Fantasmas: 0
-Divergências: {"nome_diferente": [], "faltando_no_advbox": [], "fantasmas_no_advbox": []}
+Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 2 | Fantasmas: 0
+Divergências: {"nome_diferente": [], "faltando_no_advbox": [{"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}, {"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}], "fantasmas_no_advbox": []}
 
 [DUPLA CHECAGEM] Relendo...
 
@@ -33964,23 +34012,170 @@ Divergências: {"nome_diferente": [], "faltando_no_advbox": [], "fantasmas_no_ad
   Status: 200
 [ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
 [ASAAS] Sem nome resolvido: 0
-[ASAAS] Receitas mantidas: 4 | soma: 3820.49
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
 
-[ASAAS] TOTAL: 4 transações
+[ASAAS] TOTAL: 6 transações
 
-Asaas (dupla):  R$ 3820.49
+Asaas (dupla):  R$ 3843.85
 Advbox (dupla): R$ 3820.49
-Diferença: R$ 0.00
+Diferença: R$ 23.36
+⚠️  Tentando novamente...
 
-✅ VALORES E NOMES BATEM!
+====================================================================================================
+TENTATIVA 2/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas:  6 tx | R$ 3843.85
+Advbox: 4 tx | R$ 3820.49
+
+[MATCHING] Identificando divergências...
+  ✅ Pagador judicial (CAIXA ECONOMICA FEDE) aceito como conciliado por valor R$2961.99
+Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 2 | Fantasmas: 0
+Divergências: {"nome_diferente": [], "faltando_no_advbox": [{"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}, {"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}], "fantasmas_no_advbox": []}
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas (dupla):  R$ 3843.85
+Advbox (dupla): R$ 3820.49
+Diferença: R$ 23.36
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 3/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas:  6 tx | R$ 3843.85
+Advbox: 4 tx | R$ 3820.49
+
+[MATCHING] Identificando divergências...
+  ✅ Pagador judicial (CAIXA ECONOMICA FEDE) aceito como conciliado por valor R$2961.99
+Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 2 | Fantasmas: 0
+Divergências: {"nome_diferente": [], "faltando_no_advbox": [{"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}, {"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}], "fantasmas_no_advbox": []}
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas (dupla):  R$ 3843.85
+Advbox (dupla): R$ 3820.49
+Diferença: R$ 23.36
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 4/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas:  6 tx | R$ 3843.85
+Advbox: 4 tx | R$ 3820.49
+
+[MATCHING] Identificando divergências...
+  ✅ Pagador judicial (CAIXA ECONOMICA FEDE) aceito como conciliado por valor R$2961.99
+Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 2 | Fantasmas: 0
+Divergências: {"nome_diferente": [], "faltando_no_advbox": [{"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}, {"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}], "fantasmas_no_advbox": []}
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas (dupla):  R$ 3843.85
+Advbox (dupla): R$ 3820.49
+Diferença: R$ 23.36
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 5/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas:  6 tx | R$ 3843.85
+Advbox: 4 tx | R$ 3820.49
+
+[MATCHING] Identificando divergências...
+  ✅ Pagador judicial (CAIXA ECONOMICA FEDE) aceito como conciliado por valor R$2961.99
+Matches (valor+nome): 4 | Nome diferente: 0 | Faltando: 2 | Fantasmas: 0
+Divergências: {"nome_diferente": [], "faltando_no_advbox": [{"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}, {"valor": 11.68, "cliente_asaas": "Elisabeth B. D. C."}], "fantasmas_no_advbox": []}
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 15 | tipos: {'TRANSFER': 1, 'RECEIVABLE_ANTICIPATION_DEBIT': 3, 'PAYMENT_FEE_REVERSAL': 2, 'PAYMENT_REVERSAL': 1, 'PAYMENT_FEE': 1, 'PAYMENT_RECEIVED': 4, 'INSTANT_TEXT_MESSAGE_FEE': 2, 'INVOICE_FEE': 1}
+[ASAAS] Sem nome resolvido: 0
+[ASAAS] Receitas mantidas: 6 | soma: 3843.85
+
+[ASAAS] TOTAL: 6 transações
+
+Asaas (dupla):  R$ 3843.85
+Advbox (dupla): R$ 3820.49
+Diferença: R$ 23.36
+❌ Limite de tentativas atingido
 
 ====================================================================================================
 RESULTADO FINAL
 ====================================================================================================
-✅ CONCILIAÇÃO OK em 1 tentativa(s)
-  Asaas: R$ 3820.49
+❌ NÃO CONCILIADA após 5 tentativa(s)
+  Asaas: R$ 3843.85
   Advbox: R$ 3820.49
-  Diferença: R$ 0.00
+  Diferença: R$ 23.36
   Correções: 0
 
 📄 Relatório: relatorio_2026-09-15.json
