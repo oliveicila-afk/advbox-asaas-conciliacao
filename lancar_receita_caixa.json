@@ -1,5 +1,5 @@
 {
- "modo": "plano",
+ "modo": "executar",
  "campos_lancamento": [
   "amount",
   "category",
@@ -148,5 +148,46 @@
    ]
   }
  ],
- "execucao": []
+ "execucao": [
+  {
+   "valor": 14444.24,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171184}",
+   "desmarcado_modelo_id": 17774989,
+   "desmarcado_http": 200
+  },
+  {
+   "valor": 4339.5,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171186}",
+   "desmarcado_modelo_id": 17774990,
+   "desmarcado_http": 200
+  },
+  {
+   "valor": 6435.01,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171189}",
+   "desmarcado_modelo_id": 17774992,
+   "desmarcado_http": 200
+  },
+  {
+   "valor": 11592.79,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171190}",
+   "desmarcado_modelo_id": 17774994,
+   "desmarcado_http": 200
+  },
+  {
+   "valor": 5522.98,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171192}",
+   "desmarcado_modelo_id": 17774998,
+   "desmarcado_http": 200
+  }
+ ]
 }
