@@ -1,0 +1,20 @@
+[
+  {
+    "id": "18152237",
+    "status": 200,
+    "ok": true,
+    "body": "{\"success\":true,\"lawsuits_id\":\"18152237\"}"
+  },
+  {
+    "id": "18152430",
+    "status": 200,
+    "ok": true,
+    "body": "{\"success\":true,\"lawsuits_id\":\"18152430\"}"
+  },
+  {
+    "id": "18152431",
+    "status": 200,
+    "ok": true,
+    "body": "{\"success\":true,\"lawsuits_id\":\"18152431\"}"
+  }
+]
