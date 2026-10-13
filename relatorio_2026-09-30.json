@@ -1,206 +1,73 @@
 {
   "data": "2026-09-30",
-  "gerado_em": "2026-10-13T17:45:09.088149",
+  "gerado_em": "2026-10-13T23:28:07.464055",
   "status": "NAO_CONCILIADO",
-  "tentativas": 3,
+  "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 32569.96,
-    "advbox": 10351.51,
-    "diferenca": 22218.45
+    "advbox": 32569.96,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [
       {
-        "valor": 400.0,
-        "asaas": "Cardoso D. S. G. V. A. A.",
-        "advbox": "Clodoaldo D. S. B.",
-        "advbox_id": 16906599
+        "valor": 8000.0,
+        "asaas": "Juridico M.",
+        "advbox": "Maria E. D. J. M.",
+        "advbox_id": 18194062
       },
       {
         "valor": 248.5,
         "asaas": "Trindade D. J. G. K.",
         "advbox": "Cristiane A. D.",
         "advbox_id": 17384711
-      }
-    ],
-    "faltando_no_advbox": [
-      {
-        "valor": 2712.71,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 6260.31,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 8000.0,
-        "cliente_asaas": "Juridico M."
       },
       {
         "valor": 5245.43,
-        "cliente_asaas": "Juridico M."
+        "asaas": "Juridico M.",
+        "advbox": "Bernaldino L. M.",
+        "advbox_id": 18194165
       }
     ],
-    "fantasmas_no_advbox": []
+    "faltando_no_advbox": [],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 400.0,
+        "cliente_advbox": "Clodoaldo D. S. B.",
+        "advbox_id": 16906599
+      }
+    ]
   },
-  "pendentes_sem_tese": [
+  "pendentes_sem_tese": [],
+  "revisao_mes": [
     {
-      "valor": 2712.71,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-06",
+      "asaas": 6000.0,
+      "advbox": 0,
+      "diferenca": 6000.0
     },
     {
-      "valor": 6260.31,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-09",
+      "asaas": 18195.57,
+      "advbox": 17821.32,
+      "diferenca": 374.25
     },
     {
-      "valor": 8000.0,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-15",
+      "asaas": 3843.85,
+      "advbox": 3832.17,
+      "diferenca": 11.68
     },
     {
-      "valor": 5245.43,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 2712.71,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 6260.31,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 8000.0,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 5245.43,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 2712.71,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 6260.31,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 8000.0,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 5245.43,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-29",
+      "asaas": 26115.08,
+      "advbox": 26107.12,
+      "diferenca": 7.96
     }
   ],
   "correcoes": {
-    "total_realizadas": 23,
-    "detalhes": [
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 521.46
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 935.0
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 102.04
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 128.44
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 3149.0
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 497.0
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 248.5
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 248.5
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 248.5
-      },
-      {
-        "tipo": "AJUSTAR_DATA",
-        "valor": 997.33
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 117.63
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 73.81
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 500.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 68.36
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      }
-    ]
+    "total_realizadas": 0,
+    "detalhes": []
   }
 }
