@@ -1,68 +1,56 @@
 {
- "inicio": "2026-09-15",
- "fim": "2026-09-15",
+ "inicio": "2026-09-29",
+ "fim": "2026-09-29",
  "dias": {
-  "2026-09-15": {
-   "total_linhas": 15,
+  "2026-09-29": {
+   "total_linhas": 74,
    "por_tipo": {
-    "TRANSFER": {
-     "qtd": 1,
-     "soma": -870.0
-    },
-    "RECEIVABLE_ANTICIPATION_DEBIT": {
-     "qtd": 3,
-     "soma": -1122.75
-    },
-    "PAYMENT_FEE_REVERSAL": {
-     "qtd": 2,
-     "soma": 23.36
-    },
-    "PAYMENT_REVERSAL": {
-     "qtd": 1,
-     "soma": -374.25
-    },
     "PAYMENT_FEE": {
-     "qtd": 1,
-     "soma": -1.99
+     "qtd": 25,
+     "soma": -64.49
     },
     "PAYMENT_RECEIVED": {
+     "qtd": 26,
+     "soma": 25413.22
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+     "qtd": 5,
+     "soma": -1244.0
+    },
+    "PAYMENT_FEE_REVERSAL": {
+     "qtd": 1,
+     "soma": 7.96
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
      "qtd": 4,
-     "soma": 3820.49
+     "soma": -9.79
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+     "qtd": 4,
+     "soma": 693.9
+    },
+    "TRANSFER": {
+     "qtd": 3,
+     "soma": -64503.91
+    },
+    "DEBIT_REVERSAL": {
+     "qtd": 1,
+     "soma": 1000.0
     },
     "INSTANT_TEXT_MESSAGE_FEE": {
-     "qtd": 2,
-     "soma": -1.1
-    },
-    "INVOICE_FEE": {
-     "qtd": 1,
-     "soma": -0.49
+     "qtd": 5,
+     "soma": -2.75
     }
    },
    "destaque_valor": [
     {
      "object": "financialTransaction",
-     "id": "ftn_002075247974",
-     "value": 11.68,
+     "id": "ftn_002101044022",
+     "value": 7.96,
      "type": "PAYMENT_FEE_REVERSAL",
-     "date": "2026-09-15",
-     "paymentId": "pay_2ymjzm629v3yp9eg",
-     "externalReference": "16044024",
-     "splitId": null,
-     "transferId": null,
-     "anticipationId": null,
-     "billId": null,
-     "invoiceId": null,
-     "paymentDunningId": null,
-     "creditBureauReportId": null
-    },
-    {
-     "object": "financialTransaction",
-     "id": "ftn_002075247595",
-     "value": 11.68,
-     "type": "PAYMENT_FEE_REVERSAL",
-     "date": "2026-09-15",
-     "paymentId": "pay_s2yomd13v4xq4viu",
-     "externalReference": "16044023",
+     "date": "2026-09-29",
+     "paymentId": "pay_btu5y58o27ioqcii",
+     "externalReference": "14060740",
      "splitId": null,
      "transferId": null,
      "anticipationId": null,
@@ -74,22 +62,16 @@
    ],
    "estornos_devolucoes": [
     {
-     "id": "ftn_002075247974",
+     "id": "ftn_002101044022",
      "type": "PAYMENT_FEE_REVERSAL",
-     "value": 11.68,
-     "paymentId": "pay_2ymjzm629v3yp9eg"
+     "value": 7.96,
+     "paymentId": "pay_btu5y58o27ioqcii"
     },
     {
-     "id": "ftn_002075247595",
-     "type": "PAYMENT_FEE_REVERSAL",
-     "value": 11.68,
-     "paymentId": "pay_s2yomd13v4xq4viu"
-    },
-    {
-     "id": "ftn_002075247592",
-     "type": "PAYMENT_REVERSAL",
-     "value": -374.25,
-     "paymentId": "pay_s2yomd13v4xq4viu"
+     "id": "ftn_002100741265",
+     "type": "DEBIT_REVERSAL",
+     "value": 1000.0,
+     "paymentId": null
     }
    ]
   }
