@@ -11,6 +11,10 @@ on:
         description: "Data final das tarefas YYYY-MM-DD"
         required: true
         default: "2026-09-21"
+      valores:
+        description: "Valores a buscar em todas as tarefas, separados por vírgula (opcional)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -101,12 +105,62 @@ jobs:
                     open("tarefas_financeiras.json", "w"), ensure_ascii=False, indent=1)
           print("tarefas financeiras extraídas:", len(itens))
           PY
+      - name: Buscar valores específicos em TODAS as tarefas
+        if: ${{ github.event.inputs.valores != '' }}
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          VALORES: ${{ github.event.inputs.valores }}
+        run: |
+          python3 - <<'PY'
+          import os, re, time, json, unicodedata, requests
+          vals = [v.strip() for v in (os.environ.get("VALORES") or "").split(",") if v.strip()]
+          if not vals:
+              raise SystemExit("sem valores")
+          def variantes(v):
+              n = float(v); br = f"{n:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+              return {br, br.replace(".", ""), f"{n:.2f}", f"{n:.2f}".replace(".", ",")}
+          vmap = {v: variantes(v) for v in vals}
+          def iniciais(s):
+              s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+              return " ".join(p[0] for p in s.upper().split() if p) or "-"
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          posts, off = [], 0
+          while True:
+              for _ in range(6):
+                  r = requests.get("https://app.advbox.com.br/api/v1/posts", headers=h, params={"limit": 1000, "offset": off}, timeout=90)
+                  if r.status_code != 429: break
+                  time.sleep(30)
+              time.sleep(2.2)
+              if r.status_code != 200: print("ERRO", r.status_code); break
+              b = r.json().get("data", []); posts.extend(b)
+              if len(b) < 1000: break
+              off += 1000
+          print("posts lidos:", len(posts))
+          ach = []
+          for p in posts:
+              txt = f"{p.get('task') or ''} {p.get('notes') or ''}"
+              for v, vs in vmap.items():
+                  for var in vs:
+                      i = txt.find(var)
+                      if i >= 0:
+                          a, z = max(0, i - 120), min(len(txt), i + len(var) + 120)
+                          t = re.sub(r"\d{3}\.\d{3}\.\d{3}-\d{2}|\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}", "[doc]", txt[a:z])
+                          lw = p.get("lawsuit") or {}
+                          cl = [iniciais(c.get("name")) for c in (lw.get("customers") or []) if isinstance(c, dict)] if isinstance(lw, dict) else []
+                          ach.append({"valor": v, "post_id": p.get("id"), "date": str(p.get("date") or "")[:10],
+                                      "criado": str(p.get("created_at") or "")[:10], "titulo": str(p.get("task") or "")[:100],
+                                      "lawsuits_id": p.get("lawsuits_id"), "clientes": cl, "trecho": re.sub(r"\s+", " ", t)})
+                          break
+          json.dump({"valores": vals, "achados": ach}, open("busca_valores_tarefas.json", "w"), ensure_ascii=False, indent=1)
+          print("achados:", len(ach))
+          PY
+
       - name: Commit resultado
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f tarefas_financeiras.json
+          git add -f tarefas_financeiras.json busca_valores_tarefas.json 2>/dev/null || git add -f tarefas_financeiras.json
           git diff --cached --quiet || git commit -m "Tarefas financeiras do Advbox ${{ github.event.inputs.inicio }} a ${{ github.event.inputs.fim }}"
           git pull --rebase origin main || true
           git push || echo "Push falhou"
