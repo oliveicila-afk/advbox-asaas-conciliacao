@@ -1,8 +1,8 @@
 {
   "data": "2026-09-08",
-  "gerado_em": "2026-10-13T06:38:41.435977",
+  "gerado_em": "2026-10-13T07:35:34.320731",
   "status": "NAO_CONCILIADO",
-  "tentativas": 1,
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 22549.95,
@@ -21,7 +21,20 @@
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 3,
+    "detalhes": [
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 3760.0
+      },
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 3985.6
+      },
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 495.38
+      }
+    ]
   }
 }
