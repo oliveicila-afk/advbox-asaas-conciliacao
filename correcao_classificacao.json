@@ -1,7 +1,7 @@
 {
  "data": "2026-09-01",
- "dry_run": false,
- "encontrados": 7,
+ "dry_run": true,
+ "encontrados": 2,
  "itens": [
   {
    "id": 11530876,
@@ -12,71 +12,16 @@
    "resultado": "PULADO: cliente com várias teses, sem regra"
   },
   {
-   "id": 11932609,
-   "data": "2026-09-01",
-   "cliente": "Ruth V. L.",
-   "valor": 679.66,
-   "categoria_atual": "HONORÁRIOS CONTRATUAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
-   "put_status": 200,
-   "resultado": "ALTERADO"
-  },
-  {
    "id": 17313100,
    "data": "2026-09-01",
    "cliente": "Kennedy P. D. S.",
    "valor": 4000,
    "categoria_atual": "HONORÁRIOS INICIAIS",
-   "resultado": "PULADO: sem tese anterior e sem regra"
-  },
-  {
-   "id": 17458884,
-   "data": "2026-09-01",
-   "cliente": "Elida D. S. M. D. S.",
-   "valor": 273.51,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
-   "put_status": 200,
-   "resultado": "ALTERADO"
-  },
-  {
-   "id": 17458886,
-   "data": "2026-09-01",
-   "cliente": "Daniel P. A.",
-   "valor": 248.5,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
-   "put_status": 200,
-   "resultado": "ALTERADO"
-  },
-  {
-   "id": 17458888,
-   "data": "2026-09-01",
-   "cliente": "Aniele B. O.",
-   "valor": 248.5,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
-   "put_status": 200,
-   "resultado": "ALTERADO"
-  },
-  {
-   "id": 17458889,
-   "data": "2026-09-01",
-   "cliente": "Lucileia F. D. A.",
-   "valor": 248.5,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
-   "put_status": 200,
-   "resultado": "ALTERADO"
+   "resultado": "PULADO: categoria manual ainda não aparece na API (aguarde e rode de novo)"
   }
  ],
  "resumo": {
-  "alterados": 5,
+  "alterados": 0,
   "simulados": 0,
   "pulados": 2,
   "erros": 0
@@ -99,7 +44,7 @@
    ],
    [
     248.5,
-    219,
+    222,
     "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
     0.36
    ],
