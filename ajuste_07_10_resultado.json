@@ -1,0 +1,18 @@
+[
+ {
+  "id": 17359510,
+  "motivo": "voltar para pago (R$ 500,00, vence 09/09)",
+  "date_payment_antes": null,
+  "date_payment_novo": "2026-09-09",
+  "http": 200,
+  "ok": true
+ },
+ {
+  "id": 17805644,
+  "motivo": "desmarcar pagamento (um dos dois R$ 374,25 de 09/09)",
+  "date_payment_antes": "2026-09-09",
+  "date_payment_novo": "",
+  "http": 200,
+  "ok": true
+ }
+]
