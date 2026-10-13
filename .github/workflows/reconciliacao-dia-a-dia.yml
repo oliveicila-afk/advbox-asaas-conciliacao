@@ -43,12 +43,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git status
+          ls -la relatorio_*.json 2>/dev/null || echo "Nenhum relatório gerado"
           git add -f relatorio_*.json debug_*.log 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "Relatório da reconciliação (${{ github.event.inputs.data }})"
-          git pull --rebase origin main || true
-          git push || echo "Push failed"
+          if ! git diff --cached --quiet; then
+            git commit -m "Relatório da reconciliação (${{ github.event.inputs.data }})"
+            git pull --rebase origin main 2>&1 || true
+            git push origin HEAD:main 2>&1 || (echo "Push falhou"; exit 1)
+          else
+            echo "Nenhuma mudança para commitar"
+          fi
 
       - name: Resultado
         if: success()
