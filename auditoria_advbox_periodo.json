@@ -932,9 +932,9 @@
    "entry_type": "income",
    "debit_bank": "ASAAS",
    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
-   "date_payment": "",
+   "date_payment": "2026-09-09",
    "date_due": "2026-09-09",
-   "pago": false,
+   "pago": true,
    "tem_nome": true
   },
   {
@@ -1581,9 +1581,9 @@
    "entry_type": "income",
    "debit_bank": "ASAAS",
    "categoria": "HONORÁRIOS CONSULTORIAS",
-   "date_payment": "2026-09-09",
+   "date_payment": "",
    "date_due": "2026-09-09",
-   "pago": true,
+   "pago": false,
    "tem_nome": true
   },
   {
