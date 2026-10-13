@@ -1,13 +1,13 @@
 {
  "categoria_id": 71101,
  "clientes_encontrados": 1,
- "put_http": 422,
- "put_resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"entry_type\":[\"Select the transaction type: credit or debit\"]}}",
+ "put_http": 200,
+ "put_resp": "{\"success\":true,\"lawsuits_id\":\"18015545\"}",
  "depois": {
-  "category": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
+  "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO",
   "cost_center": "CONCURSO-TRÁFEGO PAGO",
-  "customers_id": null,
-  "lawsuits_id": null,
+  "customers_id": 6517468,
+  "lawsuits_id": 5836169,
   "amount": 9351.31,
   "date_payment": "2026-09-28"
  }
