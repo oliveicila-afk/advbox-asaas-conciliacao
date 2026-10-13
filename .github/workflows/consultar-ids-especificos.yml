@@ -1,0 +1,38 @@
+name: Consultar IDs específicos Advbox
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "IDs separados por vírgula"
+        required: true
+        default: "17456672,17456673"
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Consultar
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, requests, json
+          token = os.environ["ADVBOX_TOKEN"]
+          ids = os.environ["IDS"].split(",")
+          headers = {"Authorization": f"Bearer {token}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          for tid in ids:
+              tid = tid.strip()
+              r = requests.get(f"https://app.advbox.com.br/api/v1/transactions/{tid}", headers=headers, timeout=30)
+              t = r.json()
+              nome = t.get("name","")
+              partes = nome.split()
+              mask = (partes[0]+" "+partes[-1][0]+".") if len(partes)>=2 else nome[:20]
+              cat = t.get("category_name") or t.get("category") or ""
+              val = t.get("value") or t.get("amount")
+              paid = t.get("date_payment","")
+              print(f"ID {tid}: R${val} | {mask} | CATEGORIA: {cat} | pago: {bool(paid)}")
+          PYEOF
