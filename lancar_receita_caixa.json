@@ -35,7 +35,17 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17774989,
+     "valor": 4960.43,
+     "categories_id": 70060,
+     "cost_centers_id": 61966,
+     "customers_id": 7960193,
+     "lawsuits_id": 7470600,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+    }
+   ]
   },
   {
    "dia": "2026-09-14",
@@ -50,7 +60,17 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17774990,
+     "valor": 1554.36,
+     "categories_id": 70061,
+     "cost_centers_id": 61966,
+     "customers_id": 7618213,
+     "lawsuits_id": 7379574,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO VERTICAL"
+    }
+   ]
   },
   {
    "dia": "2026-09-14",
@@ -65,7 +85,17 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17774992,
+     "valor": 2325.26,
+     "categories_id": 70064,
+     "cost_centers_id": 62601,
+     "customers_id": 6486785,
+     "lawsuits_id": 7057435,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO"
+    }
+   ]
   },
   {
    "dia": "2026-09-17",
@@ -80,7 +110,17 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17774994,
+     "valor": 3557.33,
+     "categories_id": 70064,
+     "cost_centers_id": 62601,
+     "customers_id": 6611826,
+     "lawsuits_id": 5986292,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO"
+    }
+   ]
   },
   {
    "dia": "2026-09-18",
@@ -95,7 +135,17 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17774998,
+     "valor": 1049.61,
+     "categories_id": 70066,
+     "cost_centers_id": 61967,
+     "customers_id": 11915145,
+     "lawsuits_id": 12329227,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA"
+    }
+   ]
   }
  ],
  "execucao": []
