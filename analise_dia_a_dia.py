@@ -289,20 +289,29 @@ def fetch_asaas_transactions():
     # (crédito da antecipação +V, pagamento recebido +V e desconto da antecipação -V).
     # O dinheiro entra uma vez só, então o crédito da antecipação não pode contar de novo.
     # Pareia 1 a 1 por valor e descarta só o crédito da antecipação (o pagamento recebido fica).
-    _descontos = Counter(round(abs(float(t.get("value", 0))), 2) for t in all_raw
-                         if t.get("type") == "RECEIVABLE_ANTICIPATION_DEBIT")
-    _recebidos = Counter(round(float(t.get("value", 0)), 2) for t in all_raw
-                         if t.get("type") == "PAYMENT_RECEIVED")
+    # O pareamento é pela MESMA cobrança (paymentId), nunca só pelo valor: valores como
+    # 248,50 ou 100,50 se repetem em clientes diferentes e gerariam pares falsos.
+    _pagamentos_recebidos = {}
+    for t in all_raw:
+        if t.get("type") == "PAYMENT_RECEIVED" and t.get("paymentId"):
+            _pagamentos_recebidos[t["paymentId"]] = _pagamentos_recebidos.get(t["paymentId"], 0) + 1
     _ids_credito_duplicado = set()
     for t in all_raw:
         if t.get("type") != "RECEIVABLE_ANTICIPATION_GROSS_CREDIT":
             continue
-        v = round(float(t.get("value", 0)), 2)
-        if _descontos[v] > 0 and _recebidos[v] > 0:
-            _descontos[v] -= 1
-            _recebidos[v] -= 1
+        pid = t.get("paymentId")
+        if not pid and t.get("anticipationId"):
+            try:
+                a = requests.get(f"https://api.asaas.com/v3/anticipations/{t['anticipationId']}",
+                                 headers=headers_asaas, timeout=30).json()
+                pid = a.get("payment")
+            except Exception as e:
+                log_msg(f"  ⚠️ antecipação não resolvida: {type(e).__name__}", False)
+        if pid and _pagamentos_recebidos.get(pid, 0) > 0:
+            _pagamentos_recebidos[pid] -= 1
             _ids_credito_duplicado.add(t.get("id"))
-            log_msg(f"  ⚙️  Antecipada e recebida no mesmo dia: R${v} — crédito da antecipação não contado em dobro", True)
+            v = round(float(t.get("value", 0)), 2)
+            log_msg(f"  ⚙️  Mesma cobrança antecipada e recebida no dia: R${v} — crédito da antecipação não contado em dobro", True)
     if _ids_credito_duplicado:
         log_msg(f"[ASAAS] {len(_ids_credito_duplicado)} crédito(s) de antecipação descartado(s) por duplicidade no mesmo dia", True)
 
