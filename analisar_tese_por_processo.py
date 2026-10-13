@@ -49,16 +49,23 @@ for c in cats:
         nat, tese = nome.split("-", 1)
         tese_cat[norm(tese)][norm(nat)] = nome
 
-# cliente -> tipos de processo (parte antes de "|")
+# processo -> tipo ; cliente (por nome) -> tipos de processo (parte antes de "|")
+proc_tipo = {}
 cli_tipos = collections.defaultdict(set)
 for l in ls:
     tipo = norm((l.get("type") or "").split("|")[0])
+    if not tipo:
+        continue
+    proc_tipo[l.get("id")] = tipo
     for c in l.get("customers", []) or []:
-        if tipo:
-            cli_tipos[c.get("customer_id")].add(tipo)
+        cli_tipos[norm(c.get("name"))].add(tipo)
 
-def tese_do_cliente(cid):
-    tipos = cli_tipos.get(cid, set())
+def tipos_do_lancamento(t):
+    if t.get("lawsuit_id") in proc_tipo:                 # lançamento já ligado a um processo
+        return {proc_tipo[t["lawsuit_id"]]}
+    return cli_tipos.get(norm(t.get("name")), set())     # senão, processos do cliente (pelo nome)
+
+def tese_do_cliente(tipos):
     achadas = {t for t in tipos if t in tese_cat}
     if not tipos: return "sem_processo", None
     if len(achadas) == 1: return "ok", next(iter(achadas))
@@ -74,7 +81,7 @@ def natureza(desc):
 def analisa(lanc):
     res = collections.Counter(); sem_cat = collections.Counter(); nat = collections.Counter()
     for t in lanc:
-        status, tese = tese_do_cliente(t.get("customers_id"))
+        status, tese = tese_do_cliente(tipos_do_lancamento(t))
         res[status] += 1
         if status == "tipo_sem_categoria":
             for x in tese: sem_cat[x] += 1
@@ -87,6 +94,6 @@ gen = [t for t in tx if t.get("entry_type") == "income" and t.get("category") in
 ant = [t for t in gen if (t.get("date_payment") or t.get("date_due") or "9999")[:10] < CORTE]
 dia = [t for t in gen if (t.get("date_payment") or "")[:10] == CORTE]
 out = {"antes_de_2026-09-01": analisa(ant), "dia_2026-09-01": analisa(dia),
-       "lawsuits_lidos": len(ls), "clientes_com_processo": len(cli_tipos)}
+       "lawsuits_lidos": len(ls), "clientes_com_processo": len(cli_tipos), "lancamentos_ligados_a_processo": sum(1 for t in gen if t.get("lawsuit_id") in proc_tipo)}
 json.dump(out, open("analise_tese_processo.json", "w"), indent=1, ensure_ascii=False)
 print("ok")
