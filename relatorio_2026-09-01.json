@@ -1,32 +1,16 @@
 {
   "data": "2026-09-01",
-  "gerado_em": "2026-10-12T13:31:48.236732",
-  "asaas": {
-    "total_lancamentos": 0,
-    "total_valor": 0,
-    "tipos_buscados": [
-      "PAYMENT_RECEIVED",
-      "ANTICIPATED_RECEIVED"
-    ],
-    "lancamentos": []
-  },
-  "advbox": {
-    "total_lancamentos": 0,
-    "total_valor": 0,
-    "lancamentos": []
-  },
-  "conciliacao": {
-    "matches": 0,
-    "faltando_no_advbox": 0,
-    "fantasmas_no_advbox": 0,
-    "diferenca_antes": 0,
-    "diferenca_depois": 0,
-    "status": "✅ CONCILIADO"
+  "gerado_em": "2026-10-13T00:40:20.877243",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 25672.26,
+    "advbox": 0,
+    "diferenca": 25672.26
   },
   "correcoes": {
     "total_realizadas": 0,
-    "total_falhadas": 0,
-    "detalhes": [],
-    "falhas": []
+    "detalhes": []
   }
 }
