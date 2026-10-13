@@ -1,0 +1,71 @@
+name: Perfil financeiro do cliente (processos, teses, categorias e centros de custo) — somente leitura
+on:
+  workflow_dispatch:
+    inputs:
+      nomes: {description: "Nomes de clientes separados por ;", required: false, default: ""}
+      ids: {description: "lawsuits_id separados por vírgula", required: false, default: ""}
+permissions:
+  contents: write
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          NOMES: ${{ github.event.inputs.nomes }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - <<'PY'
+          import os, re, time, json, unicodedata, requests
+          from collections import defaultdict
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          norm=lambda s: re.sub(r"\s+"," ",unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode()).strip().upper()
+          ini=lambda s: " ".join(p[0] for p in norm(s).split()) or "-"
+          def pag(path):
+              out,off=[],0
+              while True:
+                  for _ in range(6):
+                      r=requests.get(f"{B}/{path}",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                      if r.status_code!=429: break
+                      time.sleep(30)
+                  time.sleep(2.2); b=r.json().get("data",[]); out+=b
+                  if len(b)<1000: break
+                  off+=1000
+              return out
+          lw=pag("lawsuits"); trs=pag("transactions")
+          nomes=[norm(n) for n in os.environ["NOMES"].split(";") if n.strip()]
+          ids={int(x) for x in os.environ["IDS"].split(",") if x.strip()}
+          por_cli=defaultdict(list)
+          for l in lw:
+              for c in l.get("customers",[]) or []:
+                  if isinstance(c,dict): por_cli[c.get("customer_id")].append((l,c))
+          alvos=[]
+          for n in nomes:
+              cs={cid for cid,v in por_cli.items() for l,c in v if norm(c.get("name"))==n}
+              alvos.append(("nome:"+ini(n),cs))
+          for i in ids:
+              cs={c.get("customer_id") for l in lw if l.get("id")==i for c in l.get("customers",[]) if isinstance(c,dict)}
+              alvos.append((f"processo:{i}",cs))
+          res=[]
+          for rot,cs in alvos:
+              item={"alvo":rot,"clientes":[]}
+              for cid in cs:
+                  procs=[{"id":l["id"],"tipo":l.get("type"),"grupo":l.get("group"),"etapa":l.get("stage"),"origem":c.get("origin")} for l,c in por_cli[cid]]
+                  pids={p["id"] for p in procs}
+                  lan=[{"id":t["id"],"tipo":t.get("entry_type"),"valor":t.get("amount"),"cat":t.get("category"),"centro":t.get("cost_center"),
+                        "pago":str(t.get("date_payment") or "")[:10],"venc":str(t.get("date_due") or "")[:10],"banco":t.get("debit_bank") or t.get("credit_bank"),"proc":t.get("lawsuit_id")}
+                       for t in trs if t.get("lawsuit_id") in pids]
+                  item["clientes"].append({"customer_id":cid,"iniciais":ini(por_cli[cid][0][1].get("name")),"processos":procs,"lancamentos":lan})
+              res.append(item)
+          json.dump(res,open("perfil_cliente.json","w"),ensure_ascii=False,indent=1,default=str)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f perfil_cliente.json; git commit -m "perfil cliente" || true
+          git pull --rebase origin main || true; git push || true
