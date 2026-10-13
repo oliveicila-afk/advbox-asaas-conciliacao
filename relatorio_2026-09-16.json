@@ -1,26 +1,17 @@
 {
   "data": "2026-09-16",
-  "gerado_em": "2026-10-13T09:52:58.342473",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T13:59:07.761580",
+  "status": "CONCILIADO",
+  "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 12034.67,
-    "advbox": 1034.67,
-    "diferenca": 11000.0
+    "advbox": 12034.67,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 3019.82,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 7980.18,
-        "cliente_asaas": "Caixa E. F."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
