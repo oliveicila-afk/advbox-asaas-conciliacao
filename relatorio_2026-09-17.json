@@ -1,29 +1,18 @@
 {
   "data": "2026-09-17",
-  "gerado_em": "2026-10-13T09:54:37.129876",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T13:14:50.786352",
+  "status": "CONCILIADO",
+  "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 17605.02,
-    "advbox": 9569.56,
-    "diferenca": 8035.46
+    "advbox": 17605.02,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 11592.79,
-        "cliente_asaas": "Caixa E. F."
-      }
-    ],
-    "fantasmas_no_advbox": [
-      {
-        "valor": 3557.33,
-        "cliente_advbox": "Daniel D. S. P.",
-        "advbox_id": 17774994
-      }
-    ]
+    "faltando_no_advbox": [],
+    "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
