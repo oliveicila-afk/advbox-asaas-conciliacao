@@ -1,0 +1,684 @@
+{
+ "contagem": [
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "GERAL",
+   "pago": false,
+   "n": 104
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "pago": false,
+   "n": 57
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "GERAL",
+   "pago": true,
+   "n": 47
+  },
+  {
+   "categoria": "CONSULTORIAS E PARECERES JURÍDICOS",
+   "centro": "GERAL",
+   "pago": false,
+   "n": 20
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "pago": true,
+   "n": 19
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "pago": false,
+   "n": 17
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "pago": true,
+   "n": 15
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "pago": true,
+   "n": 14
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PARCERIAS",
+   "pago": false,
+   "n": 14
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "pago": false,
+   "n": 14
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-CROSSELL",
+   "pago": false,
+   "n": 13
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONCURSO-INDICAÇÃO",
+   "pago": false,
+   "n": 12
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "pago": true,
+   "n": 10
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-CROSSELL",
+   "pago": true,
+   "n": 10
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PARCERIAS",
+   "pago": true,
+   "n": 8
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONSUMIDOR-TRÁFEGO PAGO",
+   "pago": true,
+   "n": 8
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "pago": false,
+   "n": 6
+  },
+  {
+   "categoria": "CONSULTORIAS E PARECERES JURÍDICOS",
+   "centro": "GERAL",
+   "pago": true,
+   "n": 5
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PM/AM-TRÁFEGO PAGO",
+   "pago": true,
+   "n": 5
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONCURSO-TRÁFEGO PAGO",
+   "pago": true,
+   "n": 5
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONSUMIDOR-EMAIL MARKETING",
+   "pago": true,
+   "n": 4
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "DESPESAS COMERCIAIS-GERAL",
+   "pago": true,
+   "n": 4
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONSUMIDOR-TRÁFEGO PAGO",
+   "pago": false,
+   "n": 4
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
+   "pago": false,
+   "n": 3
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONCURSO-TRÁFEGO PAGO",
+   "pago": false,
+   "n": 3
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PLANEJAMENTO PREVIDENCIARIO-CROSSELL",
+   "pago": true,
+   "n": 3
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "DESPESAS COMERCIAIS-GERAL",
+   "pago": false,
+   "n": 3
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONSUMIDOR-INDICAÇÃO",
+   "pago": false,
+   "n": 2
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
+   "pago": true,
+   "n": 2
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-ORGANICO",
+   "pago": true,
+   "n": 2
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "SERVIDOR PUBLICO-ORGANICO",
+   "pago": false,
+   "n": 2
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PM/AM-TRÁFEGO PAGO",
+   "pago": false,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "CONSUMIDOR-INDICAÇÃO",
+   "pago": true,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PM/AM-OUTROS",
+   "pago": false,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "ESCRITÓRIO-INDICAÇÃO",
+   "pago": true,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PM/AM-OUTROS",
+   "pago": true,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "PROFESSOR/PEDAGOGO-ORGÂNICO",
+   "pago": true,
+   "n": 1
+  },
+  {
+   "categoria": "HONORÁRIOS CONSULTORIAS",
+   "centro": "DESPESAS FINANCEIRAS-GERAL",
+   "pago": true,
+   "n": 1
+  }
+ ],
+ "setembro": [
+  {
+   "id": 12642925,
+   "cli": "E S S",
+   "valor": 307,
+   "due": "2026-09-28",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 14234000,
+   "cli": "A D A D E D E D A A",
+   "valor": 3000,
+   "due": "2026-09-28",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PARCERIAS",
+   "lawsuit": 13659979
+  },
+  {
+   "id": 14234035,
+   "cli": "A D A D E D E D A A",
+   "valor": 3000,
+   "due": "2026-09-26",
+   "pago": "2026-09-23",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PARCERIAS",
+   "lawsuit": 13659979
+  },
+  {
+   "id": 14258560,
+   "cli": "M D S B D S",
+   "valor": 100,
+   "due": "2026-08-10",
+   "pago": "2026-09-11",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 14258561,
+   "cli": "M D S B D S",
+   "valor": 100,
+   "due": "2026-09-10",
+   "pago": "2026-09-10",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 14355919,
+   "cli": "M M C D S",
+   "valor": 99.7,
+   "due": "2026-09-16",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 14566879,
+   "cli": "H W G",
+   "valor": 200,
+   "due": "2026-08-27",
+   "pago": "2026-09-28",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": 14491258
+  },
+  {
+   "id": 15129267,
+   "cli": "R S G",
+   "valor": 100,
+   "due": "2026-08-22",
+   "pago": "2026-09-23",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 15129268,
+   "cli": "R S G",
+   "valor": 100,
+   "due": "2026-09-22",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 15236517,
+   "cli": "V N D A",
+   "valor": 300,
+   "due": "2026-09-28",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 15240803,
+   "cli": "O A C S",
+   "valor": 291.67,
+   "due": "2026-09-28",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "CONCURSO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 15306955,
+   "cli": "J M D S",
+   "valor": 140,
+   "due": "2026-09-30",
+   "pago": "2026-09-30",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 15691029,
+   "cli": "J P D S",
+   "valor": 166.67,
+   "due": "2026-08-22",
+   "pago": "2026-09-23",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 15691030,
+   "cli": "J P D S",
+   "valor": 166.67,
+   "due": "2026-09-22",
+   "pago": "2026-09-22",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 15843733,
+   "cli": "M D S C",
+   "valor": 250,
+   "due": "2026-09-30",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 16099850,
+   "cli": "R F D O",
+   "valor": 125,
+   "due": "2026-08-09",
+   "pago": "2026-09-10",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "CONSUMIDOR-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 16099851,
+   "cli": "R F D O",
+   "valor": 125,
+   "due": "2026-09-09",
+   "pago": "2026-09-09",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "CONSUMIDOR-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 16561440,
+   "cli": "A R S D S",
+   "valor": 83.33,
+   "due": "2026-08-29",
+   "pago": "2026-09-30",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": 17043974
+  },
+  {
+   "id": 16561441,
+   "cli": "A R S D S",
+   "valor": 83.33,
+   "due": "2026-09-29",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 16886059,
+   "cli": "L V T D S",
+   "valor": 83.33,
+   "due": "2026-09-12",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 16934089,
+   "cli": "A F F",
+   "valor": 500,
+   "due": "2026-08-14",
+   "pago": "2026-09-15",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": 17448448
+  },
+  {
+   "id": 16934090,
+   "cli": "A F F",
+   "valor": 500,
+   "due": "2026-09-17",
+   "pago": "2026-09-17",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": 17448448
+  },
+  {
+   "id": 16943792,
+   "cli": "E B D C",
+   "valor": 374.25,
+   "due": "2026-09-09",
+   "pago": "2026-09-09",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 16947800,
+   "cli": "J M P",
+   "valor": 166.67,
+   "due": "2026-08-17",
+   "pago": "2026-09-18",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 16947801,
+   "cli": "J M P",
+   "valor": 166.67,
+   "due": "2026-09-17",
+   "pago": "2026-09-17",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": null
+  },
+  {
+   "id": 16951917,
+   "cli": "E S C",
+   "valor": 102.03,
+   "due": "2026-08-17",
+   "pago": "2026-09-21",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 16951918,
+   "cli": "E S C",
+   "valor": 102.03,
+   "due": "2026-09-17",
+   "pago": "2026-09-17",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 17020931,
+   "cli": "J R D O",
+   "valor": 250,
+   "due": "2026-08-18",
+   "pago": "2026-09-21",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-ORGANICO",
+   "lawsuit": null
+  },
+  {
+   "id": 17020932,
+   "cli": "J R D O",
+   "valor": 250,
+   "due": "2026-09-18",
+   "pago": "2026-09-18",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-ORGANICO",
+   "lawsuit": null
+  },
+  {
+   "id": 17154999,
+   "cli": "K P D S",
+   "valor": 166.67,
+   "due": "2026-08-24",
+   "pago": "2026-09-28",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "lawsuit": 17735762
+  },
+  {
+   "id": 17155000,
+   "cli": "K P D S",
+   "valor": 166.67,
+   "due": "2026-09-24",
+   "pago": "2026-09-24",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 17222329,
+   "cli": "R N L S",
+   "valor": 166.67,
+   "due": "2026-09-26",
+   "pago": "2026-08-25",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": 17795596
+  },
+  {
+   "id": 17246415,
+   "cli": "S D E M F",
+   "valor": 333.33,
+   "due": "2026-08-27",
+   "pago": "2026-09-30",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 17246416,
+   "cli": "S D E M F",
+   "valor": 333.33,
+   "due": "2026-09-27",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 17446756,
+   "cli": "W D S S",
+   "valor": 200,
+   "due": "2026-09-04",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 17516064,
+   "cli": "R B D A",
+   "valor": 3760,
+   "due": "2026-09-09",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 17726438,
+   "cli": "E A F D S",
+   "valor": 250,
+   "due": "2026-09-21",
+   "pago": "2026-09-21",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 17805644,
+   "cli": "E B D C",
+   "valor": 374.25,
+   "due": "2026-09-09",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": 13475741
+  },
+  {
+   "id": 17810223,
+   "cli": "I C D J",
+   "valor": 166.67,
+   "due": "2026-09-24",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 17856290,
+   "cli": "J S D S",
+   "valor": 1000,
+   "due": "2026-09-28",
+   "pago": "2026-09-28",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "PROFESSOR/PEDAGOGO-ORGÂNICO",
+   "lawsuit": null
+  },
+  {
+   "id": 17889981,
+   "cli": "R F E S",
+   "valor": 248.5,
+   "due": "2026-09-29",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-CROSSELL",
+   "lawsuit": null
+  },
+  {
+   "id": 17926782,
+   "cli": "W C S",
+   "valor": 400,
+   "due": "2026-09-30",
+   "pago": "",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "lawsuit": null
+  },
+  {
+   "id": 18194282,
+   "cli": "I C D J",
+   "valor": 166.67,
+   "due": "2026-09-25",
+   "pago": "2026-09-25",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": 18522930
+  },
+  {
+   "id": 18194283,
+   "cli": "R N L S",
+   "valor": 166.66,
+   "due": "2026-09-28",
+   "pago": "2026-09-28",
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+   "lawsuit": 17795596
+  }
+ ],
+ "exemplo_14258561": {
+  "category": "HONORÁRIOS CONSULTORIAS",
+  "categories_id": 5,
+  "cost_center": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+  "date_due": "2026-09-10",
+  "date_payment": "2026-09-10",
+  "amount": 100,
+  "customers_id": 14784661,
+  "lawsuits_id": null
+ }
+}
