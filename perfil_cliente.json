@@ -1,41 +1,113 @@
 [
  {
-  "alvo": "nome:M E D J M",
+  "alvo": "iniciais:I C D J",
   "clientes": [
    {
-    "customer_id": 14564873,
-    "iniciais": "M E D J M",
+    "customer_id": 17515869,
+    "iniciais": "I C D J",
     "processos": [
      {
-      "id": 13915557,
+      "id": 17107736,
       "tipo": "PROMOÇÃO HORIZONTAL - SEDUC",
       "grupo": "SERVIDOR PÚBLICO",
-      "etapa": "ARQUIVAMENTO |  DESISTÊNCIA DO CLIENTE (NÃO USAR)",
-      "origem": "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
+      "etapa": "EM ESPERA | RÉPLICA PETICIONAR",
+      "origem": "INDICAÇÃO"
      },
      {
-      "id": 13978380,
-      "tipo": "PROMOÇÃO VERTICAL - SEDUC",
-      "grupo": "SERVIDOR PÚBLICO",
-      "etapa": "EM ESPERA |  HOMOLOGAÇÃO DO CÁLCULO",
-      "origem": "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
-     },
-     {
-      "id": 13978397,
-      "tipo": "SEGURO PRESTAMISTA",
-      "grupo": "CONSUMIDOR",
-      "etapa": "ARQUIVAMENTO | PROCESSO GANHO",
-      "origem": "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
-     },
-     {
-      "id": 17980914,
-      "tipo": "PROMOÇÃO DIAGONAL E RETROATIVOS - SEDUC",
-      "grupo": "SERVIDOR PÚBLICO",
-      "etapa": "EM ESPERA | DECISÃO LIMINAR/CITAÇÃO",
-      "origem": "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
+      "id": 18522930,
+      "tipo": "CONSULTORIA",
+      "grupo": "ASSUNTOS DIVERSOS",
+      "etapa": "CONSULTORI REALIZADA E FINALIZADA",
+      "origem": "INDICAÇÃO"
      }
     ],
     "lancamentos": []
+   }
+  ]
+ },
+ {
+  "alvo": "iniciais:R N L S",
+  "clientes": [
+   {
+    "customer_id": 18193862,
+    "iniciais": "R N L S",
+    "processos": [
+     {
+      "id": 17795596,
+      "tipo": "CONSULTORIA",
+      "grupo": "ASSUNTOS DIVERSOS",
+      "etapa": "CONSULTORI REALIZADA E FINALIZADA",
+      "origem": "INDICAÇÃO"
+     }
+    ],
+    "lancamentos": [
+     {
+      "id": 17222328,
+      "tipo": "income",
+      "valor": 166.67,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2026-08-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     },
+     {
+      "id": 17222329,
+      "tipo": "income",
+      "valor": 166.67,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2026-09-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     },
+     {
+      "id": 17222330,
+      "tipo": "income",
+      "valor": 166.67,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2026-10-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     },
+     {
+      "id": 17222331,
+      "tipo": "income",
+      "valor": 166.67,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2026-11-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     },
+     {
+      "id": 17222332,
+      "tipo": "income",
+      "valor": 166.67,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2026-12-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     },
+     {
+      "id": 17222333,
+      "tipo": "income",
+      "valor": 166.65,
+      "cat": "HONORÁRIOS CONSULTORIAS",
+      "centro": "SERVIDOR PUBLICO-INDICAÇÃO",
+      "pago": "2026-08-25",
+      "venc": "2027-01-26",
+      "banco": "ASAAS",
+      "proc": 17795596
+     }
+    ]
    }
   ]
  }
