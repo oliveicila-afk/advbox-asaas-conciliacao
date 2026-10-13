@@ -62,6 +62,11 @@ jobs:
                   n = len(ps.get("data", [])) if isinstance(ps, dict) else 0
                   if n < 100 or off >= 500: break
                   off += 100
+          # histórico do processo (anotações/andamentos) de cada processo
+          out["historico"] = []
+          for i in lids[:40]:
+              s, h = g(f"/history/{i}")
+              out["historico"].append({"lawsuit_id": i, "status": s, "dados": h})
           json.dump(out, open("resultado.json", "w"), ensure_ascii=False)
           print("ok: processos=%d, consultas_de_tarefas=%d" % (len(lids), len(out["tarefas_posts"])))
           PY
