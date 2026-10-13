@@ -1,0 +1,93 @@
+name: Ajustar categoria genérica "Honorários Contratuais" para INICIAIS-<tese>
+on:
+  workflow_dispatch:
+    inputs:
+      modo: {description: "plano (não grava) ou executar", required: true, default: "plano"}
+permissions:
+  contents: write
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          MODO: ${{ github.event.inputs.modo }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          from collections import Counter
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json","Content-Type":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          executar=os.environ["MODO"].strip().lower()=="executar"
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper().strip()
+          nm=lambda x: x.get("name") if isinstance(x,dict) else x
+          def get(p,params=None):
+              for _ in range(6):
+                  r=requests.get(f"{B}/{p}",headers=hb,params=params,timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); return r
+          def pag(p):
+              out,off=[],0
+              while True:
+                  b=get(p,{"limit":1000,"offset":off}).json().get("data",[]); out+=b
+                  if len(b)<1000: break
+                  off+=1000
+              return out
+          st=get("settings").json().get("financial",{})
+          CAT={c["category"]:c["id"] for c in st["categories"]}
+          PREF="HONORARIOS CONTRATUAIS INICIAIS-"
+          INI={n:i for n,i in CAT.items() if sa(n).startswith(PREF)}
+          def categoria_da_tese(tipo):
+              t=sa(tipo)
+              if not t: return None
+              if "ANULACAO DE QUESTAO" in t: alvo=PREF+"CONCURSO PM/AM ITEM B"
+              elif t=="FIC" or t.startswith("FIC "): alvo=PREF+"CONCURSO"
+              else:
+                  ex=[(n,i) for n,i in INI.items() if sa(n)==PREF+t]
+                  if len(ex)==1: return ex[0]
+                  c=[(n,i) for n,i in INI.items() if sa(n)[len(PREF):] and sa(n)[len(PREF):] in t]
+                  if not c: return None
+                  m=max(len(sa(n)) for n,_ in c); c=[(n,i) for n,i in c if len(sa(n))==m]
+                  return c[0] if len(c)==1 else None
+              ex=[(n,i) for n,i in INI.items() if sa(n)==alvo]
+              return ex[0] if len(ex)==1 else None
+          trs=pag("transactions"); lw={l["id"]:l for l in pag("lawsuits")}
+          alvo=[t for t in trs if t.get("entry_type")=="income" and str(t.get("category") or "")=="HONORÁRIOS CONTRATUAIS" and str(t.get("debit_bank") or "").upper()=="ASAAS"]
+          print("alvos:",len(alvo))
+          feitos=[]; pend=[]; erros=[]; sem_cat=Counter(); sem_proc=0
+          for t in alvo:
+              l=lw.get(t.get("lawsuit_id")); tipo=nm((l or {}).get("type"))
+              cat=categoria_da_tese(tipo) if l else None
+              if not cat:
+                  if not l: sem_proc+=1
+                  else: sem_cat[tipo]+=1
+                  pend.append({"id":t["id"],"nome":t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment") or "")[:10],"venc":str(t.get("date_due"))[:10],"tese":tipo,"motivo":"sem processo vinculado" if not l else "a tese não tem categoria de honorários iniciais"})
+                  continue
+              if executar:
+                  d=get(f"transactions/{t['id']}").json()
+                  p={"entry_type":"income","users_id":d.get("users_id") or 65747,"debit_account":193264,"categories_id":cat[1],
+                     "cost_centers_id":d.get("cost_centers_id"),"customers_id":d.get("customers_id"),"lawsuits_id":d.get("lawsuits_id"),
+                     "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],"description":d.get("description") or ""}
+                  if d.get("date_payment"): p["date_payment"]=str(d["date_payment"])[:10]
+                  p={k:v for k,v in p.items() if v is not None}
+                  r=requests.put(f"{B}/transactions/{t['id']}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+                  if r.status_code not in (200,204): erros.append({"id":t["id"],"http":r.status_code,"resp":r.text[:120]}); continue
+              feitos.append(t["id"])
+          pub={"modo":"executar" if executar else "plano","alvos":len(alvo),"ajustados":len(feitos),"sem_processo":sem_proc,"teses_sem_categoria_iniciais":dict(sem_cat),"pendentes":len(pend),"erros":erros}
+          json.dump(pub,open("ajuste_categoria_generica.json","w"),ensure_ascii=False,indent=1)
+          json.dump({"pendentes":pend},open("pendentes_categoria.json","w"),ensure_ascii=False)
+          print(json.dumps(pub,ensure_ascii=False)[:1500])
+          PY
+          openssl cms -encrypt -binary -aes-256-cbc -in pendentes_categoria.json -out pendentes_categoria.enc -outform DER .github/relatorio-publico.pem
+          rm -f pendentes_categoria.json
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f ajuste_categoria_generica.json pendentes_categoria.enc; git commit -m "ajuste categoria generica" || true
+          git pull --rebase origin main || true; git push || true
