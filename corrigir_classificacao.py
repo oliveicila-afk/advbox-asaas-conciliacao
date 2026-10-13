@@ -112,6 +112,114 @@ def analise_leitura():
     return {"genericos_antes_de_" + CORTE: len(ant), "como_resolver": res,
             "valores_mais_comuns(valor, qtd, tese_dominante, parcela)": tabela}
 
+
+# --- LEITURA DAS TAREFAS DO CLIENTE (somente leitura) para achar NATUREZA + TESE ----------
+# Regra da Priscila: ler as anotações/tarefas de TODOS os processos do cliente.
+# "de entrada" = honorários INICIAIS; "êxito" = ÊXITO; "sucumbência" = SUCUMBENCIAIS.
+import re
+NATUREZAS = {"INICIAIS": ("DE ENTRADA", "ENTRADA", "INICIAIS", "INICIAL"),
+             "DE EXITO": ("NO EXITO", "EXITO", "ÊXITO"),
+             "SUCUMBENCIAIS": ("SUCUMBENCIAL", "SUCUMBENCIA", "SUCUMBENCIAIS")}
+LEITURAS = {"n": 0}
+MAX_LEITURAS = int(os.environ.get("MAX_LEITURAS", "8"))
+
+def variantes_valor(v):
+    inteiro = int(v)
+    cents = f"{v:.2f}".split(".")[1]
+    milhar = f"{inteiro:,}".replace(",", ".")
+    out = {f"{milhar},{cents}", f"{inteiro},{cents}"}
+    if cents == "00":
+        out |= {milhar, str(inteiro)}
+    return sorted(out, key=len, reverse=True)
+
+def natureza_no_texto(texto, valor):
+    """Procura o valor no texto e a palavra de natureza MAIS PERTO dele (até 45 caracteres)."""
+    t = norm(texto)
+    melhor = None
+    for var in variantes_valor(valor):
+        for m in re.finditer(r"(?<![\d.,])" + re.escape(var) + r"(?![\d])", t):
+            for nat, palavras in NATUREZAS.items():
+                for w in palavras:
+                    w = norm(w)
+                    for k in re.finditer(re.escape(w), t):
+                        dist = (k.start() - m.end()) if k.start() >= m.end() else (m.start() - k.end())
+                        if dist < 0 or dist > 45:
+                            continue
+                        pref = 0 if k.start() >= m.end() else 1   # palavra depois do valor tem prioridade
+                        cand = (dist + pref, nat)
+                        if melhor is None or cand < melhor:
+                            melhor = cand
+    return melhor[1] if melhor else None
+
+def tese_do_tipo(tipo):
+    """Converte o 'tipo de ação' do processo (ex.: PROMOÇÃO VERTICAL - SEDUC) em tese de categoria."""
+    t = norm(tipo)
+    t = re.sub(r"\s*-\s*(SEDUC|SEMED|SEMA|SES|SEFAZ|ESTADO|MUNICIPIO)\b.*$", "", t).strip()
+    return t
+
+def categoria_por_natureza_tese(nat, tese):
+    """Acha, entre as categorias reais, 'HONORÁRIOS CONTRATUAIS <natureza>-<tese>' (nome normalizado)."""
+    achadas = []
+    for nome, cid in CAT.items():
+        n = norm(nome)
+        if not n.startswith("HONORARIOS CONTRATUAIS"):
+            continue
+        prefixo, _, sufixo = n.partition("-")
+        if sufixo.strip() != tese:
+            continue
+        if nat == "INICIAIS" and "INICIAIS" in prefixo: achadas.append(nome)
+        if nat == "DE EXITO" and "EXITO" in prefixo: achadas.append(nome)
+        if nat == "SUCUMBENCIAIS" and "SUCUMB" in prefixo: achadas.append(nome)
+    return achadas
+
+def identificar_por_tarefas(t):
+    """Retorna (categoria, info). categoria=None quando não dá para decidir com segurança.
+    Nunca imprime nomes, CPFs ou números de processo."""
+    info = {}
+    if LEITURAS["n"] >= MAX_LEITURAS:
+        return None, {"motivo": "limite de leituras desta execução"}
+    LEITURAS["n"] += 1
+    r = get(f"/transactions/{t['id']}")
+    d = r.json() if r.status_code == 200 else {}
+    d = d.get("data", d) if isinstance(d, dict) else {}
+    cid, lid_tx = d.get("customers_id"), d.get("lawsuits_id")
+    if not cid:
+        return None, {"motivo": "lançamento sem cliente vinculado"}
+    lr = get("/lawsuits", customer_id=cid, limit=100).json()
+    procs = lr.get("data", []) if isinstance(lr, dict) else []
+    valor = float(t.get("amount") or 0)
+    achados = []   # (processo, natureza)
+    for pr in procs[:40]:
+        h = get(f"/history/{pr['id']}").json()
+        for reg in (h.get("data", []) if isinstance(h, dict) else []):
+            txt = f"{reg.get('task') or ''} {reg.get('comments') or ''}"
+            nat = natureza_no_texto(txt, valor)
+            if nat:
+                achados.append((pr, nat))
+    info["processos_lidos"] = len(procs)
+    info["natureza_encontrada_em"] = len(achados)
+    if not achados:
+        return None, dict(info, motivo="nenhuma tarefa/anotação cita esse valor com a natureza")
+    naturezas = {n for _, n in achados}
+    if len(naturezas) > 1:
+        return None, dict(info, motivo="tarefas citam naturezas diferentes para o mesmo valor")
+    nat = naturezas.pop()
+    # tese: processo ligado ao lançamento; senão, o único processo onde a natureza foi encontrada
+    candidatos = {pr["id"]: pr for pr, _ in achados}
+    pr = next((x for x in procs if x["id"] == lid_tx and x["id"] in candidatos), None)
+    if pr is None and len(candidatos) == 1:
+        pr = list(candidatos.values())[0]
+    if pr is None:
+        return None, dict(info, natureza=nat, motivo="valor citado em mais de um processo; tese incerta")
+    tese = tese_do_tipo(pr.get("type"))
+    cats = categoria_por_natureza_tese(nat, tese)
+    info.update({"natureza": nat, "tese": tese})
+    if len(cats) == 1:
+        return cats[0], info
+    if not cats:
+        return None, dict(info, motivo="categoria dessa natureza+tese NÃO existe no Advbox (criar e rodar de novo)")
+    return None, dict(info, motivo="mais de uma categoria possível")
+
 out = {"data": DATA, "dry_run": DRY, "encontrados": len(alvos), "itens": []}
 MAX_PUTS = int(os.environ.get("MAX_PUTS", "60"))  # limite diário da API: 500 chamadas
 puts = 0
@@ -133,9 +241,16 @@ for t in alvos:
     elif v in VALORES_PROMO:
         nova, item["metodo"] = CAT_PROMO, "regra_valor_promocao_horizontal"
     else:
-        item["resultado"] = ("PULADO: cliente com várias teses, sem regra" if qt > 1
-                             else "PULADO: sem tese anterior e sem regra")
-        out["itens"].append(item); continue
+        # última tentativa: ler as tarefas de todos os processos do cliente (só no modo de um dia)
+        cat_t, info_t = (None, {}) if TODAS else identificar_por_tarefas(t)
+        if cat_t:
+            nova, item["metodo"] = cat_t, "leitura_de_tarefas"
+            item["leitura"] = info_t
+        else:
+            item["resultado"] = ("PULADO: cliente com várias teses, sem regra" if qt > 1
+                                 else "PULADO: sem tese anterior e sem regra")
+            if info_t: item["leitura"] = info_t
+            out["itens"].append(item); continue
     if nova == t.get("category") or not CAT.get(nova):
         item["resultado"] = "PULADO: categoria não encontrada"
         out["itens"].append(item); continue
