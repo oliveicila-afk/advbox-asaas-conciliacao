@@ -1,0 +1,22 @@
+{
+  "data": "2026-09-27",
+  "gerado_em": "2026-10-13T15:13:53.796706",
+  "status": "CONCILIADO",
+  "tentativas": 1,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 0,
+    "advbox": 0,
+    "diferenca": 0
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [],
+    "fantasmas_no_advbox": []
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
