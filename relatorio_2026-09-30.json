@@ -1,0 +1,150 @@
+{
+  "data": "2026-09-30",
+  "gerado_em": "2026-10-13T15:21:26.634998",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 32569.96,
+    "advbox": 14069.82,
+    "diferenca": 18500.14
+  },
+  "divergencias": {
+    "nome_diferente": [
+      {
+        "valor": 400.0,
+        "asaas": "Cardoso D. S. G. V. A. A.",
+        "advbox": "Clodoaldo D. S. B.",
+        "advbox_id": 16906599
+      },
+      {
+        "valor": 248.5,
+        "asaas": "Trindade D. J. G. K.",
+        "advbox": "Cristiane A. D.",
+        "advbox_id": 17384711
+      }
+    ],
+    "faltando_no_advbox": [
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Jemuel A. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Tatiana D. P. B. R."
+      },
+      {
+        "valor": 117.63,
+        "cliente_asaas": "Israel M. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Ozias B. F."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Harloanne L. G."
+      },
+      {
+        "valor": 2712.71,
+        "cliente_asaas": "Caixa E. F."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Ingrid S. M."
+      },
+      {
+        "valor": 6260.31,
+        "cliente_asaas": "Caixa E. F."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "José A. S. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Kátia R. B. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Joana D. D. C. G."
+      },
+      {
+        "valor": 8000.0,
+        "cliente_asaas": "Juridico M."
+      },
+      {
+        "valor": 73.81,
+        "cliente_asaas": "Nádia L. N. D. C."
+      },
+      {
+        "valor": 500.0,
+        "cliente_asaas": "Vera D. S. Q. M."
+      },
+      {
+        "valor": 5245.43,
+        "cliente_asaas": "Juridico M."
+      },
+      {
+        "valor": 68.36,
+        "cliente_asaas": "Deliene S. B."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Lucilene D. N."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 521.46,
+        "cliente_advbox": "Priscila D. S. R. B.",
+        "advbox_id": 11530877
+      },
+      {
+        "valor": 935.0,
+        "cliente_advbox": "Elias S. C.",
+        "advbox_id": 16695553
+      },
+      {
+        "valor": 102.04,
+        "cliente_advbox": "Luciney F. P.",
+        "advbox_id": 17065929
+      },
+      {
+        "valor": 128.44,
+        "cliente_advbox": "Israel M. D. S.",
+        "advbox_id": 17265657
+      },
+      {
+        "valor": 3149.0,
+        "cliente_advbox": "Jaira M. M. S. D. S.",
+        "advbox_id": 17430107
+      },
+      {
+        "valor": 497.0,
+        "cliente_advbox": "Andresa M. T.",
+        "advbox_id": 17859337
+      },
+      {
+        "valor": 248.5,
+        "cliente_advbox": "Orivaldo D. S. B. J.",
+        "advbox_id": 17909642
+      },
+      {
+        "valor": 248.5,
+        "cliente_advbox": "Odilene R. D.",
+        "advbox_id": 17931067
+      },
+      {
+        "valor": 248.5,
+        "cliente_advbox": "Celice M. S. D. F.",
+        "advbox_id": 17931090
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
