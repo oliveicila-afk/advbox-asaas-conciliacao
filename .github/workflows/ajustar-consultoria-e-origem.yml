@@ -117,8 +117,15 @@ jobs:
                   if d.get("date_payment"): p["date_payment"]=str(d["date_payment"])[:10]
                   p={k:v for k,v in p.items() if v is not None}
                   r=requests.put(f"{B}/transactions/{tid}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+                  if r.status_code==422 and "categories_id" in r.text and round(float(d["amount"]),2) in (67.0,497.0,597.0):
+                      ph=[(n,i) for n,i in CAT.items() if "PROMOCAO HORIZONTAL" in sa(n) and "EXITO" not in sa(n) and "RETROATIVO" not in sa(n)]
+                      if len(ph)==1:
+                          p["categories_id"]=ph[0][1]; acao["cat"]=ph[0][0]+" (categoria antiga inválida; regra 67/497/597)"
+                          r=requests.put(f"{B}/transactions/{tid}",headers=hb,json=p,timeout=30); time.sleep(2.2)
                   acao["http"]=r.status_code
-                  if r.status_code not in (200,204): erros.append({"id":tid,"http":r.status_code,"resp":r.text[:150]})
+                  if r.status_code not in (200,204):
+                      erros.append({"id":tid,"http":r.status_code,"valor":d.get("amount")})
+                      pendente.append({"id":tid,"nome":nome or t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"origem":org,"motivo":"categoria gravada no lançamento não existe mais e o valor não é 67/497/597"})
               mudou.append(acao)
           publico={"modo":"executar" if executar else "plano","alvos":len(alvo),"alterados":len(mudou),"pendentes_centro":len(pendente),"erros":erros,"ids_alterados":[m["id"] for m in mudou]}
           json.dump(publico,open("ajuste_consultoria_origem.json","w"),indent=1)
