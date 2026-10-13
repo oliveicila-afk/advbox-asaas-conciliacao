@@ -1,6 +1,6 @@
 {
   "data": "2026-09-06",
-  "gerado_em": "2026-10-13T05:02:44.313814",
+  "gerado_em": "2026-10-13T05:14:57.653715",
   "status": "NAO_CONCILIADO",
   "tentativas": 5,
   "max_tentativas": 5,
@@ -11,12 +11,7 @@
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 6000.0,
-        "cliente_asaas": "Lvmx I. E. I. L."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
