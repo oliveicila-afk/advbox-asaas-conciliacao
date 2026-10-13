@@ -179,6 +179,110 @@ def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
     return rr.status_code in (200, 204)
 
 
+def _sem_acento(t):
+    return unicodedata.normalize("NFKD", str(t or "")).encode("ascii", "ignore").decode().upper().strip()
+
+def origem_do_cliente(customers_id, headers_advbox):
+    """Origem do cliente = campo 'origem' do menu PESSOAS do Advbox (regra do escritório para o centro de custo)."""
+    try:
+        r = requests.get(f"https://app.advbox.com.br/api/v1/customers/{customers_id}", headers=headers_advbox, timeout=30)
+        time.sleep(2.2)
+        d = r.json() if r.status_code == 200 else {}
+        o = d.get("origin")
+        return (o.get("name") if isinstance(o, dict) else o) or ""
+    except Exception:
+        return ""
+
+def centro_custo_por_origem(origem, grupo, tipo, headers_advbox):
+    """Centro de custo = <PROFISSÃO/ÁREA>-<CANAL>.
+    CANAL vem da ORIGEM do cliente (menu Pessoas); ÁREA vem da profissão escrita na origem ou, se não houver,
+    do grupo/tese do processo. O nome precisa existir no Advbox; se não existir ou for ambíguo, devolve None (fica pendente)."""
+    o, g, t = _sem_acento(origem), _sem_acento(grupo), _sem_acento(tipo)
+    if "TRAFEGO" in o or "ANUNCIO" in o or "FACEBOOK" in o or "GOOGLE" in o:
+        canal = "TRAFEGO PAGO"
+    elif "INDICACAO" in o:
+        canal = "INDICACAO"
+    elif "ORGANICO" in o or "SITE DO ESCRITORIO" in o:
+        canal = "ORGANICO"
+    elif "PROSPECCAO" in o:
+        canal = "PROSPECCAO ATIVA"
+    elif "INSTAGRAM" in o:
+        canal = "INSTAGRAM / MIDIA SOCIAL"
+    else:
+        return None
+    if "PROFESSOR" in o or "PEDAGOGO" in o:
+        area = "PROFESSOR/PEDAGOGO"
+    elif any(k in o for k in ("GRUPO DE APOIO", "MERENDEIRA", "VIGIA", "ASSISTENTE", "AUXILIAR DE SERVICOS")):
+        area = "GRUPO DE APOIO"
+    elif "SOLDADO" in o or "ANULACAO DE QUESTAO" in t or "PM/AM" in t:
+        area = "PM/AM"
+    elif "CONSUMIDOR" in g:
+        area = "CONSUMIDOR"
+    elif "CONCURSO" in g:
+        area = "CONCURSO"
+    elif "SERVIDOR" in g:
+        area = "SERVIDOR PUBLICO"
+    else:
+        return None
+    st = carregar_settings_advbox(headers_advbox)
+    alvo = f"{area}-{canal}"
+    achados = [(n, i) for n, i in st["cc"].items() if _sem_acento(n) == alvo]
+    return achados[0] if len(achados) == 1 else None
+
+def categoria_exito_da_tese(tipo, headers_advbox):
+    """Categoria 'HONORÁRIOS CONTRATUAIS DE ÊXITO-<TESE>' pelo tipo do processo. Anulação de Questão -> CONCURSO PM/AM ITEM B; FIC -> CONCURSO."""
+    st = carregar_settings_advbox(headers_advbox)
+    t = _sem_acento(tipo)
+    pref = "HONORARIOS CONTRATUAIS DE EXITO-"
+    cats = {n: i for n, i in st["cat"].items() if _sem_acento(n).startswith(pref)}
+    if "ANULACAO DE QUESTAO" in t:
+        alvo = pref + "CONCURSO PM/AM ITEM B"
+    elif t == "FIC" or t.startswith("FIC "):
+        alvo = pref + "CONCURSO"
+    else:
+        cand = [(n, i) for n, i in cats.items() if _sem_acento(n)[len(pref):] and _sem_acento(n)[len(pref):] in t]
+        if not cand:
+            return None
+        maior = max(len(_sem_acento(n)) for n, _ in cand)
+        cand = [(n, i) for n, i in cand if len(_sem_acento(n)) == maior]
+        return cand[0] if len(cand) == 1 else None
+    for n, i in cats.items():
+        if _sem_acento(n) == alvo:
+            return (n, i)
+    return None
+
+def classificacao_por_processo_e_origem(customers_id, headers_advbox):
+    """Cliente sem lançamento anterior: tese pelo ÚNICO processo dele no Advbox e centro de custo pela ORIGEM (menu Pessoas)."""
+    idx = indice_processos(headers_advbox)
+    vistos, procs = set(), []
+    for l in idx.values():
+        if l.get("id") in vistos:
+            continue
+        vistos.add(l.get("id"))
+        if any(isinstance(c, dict) and c.get("customer_id") == customers_id for c in (l.get("customers") or [])):
+            procs.append(l)
+    teses = {}
+    for l in procs:
+        tipo = l.get("type", {}).get("name") if isinstance(l.get("type"), dict) else l.get("type")
+        grupo = l.get("group", {}).get("name") if isinstance(l.get("group"), dict) else l.get("group")
+        cat = categoria_exito_da_tese(tipo, headers_advbox)
+        if cat:
+            teses[cat[0]] = (cat, l, tipo, grupo)
+    if len(teses) != 1:
+        return None
+    cat, l, tipo, grupo = list(teses.values())[0]
+    origem = origem_do_cliente(customers_id, headers_advbox)
+    if not origem:
+        for c in l.get("customers") or []:
+            if isinstance(c, dict) and c.get("customer_id") == customers_id:
+                origem = c.get("origin") or ""
+    cc = centro_custo_por_origem(origem, grupo, tipo, headers_advbox)
+    if not cc:
+        return None
+    return {"categories_id": cat[1], "cost_centers_id": cc[1], "categoria": cat[0],
+            "centro_custo": f"{cc[0]} (origem: {origem})", "lawsuits_id": l.get("id")}
+
+
 def indice_processos(headers_advbox):
     """Índice {20 dígitos do processo: processo Advbox} (lido uma vez, respeitando o limite da API)."""
     global _LAWSUIT_IDX
@@ -306,6 +410,8 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
                 classif = {"categories_id": ph[1], "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
                            "categoria": ph[0], "centro_custo": "padrão ASAAS"}
         if not classif:
+            classif = classificacao_por_processo_e_origem(customers_id, headers_advbox)
+        if not classif:
             log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' sem lançamento anterior com tese - NÃO criado (informar a tese)", True)
             pendentes_sem_tese.append({"valor": round(float(asaas_tx.get("value", 0)), 2),
                                        "cliente_asaas": mascara_nome(asaas_tx.get("_nome"))})
@@ -323,6 +429,8 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
             "customers_id": customers_id,
             "description": description,
         }
+        if classif.get("lawsuits_id"):
+            payload["lawsuits_id"] = classif["lawsuits_id"]
         resp = requests.post(
             "https://app.advbox.com.br/api/v1/transactions",
             headers={**headers_advbox, "Content-Type": "application/json"},
