@@ -1,0 +1,35 @@
+{
+  "data": "2026-09-25",
+  "gerado_em": "2026-10-13T15:11:18.731644",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 1543.17,
+    "advbox": 879.5,
+    "diferenca": 663.67
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 248.5,
+        "cliente_asaas": "Norberta G. M."
+      },
+      {
+        "valor": 166.67,
+        "cliente_asaas": "Ingrid C. D. J."
+      },
+      {
+        "valor": 248.5,
+        "cliente_asaas": "Maurila A. R. S."
+      }
+    ],
+    "fantasmas_no_advbox": []
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
