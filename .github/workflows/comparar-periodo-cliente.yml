@@ -53,7 +53,7 @@ jobs:
                   for t in j.get("data",[]):
                       if t["id"] in seen: continue
                       seen.add(t["id"])
-                      if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT"):
+                      if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"):
                           asaas[d.isoformat()].append((norm(nome(t)), round(float(t["value"]),2), t.get("type")))
                   if not j.get("hasMore") or not j.get("data"): break
                   off+=100
