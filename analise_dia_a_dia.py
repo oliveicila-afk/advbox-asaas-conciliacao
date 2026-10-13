@@ -567,6 +567,49 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             matched.append((a_tx, restantes_adv.pop(achou), v))
     sobra_asaas = sobra_asaas3
 
+    # Passo 1d: pagadores intermediários Bemol/BMP — repasse AGREGADO.
+    # A Bemol às vezes repassa, numa ÚNICA transação no Asaas, a soma de vários fechamentos
+    # de clientes diferentes (cada um já lançado separadamente no Advbox, por cliente/tese).
+    # Nesse caso não há 1 lançamento Advbox com o mesmo valor — há VÁRIOS que SOMADOS batem.
+    # Procurar, entre os lançamentos Advbox ainda não conciliados, uma combinação (2 a 4 itens)
+    # cuja soma bata com o valor da transação Bemol/BMP (tolerância de 1 centavo).
+    import itertools
+    sobra_asaas4 = []
+    for a_tx in sobra_asaas3:
+        cpf_raw = (a_tx.get("_cpf") or "").replace(".", "").replace("-", "").replace("/", "")
+        eh_bemol = cpf_raw in CNPJS_BEMOL
+        if not eh_bemol:
+            sobra_asaas4.append(a_tx)
+            continue
+        v = round(float(a_tx.get("value", 0)), 2)
+        candidatos = [
+            (i, b_tx) for i, b_tx in enumerate(restantes_adv)
+            if any(c in str(b_tx.get("category_name") or b_tx.get("category") or "").upper() for c in CATS_HONORARIOS)
+            or str(b_tx.get("category_name") or b_tx.get("category") or "") == ""
+        ]
+        achou_combo = None
+        for r in (2, 3, 4):
+            if achou_combo:
+                break
+            if len(candidatos) < r:
+                continue
+            for combo in itertools.combinations(candidatos, r):
+                soma = round(sum(val_adv(b_tx) for _, b_tx in combo), 2)
+                if abs(soma - v) <= TOLERANCE:
+                    achou_combo = combo
+                    break
+        if achou_combo is None:
+            sobra_asaas4.append(a_tx)
+        else:
+            n_bemol = mascara_nome(a_tx.get("_nome"))
+            nomes_combo = [mascara_nome(b_tx.get("name")) for _, b_tx in achou_combo]
+            log_msg(f"  ✅ Pagador Bemol/BMP ({n_bemol}) aceito como conciliado por COMBINAÇÃO de {len(achou_combo)} lançamento(s) somando R${v}: {nomes_combo}", True)
+            idxs_remover = sorted((i for i, _ in achou_combo), reverse=True)
+            for i in idxs_remover:
+                restantes_adv.pop(i)
+            matched.append((a_tx, achou_combo[0][1], v))
+    sobra_asaas = sobra_asaas4
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
