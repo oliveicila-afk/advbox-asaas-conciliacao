@@ -1,9 +1,35 @@
 {
- "modo": "plano",
+ "modo": "executar",
  "alvos": 252,
  "alterados": 251,
  "pendentes_centro": 1,
- "erros": [],
+ "erros": [
+  {
+   "id": 11446338,
+   "http": 422,
+   "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}"
+  },
+  {
+   "id": 11446340,
+   "http": 422,
+   "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}"
+  },
+  {
+   "id": 11523221,
+   "http": 422,
+   "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}"
+  },
+  {
+   "id": 11610529,
+   "http": 422,
+   "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}"
+  },
+  {
+   "id": 11932610,
+   "http": 422,
+   "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}"
+  }
+ ],
  "ids_alterados": [
   11446338,
   11446339,
