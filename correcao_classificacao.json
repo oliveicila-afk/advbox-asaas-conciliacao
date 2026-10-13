@@ -1,11 +1,32 @@
 {
- "data": "2026-09-01",
+ "data": "2026-09-02",
  "dry_run": true,
- "encontrados": 0,
- "itens": [],
+ "encontrados": 2,
+ "itens": [
+  {
+   "id": 18152234,
+   "data": "2026-09-02",
+   "cliente": "(sem nome)",
+   "valor": 497,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "metodo": "regra_valor_promocao_horizontal",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  },
+  {
+   "id": 18152426,
+   "data": "2026-09-02",
+   "cliente": "(sem nome)",
+   "valor": 497,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "metodo": "regra_valor_promocao_horizontal",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  }
+ ],
  "resumo": {
   "alterados": 0,
-  "simulados": 0,
+  "simulados": 2,
   "pulados": 0,
   "erros": 0
  },

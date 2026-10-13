@@ -1,0 +1,42 @@
+{
+  "data": "2026-09-02",
+  "gerado_em": "2026-10-13T03:57:57.388889",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 17164.75,
+    "advbox": 17661.75,
+    "diferenca": 497.0
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 248.5,
+        "cliente_asaas": "Maria D. C. D. S."
+      },
+      {
+        "valor": 248.5,
+        "cliente_asaas": "Suely D. A. D. L."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 497.0,
+        "cliente_advbox": "(sem nome)",
+        "advbox_id": 18152234
+      },
+      {
+        "valor": 497.0,
+        "cliente_advbox": "(sem nome)",
+        "advbox_id": 18152426
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
