@@ -1,40 +1,22 @@
 {
   "data": "2026-09-08",
-  "gerado_em": "2026-10-13T07:35:34.320731",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 2,
+  "gerado_em": "2026-10-13T07:39:55.291985",
+  "status": "CONCILIADO",
+  "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 22549.95,
-    "advbox": 14308.97,
-    "diferenca": 8240.98
+    "advbox": 22549.95,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 8240.98,
-        "cliente_asaas": "Bmp S. D. C. D. S."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 3,
-    "detalhes": [
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 3760.0
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 3985.6
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 495.38
-      }
-    ]
+    "total_realizadas": 0,
+    "detalhes": []
   }
 }
