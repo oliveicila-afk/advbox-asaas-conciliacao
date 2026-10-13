@@ -111,14 +111,14 @@ jobs:
                   item.update({"lawsuits_id": lei.get("id"), "tese": (lei.get("type") or {}).get("name") if isinstance(lei.get("type"), dict) else lei.get("type"),
                                "clientes": [ini(c.get("name")) for c in (lei.get("customers") or []) if isinstance(c, dict)], "customers_ids": cust_ids})
                   # modelo: lançamento de honorários já existente (pago no dia) desse processo; detalhe traz os ids
-                  fee = {7470600: 17774989, 7379574: 17774990, 7057435: 17774992, 5986292: 17774994, 12329227: 17774998}.get(lei.get("id"))
+                  fee = {7470600: 17774989, 7379574: 17774990, 7057435: 17774992, 5986292: 17774994, 12329227: 17774998, 5173864: 12139864, 7000508: 15116112, 7721868: 15408661, 15740961: 17475800}.get(lei.get("id"))
                   item["modelos"] = []
                   if fee:
                       d = requests.get(f"{B}/transactions/{fee}", headers=hb, timeout=30).json()
-                      if d.get("lawsuits_id") == lei.get("id") and str(d.get("date_payment") or "")[:10] == p["dia"]:
+                      if d.get("lawsuits_id") == lei.get("id") and (str(d.get("date_payment") or "")[:10] == p["dia"] or not d.get("date_payment")):
                           item["modelos"].append({"id": d.get("id"), "valor": d.get("amount"), "categories_id": d.get("categories_id"),
                               "cost_centers_id": d.get("cost_centers_id"), "customers_id": d.get("customers_id"),
-                              "lawsuits_id": d.get("lawsuits_id"), "categoria": d.get("category")})
+                              "lawsuits_id": d.get("lawsuits_id"), "categoria": d.get("category"), "pago": bool(d.get("date_payment"))})
               plano.append(item)
 
           resultado = {"modo": "executar" if executar else "plano", "campos_lancamento": sorted(amostra.keys()), "itens": plano, "execucao": []}
@@ -136,7 +136,7 @@ jobs:
                   r = requests.post(f"{B}/transactions", headers=hb, json=payload, timeout=30)
                   ok = r.status_code in (200, 201)
                   ex = {"valor": it["valor"], "criado": ok, "http": r.status_code, "resp": r.text[:200]}
-                  if ok:
+                  if ok and m.get("pago"):
                       u = requests.put(f"{B}/transactions/{m['id']}", headers=hb, json={"date_payment": ""}, timeout=30)
                       ex.update({"desmarcado_modelo_id": m["id"], "desmarcado_http": u.status_code})
                   resultado["execucao"].append(ex)
