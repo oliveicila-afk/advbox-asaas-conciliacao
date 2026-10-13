@@ -1,7 +1,7 @@
 {
   "data": "2026-09-10",
-  "gerado_em": "2026-10-13T08:54:51.286506",
-  "status": "CONCILIADO",
+  "gerado_em": "2026-10-13T22:15:32.502748",
+  "status": "NAO_CONCILIADO",
   "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
@@ -15,6 +15,14 @@
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
+  "revisao_mes": [
+    {
+      "dia": "2026-09-09",
+      "asaas": 18195.57,
+      "advbox": 17821.32,
+      "diferenca": 374.25
+    }
+  ],
   "correcoes": {
     "total_realizadas": 0,
     "detalhes": []
