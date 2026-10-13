@@ -1,6 +1,6 @@
 {
   "data": "2026-09-15",
-  "gerado_em": "2026-10-13T14:19:40.864318",
+  "gerado_em": "2026-10-13T14:49:38.241389",
   "status": "CONCILIADO",
   "tentativas": 2,
   "max_tentativas": 5,
@@ -16,12 +16,8 @@
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 2,
+    "total_realizadas": 1,
     "detalhes": [
-      {
-        "tipo": "CREATE",
-        "valor": 11.68
-      },
       {
         "tipo": "CREATE",
         "valor": 11.68
