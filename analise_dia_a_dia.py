@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import sys
+import time
 
 # ---------------------------------------------------------------------------
 # Configuração
@@ -79,47 +80,73 @@ def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
 
 def unpay_advbox_transaction(tx_id, headers_advbox: dict) -> bool:
     """Desmarca o pagamento (volta para "não pago") em vez de apagar. Reversível.
-    API Advbox: PUT /transactions/{id} com {"date_payment": null}."""
+    API Advbox: PUT /transactions/{id} com {"date_payment": ""} (null é recusado, testado)."""
     try:
         resp = requests.put(
             f"https://app.advbox.com.br/api/v1/transactions/{tx_id}",
             headers={**headers_advbox, "Content-Type": "application/json"},
-            json={"date_payment": None},
+            json={"date_payment": ""},
             timeout=30
         )
         success = resp.status_code in [200, 204]
-        log_msg(f"  DESMARCAR PAGAMENTO {tx_id}: {resp.status_code} - {'✓' if success else '❌'}", True)
+        log_msg(f"  DESMARCAR PAGAMENTO {tx_id}: {resp.status_code} - {'✓' if success else '❌ ' + resp.text[:300]}", True)
         return success
     except Exception as e:
         log_msg(f"  ❌ Erro ao desmarcar pagamento {tx_id}: {e}", True)
         return False
 
 
-def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
+def buscar_cliente_advbox(asaas_tx: dict, headers_advbox: dict):
+    """Acha o cliente no Advbox pelo CPF/CNPJ (preferido) ou pelo nome exato."""
     try:
-        description = asaas_tx.get("description", "Pagamento Asaas")
-        category_id = inferir_categoria(description)
-        payload = {
-            "type": "income",
-            "description": description,
-            "value": float(asaas_tx.get("value", 0)),
-            "payment_date": TARGET_DATE,
-            "status": "paid",
-            "debit_bank": "ASAAS",
-            "external_id": asaas_tx.get("id", ""),
-            "categories_id": category_id,
-            "cost_center": COST_CENTER_ASAAS_PADRAO,
-        }
+        base = "https://app.advbox.com.br/api/v1/customers"
+        cpf = "".join(ch for ch in str(asaas_tx.get("_cpf") or "") if ch.isdigit())
+        if cpf:
+            r = requests.get(base, headers=headers_advbox, params={"identification": cpf, "limit": 5}, timeout=30)
+            time.sleep(2.2)
+            dados = (r.json().get("data") or []) if r.status_code == 200 else []
+            if dados:
+                return dados[0].get("id")
+        nome = norm_nome(asaas_tx.get("_nome"))
+        if nome:
+            r = requests.get(base, headers=headers_advbox, params={"name": asaas_tx.get("_nome"), "limit": 20}, timeout=30)
+            time.sleep(2.2)
+            for c in (r.json().get("data") or []) if r.status_code == 200 else []:
+                if norm_nome(c.get("name")) == nome:
+                    return c.get("id")
+    except Exception as e:
+        log_msg(f"  ⚠️ busca de cliente falhou: {type(e).__name__}", False)
+    return None
 
+
+def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
+    """Cria a receita já paga na conta ASAAS, ligada ao cliente (nome vem do cliente)."""
+    try:
+        customers_id = buscar_cliente_advbox(asaas_tx, headers_advbox)
+        if not customers_id:
+            log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' não encontrado no Advbox - NÃO criado (precisa cadastrar o cliente)", True)
+            return False
+        description = asaas_tx.get("description") or "Pagamento Asaas"
+        payload = {
+            "users_id": 65747,
+            "entry_type": "income",
+            "debit_account": 193264,
+            "categories_id": inferir_categoria(description),
+            "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
+            "amount": f"{float(asaas_tx.get('value', 0)):.2f}".replace(".", ","),
+            "date_due": TARGET_DATE,
+            "date_payment": TARGET_DATE,
+            "customers_id": customers_id,
+            "description": description,
+        }
         resp = requests.post(
             "https://app.advbox.com.br/api/v1/transactions",
-            headers=headers_advbox,
+            headers={**headers_advbox, "Content-Type": "application/json"},
             json=payload,
             timeout=30
         )
-
         success = resp.status_code in [200, 201]
-        log_msg(f"  CREATE: {resp.status_code} - {'✓' if success else '❌'}", True)
+        log_msg(f"  CREATE: {resp.status_code} - {'✓' if success else '❌ ' + resp.text[:300]}", True)
         return success
     except Exception as e:
         log_msg(f"  ❌ Erro ao criar: {e}", True)
@@ -161,8 +188,9 @@ def asaas_nome(tx, headers):
         if not cid:
             return None
         if cid not in _CACHE_CLI:
-            _CACHE_CLI[cid] = requests.get(f"{base}/customers/{cid}", headers=headers, timeout=30).json().get("name")
-        return _CACHE_CLI[cid]
+            _CACHE_CLI[cid] = requests.get(f"{base}/customers/{cid}", headers=headers, timeout=30).json()
+        tx["_cpf"] = (_CACHE_CLI[cid] or {}).get("cpfCnpj")
+        return (_CACHE_CLI[cid] or {}).get("name")
     except Exception as e:
         log_msg(f"  ⚠️ nome Asaas não resolvido: {type(e).__name__}", False)
         return None
@@ -430,6 +458,7 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     log_msg(f"Divergências: {json.dumps(divergencias_atuais, ensure_ascii=False)}", True)
 
     # Correções
+    corr_antes = len(all_corrections)
     if unmatched_advbox and not DRY_RUN:
         log_msg(f"\n[CORRIGINDO] Desmarcando pagamento de {len(unmatched_advbox)} lançamento(s) que não batem (não apaga)...", True)
         for tx in unmatched_advbox:
@@ -445,6 +474,8 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             valor = float(tx.get("value", 0))
             if create_advbox_transaction(tx, headers_advbox):
                 all_corrections.append(("CREATE", valor))
+
+    any_ok_this_attempt = len(all_corrections) > corr_antes
 
     # Dupla checagem
     log_msg(f"\n[DUPLA CHECAGEM] Relendo...", True)
@@ -464,6 +495,9 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     log_msg(f"Diferença: R$ {diferenca:.2f}", True)
 
     sem_divergencia = not (unmatched_asaas or unmatched_advbox or nome_diferente)
+    if (unmatched_asaas or unmatched_advbox) and not DRY_RUN and not any_ok_this_attempt:
+        log_msg("⛔ Nenhuma correção funcionou nesta tentativa - parando para não gastar chamadas da API.", True)
+        break
     if diferenca < TOLERANCE and sem_divergencia:
         log_msg(f"\n✅ VALORES E NOMES BATEM!", True)
         reconciliation_complete = True
