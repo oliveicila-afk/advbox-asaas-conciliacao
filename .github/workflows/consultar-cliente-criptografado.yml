@@ -49,17 +49,19 @@ jobs:
           out["cliente_id"] = cid
           lids = []
           if cid:
-              s, ls = g("/lawsuits", customer_id=cid, limit=50)
+              s, ls = g("/lawsuits", customer_id=cid, limit=100)
               out["processos"] = {"status": s, "dados": ls}
-              lids = [x["id"] for x in (ls.get("data", []) if isinstance(ls, dict) else [])][:6]
-              s, cu = g(f"/customers/{cid}")
-              out["cliente"] = {"status": s, "dados": cu}
+              lids = [x["id"] for x in (ls.get("data", []) if isinstance(ls, dict) else [])]
+          # lê as tarefas de TODOS os processos do cliente (filtro que funciona: lawsuit_id)
           out["tarefas_posts"] = []
-          # o filtro de tarefas por cliente não funcionou; tenta por processo (campos: lawsuits_id)
-          tentativas = [{"lawsuits_id": i} for i in lids[:3]] + [{"lawsuit_id": i} for i in lids[:1]]
-          for p in tentativas:
-              s, ps = g("/posts", limit=50, **p)
-              out["tarefas_posts"].append({"filtro": p, "status": s, "dados": ps})
+          for i in lids[:40]:
+              off = 0
+              while True:
+                  s, ps = g("/posts", limit=100, offset=off, lawsuit_id=i)
+                  out["tarefas_posts"].append({"lawsuit_id": i, "status": s, "dados": ps})
+                  n = len(ps.get("data", [])) if isinstance(ps, dict) else 0
+                  if n < 100 or off >= 500: break
+                  off += 100
           json.dump(out, open("resultado.json", "w"), ensure_ascii=False)
           print("ok: processos=%d, consultas_de_tarefas=%d" % (len(lids), len(out["tarefas_posts"])))
           PY
