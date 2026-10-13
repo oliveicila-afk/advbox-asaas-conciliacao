@@ -50,19 +50,6 @@
    "so_asaas": [],
    "so_advbox": []
   },
-  "2026-09-06": {
-   "asaas_total": 6000.0,
-   "advbox_total": 0,
-   "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "L I E I L",
-     "valor": 6000.0,
-     "tipo": "PAYMENT_RECEIVED"
-    }
-   ],
-   "so_advbox": []
-  },
   "2026-09-07": {
    "asaas_total": 397.0,
    "advbox_total": 397.0,
@@ -101,7 +88,7 @@
   },
   "2026-09-09": {
    "asaas_total": 18195.57,
-   "advbox_total": 16866.92,
+   "advbox_total": 17821.32,
    "valor_diferente": [],
    "so_asaas": [
     {
@@ -110,43 +97,13 @@
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "R F D O",
-     "valor": 125.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "F A M",
-     "valor": 250.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "E F",
-     "valor": 129.9,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "R B D S N",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
      "cliente": "C E F",
      "valor": 3388.64,
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "C A D S F",
-     "valor": 100.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
      "cliente": "E B D C",
      "valor": 374.25,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "M G D S",
-     "valor": 100.5,
      "tipo": "PAYMENT_RECEIVED"
     }
    ],
@@ -165,58 +122,16 @@
   },
   "2026-09-10": {
    "asaas_total": 4220.24,
-   "advbox_total": 2889.44,
+   "advbox_total": 4220.24,
    "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "E D P A",
-     "valor": 67.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "L B W",
-     "valor": 160.8,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "O D A S",
-     "valor": 500.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "M D S B D S",
-     "valor": 100.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "J R S D C",
-     "valor": 67.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "J M P",
-     "valor": 187.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "E F A",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    }
-   ],
+   "so_asaas": [],
    "so_advbox": []
   },
   "2026-09-11": {
    "asaas_total": 1998.7,
-   "advbox_total": 1750.2,
+   "advbox_total": 1998.7,
    "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "S V",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    }
-   ],
+   "so_asaas": [],
    "so_advbox": []
   },
   "2026-09-12": {
@@ -559,28 +474,8 @@
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "-",
-     "valor": 259.8,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 446.02,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
+     "cliente": "C E F",
      "valor": 6260.31,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 497.0,
      "tipo": "PAYMENT_RECEIVED"
     },
     {
@@ -601,21 +496,6 @@
    ],
    "so_advbox": [
     {
-     "cliente": "F T D A M",
-     "valor": 67.0,
-     "id": 12405929
-    },
-    {
-     "cliente": "J V M M",
-     "valor": 446.02,
-     "id": 14551880
-    },
-    {
-     "cliente": "C R D A",
-     "valor": 259.8,
-     "id": 14652161
-    },
-    {
      "cliente": "C D S B",
      "valor": 400.0,
      "id": 16906599
@@ -624,11 +504,6 @@
      "cliente": "C A D",
      "valor": 248.5,
      "id": 17384711
-    },
-    {
-     "cliente": "M L F D P",
-     "valor": 497.0,
-     "id": 17685869
     },
     {
      "cliente": "F B F",
@@ -653,6 +528,6 @@
    ]
   }
  },
- "tot_asaas": 322976.89,
- "tot_advbox": 314049.3
+ "tot_asaas": 316976.89,
+ "tot_advbox": 316583.0
 }
