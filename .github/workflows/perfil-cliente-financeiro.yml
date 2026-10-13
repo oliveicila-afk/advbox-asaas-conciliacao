@@ -4,6 +4,7 @@ on:
     inputs:
       nomes: {description: "Nomes de clientes separados por ;", required: false, default: ""}
       ids: {description: "lawsuits_id separados por vírgula", required: false, default: ""}
+      iniciais: {description: "Iniciais separadas por ; (ex: I C D J)", required: false, default: ""}
 permissions:
   contents: write
 jobs:
@@ -18,6 +19,7 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           NOMES: ${{ github.event.inputs.nomes }}
           IDS: ${{ github.event.inputs.ids }}
+          INIC: ${{ github.event.inputs.iniciais }}
         run: |
           python3 - <<'PY'
           import os, re, time, json, unicodedata, requests
@@ -48,6 +50,9 @@ jobs:
           for n in nomes:
               cs={cid for cid,v in por_cli.items() for l,c in v if norm(c.get("name"))==n}
               alvos.append(("nome:"+ini(n),cs))
+          for it_ in [x.strip() for x in os.environ.get("INIC","").split(";") if x.strip()]:
+              cs={cid for cid,v in por_cli.items() for l,c in v if ini(c.get("name"))==it_}
+              alvos.append(("iniciais:"+it_,cs))
           for i in ids:
               cs={c.get("customer_id") for l in lw if l.get("id")==i for c in l.get("customers",[]) if isinstance(c,dict)}
               alvos.append((f"processo:{i}",cs))
