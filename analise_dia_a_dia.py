@@ -172,7 +172,7 @@ def fetch_advbox_transactions():
     offset = 0
     limit = 100
     all_raw = []
-    max_pages = 1000  # Limite máximo de páginas para não ficar puxando dados eternamente
+    max_pages = 400  # Limite máximo de páginas para não ficar puxando dados eternamente
     page_count = 0
     filter_counts = {
         "type_not_income": 0,
@@ -203,17 +203,15 @@ def fetch_advbox_transactions():
 
             data = resp.json()
             log_msg(f"  Chaves: {list(data.keys())}", True)
-            log_msg(f"  Dados completos: {json.dumps(data, indent=2, default=str)}", False)
-
             batch = data.get("data", []) or data.get("transactions", [])
             log_msg(f"  Batch size (RAW): {len(batch)}", True)
 
             for idx, tx in enumerate(batch):
                 all_raw.append(tx)
-                tx_type = tx.get("type")
-                tx_status = tx.get("status")
+                tx_type = tx.get("entry_type")
+                tx_status = "paid" if tx.get("date_payment") else None
                 tx_debit = tx.get("debit_bank")
-                tx_date = tx.get("payment_date", tx.get("date", ""))
+                tx_date = tx.get("date_payment") or ""
 
                 log_msg(f"  TX[{idx}] type={tx_type} status={tx_status} debit_bank={tx_debit} date={tx_date}", False)
 
@@ -225,11 +223,11 @@ def fetch_advbox_transactions():
                     filter_counts["status_not_paid"] += 1
                     log_msg(f"    → FILTRADA (status)", False)
                     continue
-                if tx_debit != "ASAAS":
+                if str(tx_debit or "").upper() != "ASAAS":
                     filter_counts["debit_bank_not_asaas"] += 1
                     log_msg(f"    → FILTRADA (debit_bank)", False)
                     continue
-                if tx_date and tx_date[:10] != TARGET_DATE:
+                if tx_date[:10] != TARGET_DATE:
                     filter_counts["date_mismatch"] += 1
                     log_msg(f"    → FILTRADA (date)", False)
                     continue
