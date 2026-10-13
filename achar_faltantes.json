@@ -1,0 +1,4806 @@
+[
+ {
+  "dia": "2026-09-09",
+  "cliente": "C E F",
+  "valor": 11988.86,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": []
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "R F D O",
+  "valor": 125.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16099849,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099850,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099851,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099852,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099853,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099854,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099855,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099856,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "F A M",
+  "valor": 250.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 14236126,
+    "entry": "income",
+    "due": "2026-04-09",
+    "pago": "2026-05-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236129,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236130,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236131,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236132,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236133,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236134,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236135,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236136,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 14236137,
+    "entry": "income",
+    "due": "2027-03-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   },
+   {
+    "id": 15921512,
+    "entry": "expense",
+    "due": "2026-06-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "ESTORNO AO CLIENTE"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "E F",
+  "valor": 129.9,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 13577988,
+    "entry": "income",
+    "due": "2026-03-09",
+    "pago": "2026-04-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577989,
+    "entry": "income",
+    "due": "2026-04-09",
+    "pago": "2026-05-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577991,
+    "entry": "income",
+    "due": "2026-06-09",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577992,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577993,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577994,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577995,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577996,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577997,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577998,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577999,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "R B D S N",
+  "valor": 248.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17487137,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17487138,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "C E F",
+  "valor": 3388.64,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": []
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "C A D S F",
+  "valor": 100.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16809250,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809251,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809252,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809253,
+    "entry": "income",
+    "due": "2026-11-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809254,
+    "entry": "income",
+    "due": "2026-12-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809255,
+    "entry": "income",
+    "due": "2027-01-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809256,
+    "entry": "income",
+    "due": "2027-02-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809257,
+    "entry": "income",
+    "due": "2027-03-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "E B D C",
+  "valor": 374.25,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16943792,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 17805644,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "M G D S",
+  "valor": 100.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16036015,
+    "entry": "income",
+    "due": "2026-07-08",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036016,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036017,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036018,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036019,
+    "entry": "income",
+    "due": "2026-11-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036020,
+    "entry": "income",
+    "due": "2026-12-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036021,
+    "entry": "income",
+    "due": "2027-01-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036022,
+    "entry": "income",
+    "due": "2027-02-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16943790,
+    "entry": "income",
+    "due": "2026-08-11",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "C A D S F",
+  "valor": 100.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16809250,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809251,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809252,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809253,
+    "entry": "income",
+    "due": "2026-11-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809254,
+    "entry": "income",
+    "due": "2026-12-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809255,
+    "entry": "income",
+    "due": "2027-01-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809256,
+    "entry": "income",
+    "due": "2027-02-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16809257,
+    "entry": "income",
+    "due": "2027-03-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "E B D C",
+  "valor": 374.25,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16943792,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 17805644,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "M N D S",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16040269,
+    "entry": "income",
+    "due": "2026-07-08",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-ABONO PERMANÊNCIA"
+   },
+   {
+    "id": 16040270,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-ABONO PERMANÊNCIA"
+   },
+   {
+    "id": 16943791,
+    "entry": "income",
+    "due": "2026-08-11",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "M G D S",
+  "valor": 100.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16036015,
+    "entry": "income",
+    "due": "2026-07-08",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036016,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036017,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036018,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036019,
+    "entry": "income",
+    "due": "2026-11-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036020,
+    "entry": "income",
+    "due": "2026-12-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036021,
+    "entry": "income",
+    "due": "2027-01-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16036022,
+    "entry": "income",
+    "due": "2027-02-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16943790,
+    "entry": "income",
+    "due": "2026-08-11",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "G E D M B",
+  "valor": 165.67,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15443784,
+    "entry": "income",
+    "due": "2026-06-08",
+    "pago": "2026-07-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 15443785,
+    "entry": "income",
+    "due": "2026-07-08",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 15443786,
+    "entry": "income",
+    "due": "2026-08-08",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16943788,
+    "entry": "income",
+    "due": "2026-08-11",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-09",
+  "cliente": "J D S D",
+  "valor": 500.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17359510,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   },
+   {
+    "id": 17359511,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "A D S A",
+  "valor": 497.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17509592,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "E D P A",
+  "valor": 67.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 11876572,
+    "entry": "income",
+    "due": "2025-12-08",
+    "pago": "2026-02-18",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876574,
+    "entry": "income",
+    "due": "2026-02-08",
+    "pago": "2026-03-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876578,
+    "entry": "income",
+    "due": "2026-06-08",
+    "pago": "2026-06-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876579,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876580,
+    "entry": "income",
+    "due": "2026-10-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876581,
+    "entry": "income",
+    "due": "2026-11-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876582,
+    "entry": "income",
+    "due": "2026-12-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 11876583,
+    "entry": "income",
+    "due": "2027-01-08",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 14218858,
+    "entry": "income",
+    "due": "2026-02-18",
+    "pago": "2026-02-18",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 14259915,
+    "entry": "income",
+    "due": "2026-04-09",
+    "pago": "2026-05-19",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   },
+   {
+    "id": 14301696,
+    "entry": "income",
+    "due": "2026-04-09",
+    "pago": "2026-04-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REDUÇÃO DE CARGA"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "L A D C",
+  "valor": 497.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17551468,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "L B W",
+  "valor": 160.8,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16133142,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133143,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133144,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133145,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133146,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16633508,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-07-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "O D A S",
+  "valor": 500.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 15510148,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510149,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510150,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510151,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510152,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510153,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "M D S B D S",
+  "valor": 100.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 14258556,
+    "entry": "income",
+    "due": "2026-05-10",
+    "pago": "2026-05-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258558,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258559,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258560,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258561,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258562,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258563,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258564,
+    "entry": "income",
+    "due": "2026-12-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258565,
+    "entry": "income",
+    "due": "2027-01-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "J R S D C",
+  "valor": 67.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 11446329,
+    "entry": "income",
+    "due": "2025-11-10",
+    "pago": "2025-12-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446330,
+    "entry": "income",
+    "due": "2025-12-10",
+    "pago": "2026-02-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446332,
+    "entry": "income",
+    "due": "2026-02-10",
+    "pago": "2026-03-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446333,
+    "entry": "income",
+    "due": "2026-03-10",
+    "pago": "2026-04-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446334,
+    "entry": "income",
+    "due": "2026-04-10",
+    "pago": "2026-05-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446336,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-06-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446337,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446338,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446339,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446340,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 14233506,
+    "entry": "income",
+    "due": "2026-02-23",
+    "pago": "2026-02-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "M K B D S",
+  "valor": 500.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16799113,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   },
+   {
+    "id": 16799207,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   },
+   {
+    "id": 16799208,
+    "entry": "income",
+    "due": "2026-09-07",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   },
+   {
+    "id": 16799209,
+    "entry": "income",
+    "due": "2026-10-07",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   },
+   {
+    "id": 16799210,
+    "entry": "income",
+    "due": "2026-11-07",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "J M P",
+  "valor": 187.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17513040,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513041,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513042,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513043,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513044,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513045,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513046,
+    "entry": "income",
+    "due": "2027-03-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   },
+   {
+    "id": 17513047,
+    "entry": "income",
+    "due": "2027-04-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REVISÃO DE APOSENTADORIA"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "E F A",
+  "valor": 248.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17507236,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO DIAGONAL"
+   },
+   {
+    "id": 17507237,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO DIAGONAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "R S R",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16100673,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "2026-08-14",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 FÉRIAS"
+   },
+   {
+    "id": 16100674,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 FÉRIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "R F D O",
+  "valor": 125.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16099849,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099850,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099851,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099852,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099853,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099854,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099855,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16099856,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "E F",
+  "valor": 129.9,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 13577988,
+    "entry": "income",
+    "due": "2026-03-09",
+    "pago": "2026-04-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577989,
+    "entry": "income",
+    "due": "2026-04-09",
+    "pago": "2026-05-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577991,
+    "entry": "income",
+    "due": "2026-06-09",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577992,
+    "entry": "income",
+    "due": "2026-07-09",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577993,
+    "entry": "income",
+    "due": "2026-08-09",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577994,
+    "entry": "income",
+    "due": "2026-09-09",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577995,
+    "entry": "income",
+    "due": "2026-10-09",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577996,
+    "entry": "income",
+    "due": "2026-11-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577997,
+    "entry": "income",
+    "due": "2026-12-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577998,
+    "entry": "income",
+    "due": "2027-01-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 13577999,
+    "entry": "income",
+    "due": "2027-02-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-10",
+  "cliente": "T W F O",
+  "valor": 892.04,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15623989,
+    "entry": "income",
+    "due": "2026-07-05",
+    "pago": "2026-07-06",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623990,
+    "entry": "income",
+    "due": "2026-08-05",
+    "pago": "2026-08-05",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623991,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-09-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623992,
+    "entry": "income",
+    "due": "2026-10-05",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623993,
+    "entry": "income",
+    "due": "2026-11-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623994,
+    "entry": "income",
+    "due": "2026-12-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623995,
+    "entry": "income",
+    "due": "2027-01-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623996,
+    "entry": "income",
+    "due": "2027-02-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623997,
+    "entry": "income",
+    "due": "2027-03-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623998,
+    "entry": "income",
+    "due": "2027-04-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15623999,
+    "entry": "income",
+    "due": "2027-05-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 15624000,
+    "entry": "income",
+    "due": "2027-06-05",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "J S D A",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17563094,
+    "entry": "income",
+    "due": "2026-09-14",
+    "pago": "2026-09-14",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONSUMIDOR"
+   },
+   {
+    "id": 17563095,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONSUMIDOR"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "M D C M D S",
+  "valor": 129.9,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 12947314,
+    "entry": "income",
+    "due": "2026-02-10",
+    "pago": "2026-02-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947316,
+    "entry": "income",
+    "due": "2026-04-10",
+    "pago": "2026-06-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947318,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-06-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947319,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-07-16",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947320,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-08-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947321,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947322,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947323,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947324,
+    "entry": "income",
+    "due": "2026-12-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 12947325,
+    "entry": "income",
+    "due": "2027-01-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS SUCUMBENCIAIS-REQUERER APOSENTADORIA"
+   },
+   {
+    "id": 14372623,
+    "entry": "income",
+    "due": "2026-04-16",
+    "pago": "2026-04-16",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-REQUERER APOSENTADORIA"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "T O S",
+  "valor": 47.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11598813,
+    "entry": "income",
+    "due": "2026-09-11",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 FÉRIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "S V",
+  "valor": 248.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 16871790,
+    "entry": "income",
+    "due": "2026-08-11",
+    "pago": "2026-10-05",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16871791,
+    "entry": "income",
+    "due": "2026-09-11",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18166371,
+    "entry": "income",
+    "due": "2026-09-01",
+    "pago": "2026-09-01",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "A L",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16659788,
+    "entry": "income",
+    "due": "2026-08-03",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16659789,
+    "entry": "income",
+    "due": "2026-09-03",
+    "pago": "2026-10-05",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18166929,
+    "entry": "income",
+    "due": "2026-09-03",
+    "pago": "2026-09-03",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "L B W",
+  "valor": 160.8,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16133142,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133143,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133144,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133145,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16133146,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16633508,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-07-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "C O",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16115928,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16115929,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "O D A S",
+  "valor": 500.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15510148,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510149,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510150,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510151,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510152,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   },
+   {
+    "id": 15510153,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-DEMANDA CIVIL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "M D S B D S",
+  "valor": 100.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 14258556,
+    "entry": "income",
+    "due": "2026-05-10",
+    "pago": "2026-05-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258558,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-07-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258559,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258560,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258561,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258562,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258563,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258564,
+    "entry": "income",
+    "due": "2026-12-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 14258565,
+    "entry": "income",
+    "due": "2027-01-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-11",
+  "cliente": "J R S D C",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11446329,
+    "entry": "income",
+    "due": "2025-11-10",
+    "pago": "2025-12-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446330,
+    "entry": "income",
+    "due": "2025-12-10",
+    "pago": "2026-02-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446332,
+    "entry": "income",
+    "due": "2026-02-10",
+    "pago": "2026-03-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446333,
+    "entry": "income",
+    "due": "2026-03-10",
+    "pago": "2026-04-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446334,
+    "entry": "income",
+    "due": "2026-04-10",
+    "pago": "2026-05-12",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446336,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "2026-06-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11446337,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-08-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446338,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-09-11",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446339,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-10-13",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11446340,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "2026-10-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 14233506,
+    "entry": "income",
+    "due": "2026-02-23",
+    "pago": "2026-02-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "E B D C",
+  "valor": 11.68,
+  "tipo": "PAYMENT_FEE_REVERSAL",
+  "candidatos": [
+   {
+    "id": 16087569,
+    "entry": "expense",
+    "due": "2026-07-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   },
+   {
+    "id": 17461054,
+    "entry": "expense",
+    "due": "2026-09-09",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   },
+   {
+    "id": 18176933,
+    "entry": "income",
+    "due": "2026-09-15",
+    "pago": "2026-09-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "E B D C",
+  "valor": 11.68,
+  "tipo": "PAYMENT_FEE_REVERSAL",
+  "candidatos": [
+   {
+    "id": 16087569,
+    "entry": "expense",
+    "due": "2026-07-09",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   },
+   {
+    "id": 17461054,
+    "entry": "expense",
+    "due": "2026-09-09",
+    "pago": "2026-09-09",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   },
+   {
+    "id": 18176933,
+    "entry": "income",
+    "due": "2026-09-15",
+    "pago": "2026-09-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PLANEJAMENTO PREVIDENCIÁRIO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "A G C",
+  "valor": 110.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11608882,
+    "entry": "income",
+    "due": "2024-02-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608883,
+    "entry": "income",
+    "due": "2024-03-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608884,
+    "entry": "income",
+    "due": "2024-04-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608885,
+    "entry": "income",
+    "due": "2024-05-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608886,
+    "entry": "income",
+    "due": "2024-06-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608887,
+    "entry": "income",
+    "due": "2024-07-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608888,
+    "entry": "income",
+    "due": "2024-08-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608889,
+    "entry": "income",
+    "due": "2024-09-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608890,
+    "entry": "income",
+    "due": "2024-10-02",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608891,
+    "entry": "income",
+    "due": "2024-11-02",
+    "pago": "2025-01-20",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608892,
+    "entry": "income",
+    "due": "2024-12-02",
+    "pago": "2025-01-20",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 11608893,
+    "entry": "income",
+    "due": "2025-01-02",
+    "pago": "2025-01-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS DE ÊXITO"
+   },
+   {
+    "id": 13491529,
+    "entry": "income",
+    "due": "2026-01-15",
+    "pago": "2026-01-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714309,
+    "entry": "income",
+    "due": "2026-03-16",
+    "pago": "2026-03-16",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714310,
+    "entry": "income",
+    "due": "2026-04-16",
+    "pago": "2026-04-16",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714312,
+    "entry": "income",
+    "due": "2026-06-16",
+    "pago": "2026-06-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714313,
+    "entry": "income",
+    "due": "2026-07-16",
+    "pago": "2026-07-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714314,
+    "entry": "income",
+    "due": "2026-08-16",
+    "pago": "2026-08-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714315,
+    "entry": "income",
+    "due": "2026-09-16",
+    "pago": "2026-09-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714316,
+    "entry": "income",
+    "due": "2026-10-16",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714317,
+    "entry": "income",
+    "due": "2026-11-16",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714318,
+    "entry": "income",
+    "due": "2026-12-16",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714319,
+    "entry": "income",
+    "due": "2027-01-16",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13714320,
+    "entry": "income",
+    "due": "2027-02-16",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 14218547,
+    "entry": "income",
+    "due": "2026-02-15",
+    "pago": "2026-02-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "C E F",
+  "valor": 2961.99,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": []
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "A F F",
+  "valor": 500.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16934089,
+    "entry": "income",
+    "due": "2026-08-14",
+    "pago": "2026-09-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16934090,
+    "entry": "income",
+    "due": "2026-09-17",
+    "pago": "2026-09-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16934091,
+    "entry": "income",
+    "due": "2026-10-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16934092,
+    "entry": "income",
+    "due": "2026-11-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16934093,
+    "entry": "income",
+    "due": "2026-12-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   },
+   {
+    "id": 16934094,
+    "entry": "income",
+    "due": "2027-01-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONSULTORIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-15",
+  "cliente": "M S V C",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16214109,
+    "entry": "income",
+    "due": "2026-07-14",
+    "pago": "2026-08-17",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16214110,
+    "entry": "income",
+    "due": "2026-08-14",
+    "pago": "2026-09-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "L A D A G",
+  "valor": 100.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 10062263,
+    "entry": "income",
+    "due": "2025-08-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062264,
+    "entry": "income",
+    "due": "2025-09-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062265,
+    "entry": "income",
+    "due": "2025-10-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062266,
+    "entry": "income",
+    "due": "2025-11-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062267,
+    "entry": "income",
+    "due": "2025-12-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062268,
+    "entry": "income",
+    "due": "2026-01-30",
+    "pago": "2026-01-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 10062269,
+    "entry": "income",
+    "due": "2026-02-28",
+    "pago": "2026-02-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 10062270,
+    "entry": "income",
+    "due": "2026-03-30",
+    "pago": "2026-03-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 10062271,
+    "entry": "income",
+    "due": "2026-05-25",
+    "pago": "2026-05-25",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 10062272,
+    "entry": "income",
+    "due": "2026-05-30",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS NO ÊXITO"
+   },
+   {
+    "id": 10062273,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 10062274,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-24",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 14561644,
+    "entry": "income",
+    "due": "2026-04-24",
+    "pago": "2026-04-24",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 16867996,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "2026-09-01",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16867997,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16867998,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16867999,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868000,
+    "entry": "income",
+    "due": "2026-12-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868001,
+    "entry": "income",
+    "due": "2027-01-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868002,
+    "entry": "income",
+    "due": "2027-02-28",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868003,
+    "entry": "income",
+    "due": "2027-03-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868004,
+    "entry": "income",
+    "due": "2027-04-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868005,
+    "entry": "income",
+    "due": "2027-05-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868006,
+    "entry": "income",
+    "due": "2027-06-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   },
+   {
+    "id": 16868007,
+    "entry": "income",
+    "due": "2027-07-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM IDADE"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A P P",
+  "valor": 7.96,
+  "tipo": "PAYMENT_FEE_REVERSAL",
+  "candidatos": [
+   {
+    "id": 17453703,
+    "entry": "expense",
+    "due": "2026-09-06",
+    "pago": "2026-09-08",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   },
+   {
+    "id": 18048527,
+    "entry": "expense",
+    "due": "2026-10-06",
+    "pago": "2026-10-06",
+    "banco": "ASAAS",
+    "categoria": "TAXAS BANCÁRIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A G S C",
+  "valor": 375.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15323045,
+    "entry": "income",
+    "due": "2026-06-01",
+    "pago": "2026-06-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323046,
+    "entry": "income",
+    "due": "2026-07-01",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323047,
+    "entry": "income",
+    "due": "2026-08-01",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323048,
+    "entry": "income",
+    "due": "2026-09-01",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323049,
+    "entry": "income",
+    "due": "2026-10-01",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323050,
+    "entry": "income",
+    "due": "2026-11-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323051,
+    "entry": "income",
+    "due": "2026-12-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323052,
+    "entry": "income",
+    "due": "2027-01-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323053,
+    "entry": "income",
+    "due": "2027-02-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323054,
+    "entry": "income",
+    "due": "2027-03-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323055,
+    "entry": "income",
+    "due": "2027-04-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323056,
+    "entry": "income",
+    "due": "2027-05-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323057,
+    "entry": "income",
+    "due": "2027-06-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323058,
+    "entry": "income",
+    "due": "2027-07-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323059,
+    "entry": "income",
+    "due": "2027-08-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323060,
+    "entry": "income",
+    "due": "2027-09-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323061,
+    "entry": "income",
+    "due": "2027-10-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323062,
+    "entry": "income",
+    "due": "2027-11-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323063,
+    "entry": "income",
+    "due": "2027-12-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323064,
+    "entry": "income",
+    "due": "2028-01-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323065,
+    "entry": "income",
+    "due": "2028-02-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323066,
+    "entry": "income",
+    "due": "2028-03-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323067,
+    "entry": "income",
+    "due": "2028-04-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 15323068,
+    "entry": "income",
+    "due": "2028-05-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "D B D S",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11019806,
+    "entry": "income",
+    "due": "2025-10-16",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11019807,
+    "entry": "income",
+    "due": "2025-11-16",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11019808,
+    "entry": "income",
+    "due": "2025-12-16",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11019812,
+    "entry": "income",
+    "due": "2026-06-01",
+    "pago": "2026-06-01",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11019815,
+    "entry": "income",
+    "due": "2026-06-29",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11019816,
+    "entry": "income",
+    "due": "2026-08-16",
+    "pago": "2026-08-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11019817,
+    "entry": "income",
+    "due": "2026-09-16",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 14245221,
+    "entry": "income",
+    "due": "2026-02-24",
+    "pago": "2026-02-24",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16674845,
+    "entry": "income",
+    "due": "2026-07-29",
+    "pago": "2026-07-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18182591,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "D S D S",
+  "valor": 701.53,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15798575,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-07-03",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798576,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798577,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798578,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798579,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798580,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798581,
+    "entry": "income",
+    "due": "2026-12-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798582,
+    "entry": "income",
+    "due": "2027-01-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798583,
+    "entry": "income",
+    "due": "2027-02-28",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798584,
+    "entry": "income",
+    "due": "2027-03-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798585,
+    "entry": "income",
+    "due": "2027-04-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 15798586,
+    "entry": "income",
+    "due": "2027-05-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 17321461,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "Y L G",
+  "valor": 935.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 12405074,
+    "entry": "income",
+    "due": "2026-04-30",
+    "pago": "2026-04-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405075,
+    "entry": "income",
+    "due": "2026-05-30",
+    "pago": "2026-05-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405076,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405077,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405078,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405079,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405080,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405081,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405082,
+    "entry": "income",
+    "due": "2026-12-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405083,
+    "entry": "income",
+    "due": "2027-01-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405084,
+    "entry": "income",
+    "due": "2027-02-28",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   },
+   {
+    "id": 12405085,
+    "entry": "income",
+    "due": "2027-03-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO PM/AM ITEM B"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A J P N",
+  "valor": 661.37,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 13861409,
+    "entry": "income",
+    "due": "2026-04-01",
+    "pago": "2026-03-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861410,
+    "entry": "income",
+    "due": "2026-05-01",
+    "pago": "2026-04-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861411,
+    "entry": "income",
+    "due": "2026-06-01",
+    "pago": "2026-06-03",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861412,
+    "entry": "income",
+    "due": "2026-07-01",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861413,
+    "entry": "income",
+    "due": "2026-08-01",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861414,
+    "entry": "income",
+    "due": "2026-09-01",
+    "pago": "2026-09-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861415,
+    "entry": "income",
+    "due": "2026-10-01",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 13861416,
+    "entry": "income",
+    "due": "2026-11-01",
+    "pago": "2026-10-08",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A B",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17714164,
+    "entry": "income",
+    "due": "2026-09-18",
+    "pago": "2026-09-21",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17714165,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "L D S M",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 10931479,
+    "entry": "income",
+    "due": "2025-10-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 10931480,
+    "entry": "income",
+    "due": "2025-11-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 10931481,
+    "entry": "income",
+    "due": "2025-12-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 10931485,
+    "entry": "income",
+    "due": "2026-04-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 10931486,
+    "entry": "income",
+    "due": "2026-05-10",
+    "pago": "2026-05-04",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 10931487,
+    "entry": "income",
+    "due": "2026-06-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 10931488,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-07-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 10931489,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 10931490,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 15306268,
+    "entry": "income",
+    "due": "2026-05-29",
+    "pago": "2026-05-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16633311,
+    "entry": "income",
+    "due": "2026-07-03",
+    "pago": "2026-07-03",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18182593,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "N D S C",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11145394,
+    "entry": "income",
+    "due": "2025-10-22",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11145395,
+    "entry": "income",
+    "due": "2025-11-22",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11145396,
+    "entry": "income",
+    "due": "2025-12-22",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 11145397,
+    "entry": "income",
+    "due": "2026-01-22",
+    "pago": "2026-01-22",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145399,
+    "entry": "income",
+    "due": "2026-03-02",
+    "pago": "2026-03-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145400,
+    "entry": "income",
+    "due": "2026-04-22",
+    "pago": "2026-04-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145401,
+    "entry": "income",
+    "due": "2026-05-22",
+    "pago": "2026-05-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145402,
+    "entry": "income",
+    "due": "2026-06-22",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145403,
+    "entry": "income",
+    "due": "2026-07-22",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145404,
+    "entry": "income",
+    "due": "2026-08-22",
+    "pago": "2026-08-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11145405,
+    "entry": "income",
+    "due": "2026-09-22",
+    "pago": "",
+    "banco": "CONTA PRINCIPAL",
+    "categoria": "HONORÁRIOS INICIAIS"
+   },
+   {
+    "id": 14268161,
+    "entry": "income",
+    "due": "2026-03-30",
+    "pago": "2026-03-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18182595,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M H S M G",
+  "valor": 284.6,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16906781,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SUPERENDIVIDAMENTO"
+   },
+   {
+    "id": 16906782,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SUPERENDIVIDAMENTO"
+   },
+   {
+    "id": 16906783,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SUPERENDIVIDAMENTO"
+   },
+   {
+    "id": 16906784,
+    "entry": "income",
+    "due": "2026-12-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SUPERENDIVIDAMENTO"
+   },
+   {
+    "id": 16906785,
+    "entry": "income",
+    "due": "2027-01-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SUPERENDIVIDAMENTO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "L S M M",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17383970,
+    "entry": "income",
+    "due": "2026-09-22",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO VERTICAL"
+   },
+   {
+    "id": 17383971,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO VERTICAL"
+   },
+   {
+    "id": 18181874,
+    "entry": "income",
+    "due": "2026-09-23",
+    "pago": "2026-09-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO VERTICAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M S D O",
+  "valor": 659.16,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17174127,
+    "entry": "income",
+    "due": "2026-09-01",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174128,
+    "entry": "income",
+    "due": "2026-10-01",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174129,
+    "entry": "income",
+    "due": "2026-11-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174130,
+    "entry": "income",
+    "due": "2026-12-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174131,
+    "entry": "income",
+    "due": "2027-01-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174132,
+    "entry": "income",
+    "due": "2027-02-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174133,
+    "entry": "income",
+    "due": "2027-03-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174134,
+    "entry": "income",
+    "due": "2027-04-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174135,
+    "entry": "income",
+    "due": "2027-05-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174136,
+    "entry": "income",
+    "due": "2027-06-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174137,
+    "entry": "income",
+    "due": "2027-07-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174138,
+    "entry": "income",
+    "due": "2027-08-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174139,
+    "entry": "income",
+    "due": "2027-09-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174140,
+    "entry": "income",
+    "due": "2027-10-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17174141,
+    "entry": "income",
+    "due": "2027-11-01",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M L D O B",
+  "valor": 330.28,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15608899,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608900,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608901,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608902,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608903,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608904,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M L D O B",
+  "valor": 330.28,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15608899,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608900,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-23",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608901,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608902,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608903,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   },
+   {
+    "id": 15608904,
+    "entry": "income",
+    "due": "2026-11-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "G S N",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11610519,
+    "entry": "income",
+    "due": "2025-11-30",
+    "pago": "2025-12-01",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610520,
+    "entry": "income",
+    "due": "2025-12-30",
+    "pago": "2025-12-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610522,
+    "entry": "income",
+    "due": "2026-02-28",
+    "pago": "2026-02-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11610523,
+    "entry": "income",
+    "due": "2026-03-30",
+    "pago": "2026-03-02",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11610524,
+    "entry": "income",
+    "due": "2026-04-30",
+    "pago": "2026-04-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11610525,
+    "entry": "income",
+    "due": "2026-05-30",
+    "pago": "2026-05-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11610526,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610527,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610528,
+    "entry": "income",
+    "due": "2026-08-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610529,
+    "entry": "income",
+    "due": "2026-09-30",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11610530,
+    "entry": "income",
+    "due": "2026-10-30",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 14728943,
+    "entry": "income",
+    "due": "2026-03-04",
+    "pago": "2026-03-04",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17321458,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "E A B",
+  "valor": 67.0,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17884743,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884744,
+    "entry": "income",
+    "due": "2026-10-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884745,
+    "entry": "income",
+    "due": "2026-11-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884746,
+    "entry": "income",
+    "due": "2026-12-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884747,
+    "entry": "income",
+    "due": "2027-01-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884748,
+    "entry": "income",
+    "due": "2027-02-28",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884749,
+    "entry": "income",
+    "due": "2027-03-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884750,
+    "entry": "income",
+    "due": "2027-04-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884751,
+    "entry": "income",
+    "due": "2027-05-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884752,
+    "entry": "income",
+    "due": "2027-06-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884753,
+    "entry": "income",
+    "due": "2027-07-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   },
+   {
+    "id": 17884754,
+    "entry": "income",
+    "due": "2027-08-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-SEGURO PRESTAMISTA"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "J D C A G",
+  "valor": 497.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17887382,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "C E F",
+  "valor": 17105.45,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": []
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "L C C P",
+  "valor": 248.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17879855,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17879856,
+    "entry": "income",
+    "due": "2026-10-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "I E C D O",
+  "valor": 125.96,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15334891,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334892,
+    "entry": "income",
+    "due": "2026-07-10",
+    "pago": "2026-07-15",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334893,
+    "entry": "income",
+    "due": "2026-08-10",
+    "pago": "2026-08-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334894,
+    "entry": "income",
+    "due": "2026-09-10",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334895,
+    "entry": "income",
+    "due": "2026-10-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334896,
+    "entry": "income",
+    "due": "2026-11-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334897,
+    "entry": "income",
+    "due": "2026-12-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334898,
+    "entry": "income",
+    "due": "2027-01-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334899,
+    "entry": "income",
+    "due": "2027-02-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334900,
+    "entry": "income",
+    "due": "2027-03-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334901,
+    "entry": "income",
+    "due": "2027-04-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   },
+   {
+    "id": 15334902,
+    "entry": "income",
+    "due": "2027-05-10",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RMC"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M P A F",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 13786726,
+    "entry": "income",
+    "due": "2026-01-14",
+    "pago": "2026-01-14",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14235789,
+    "entry": "income",
+    "due": "2026-02-26",
+    "pago": "2026-02-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14268151,
+    "entry": "income",
+    "due": "2026-03-30",
+    "pago": "2026-03-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14684395,
+    "entry": "income",
+    "due": "2026-04-29",
+    "pago": "2026-04-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 15305995,
+    "entry": "income",
+    "due": "2026-05-30",
+    "pago": "2026-05-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 15921480,
+    "entry": "income",
+    "due": "2026-06-30",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 16673860,
+    "entry": "income",
+    "due": "2026-07-30",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17294814,
+    "entry": "income",
+    "due": "2026-08-25",
+    "pago": "2026-08-25",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 18182606,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M L S",
+  "valor": 248.5,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 17291466,
+    "entry": "income",
+    "due": "2026-08-29",
+    "pago": "2026-09-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17291467,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17321467,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "N C D C",
+  "valor": 129.9,
+  "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+  "candidatos": [
+   {
+    "id": 14632317,
+    "entry": "income",
+    "due": "2026-04-29",
+    "pago": "2026-06-01",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632318,
+    "entry": "income",
+    "due": "2026-05-29",
+    "pago": "2026-06-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632319,
+    "entry": "income",
+    "due": "2026-06-29",
+    "pago": "2026-07-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632320,
+    "entry": "income",
+    "due": "2026-07-29",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632321,
+    "entry": "income",
+    "due": "2026-08-29",
+    "pago": "2026-07-10",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632322,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632323,
+    "entry": "income",
+    "due": "2026-10-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632324,
+    "entry": "income",
+    "due": "2026-11-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632325,
+    "entry": "income",
+    "due": "2026-12-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632326,
+    "entry": "income",
+    "due": "2027-01-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632327,
+    "entry": "income",
+    "due": "2027-02-28",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 14632328,
+    "entry": "income",
+    "due": "2027-03-29",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A D S F",
+  "valor": 284.89,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16694931,
+    "entry": "income",
+    "due": "2026-08-04",
+    "pago": "2026-08-04",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694932,
+    "entry": "income",
+    "due": "2026-09-04",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694933,
+    "entry": "income",
+    "due": "2026-10-04",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694934,
+    "entry": "income",
+    "due": "2026-11-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694935,
+    "entry": "income",
+    "due": "2026-12-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694936,
+    "entry": "income",
+    "due": "2027-01-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694937,
+    "entry": "income",
+    "due": "2027-02-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694938,
+    "entry": "income",
+    "due": "2027-03-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694939,
+    "entry": "income",
+    "due": "2027-04-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694940,
+    "entry": "income",
+    "due": "2027-05-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694941,
+    "entry": "income",
+    "due": "2027-06-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   },
+   {
+    "id": 16694942,
+    "entry": "income",
+    "due": "2027-07-04",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PM/AM-INVESTIGAÇÃO SOCIAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "R S D S",
+  "valor": 1129.7,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 15921429,
+    "entry": "income",
+    "due": "2026-06-27",
+    "pago": "2026-06-27",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 16673157,
+    "entry": "income",
+    "due": "2026-07-29",
+    "pago": "2026-07-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 17294807,
+    "entry": "income",
+    "due": "2026-08-25",
+    "pago": "2026-08-25",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   },
+   {
+    "id": 18182609,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-CONCURSO"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "E D A E",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17121238,
+    "entry": "income",
+    "due": "2026-08-22",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17121239,
+    "entry": "income",
+    "due": "2026-09-22",
+    "pago": "2026-09-22",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17321464,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "F M D L J",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17274709,
+    "entry": "income",
+    "due": "2026-08-28",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17274710,
+    "entry": "income",
+    "due": "2026-09-28",
+    "pago": "2026-10-09",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17321462,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17321463,
+    "entry": "income",
+    "due": "2026-08-31",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "A C C P",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 17227316,
+    "entry": "income",
+    "due": "2026-08-26",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 17227317,
+    "entry": "income",
+    "due": "2026-09-26",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "M R T",
+  "valor": 248.5,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 16525919,
+    "entry": "income",
+    "due": "2026-07-28",
+    "pago": "2026-08-31",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 FÉRIAS"
+   },
+   {
+    "id": 16525920,
+    "entry": "income",
+    "due": "2026-08-28",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 FÉRIAS"
+   }
+  ]
+ },
+ {
+  "dia": "2026-09-29",
+  "cliente": "J R P",
+  "valor": 67.0,
+  "tipo": "PAYMENT_RECEIVED",
+  "candidatos": [
+   {
+    "id": 11552146,
+    "entry": "income",
+    "due": "2025-11-30",
+    "pago": "2025-11-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11552147,
+    "entry": "income",
+    "due": "2025-12-17",
+    "pago": "2025-12-22",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11552148,
+    "entry": "income",
+    "due": "2026-01-17",
+    "pago": "2026-01-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552149,
+    "entry": "income",
+    "due": "2026-02-17",
+    "pago": "2026-02-26",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552150,
+    "entry": "income",
+    "due": "2026-03-17",
+    "pago": "2026-03-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552151,
+    "entry": "income",
+    "due": "2026-04-17",
+    "pago": "2026-04-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552152,
+    "entry": "income",
+    "due": "2026-05-24",
+    "pago": "2026-06-03",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552153,
+    "entry": "income",
+    "due": "2026-06-17",
+    "pago": "2026-06-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11552154,
+    "entry": "income",
+    "due": "2026-07-17",
+    "pago": "2026-07-30",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11552155,
+    "entry": "income",
+    "due": "2026-08-17",
+    "pago": "2026-08-28",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   },
+   {
+    "id": 11552156,
+    "entry": "income",
+    "due": "2026-09-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 11552157,
+    "entry": "income",
+    "due": "2026-10-17",
+    "pago": "",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS"
+   },
+   {
+    "id": 18182610,
+    "entry": "income",
+    "due": "2026-09-29",
+    "pago": "2026-09-29",
+    "banco": "ASAAS",
+    "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
+   }
+  ]
+ }
+]
