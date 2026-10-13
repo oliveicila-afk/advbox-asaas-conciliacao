@@ -35,7 +35,7 @@ jobs:
               off+=1000
           for l in lw:
               out["processos"][l["id"]]={k:(v if not isinstance(v,(dict,list)) else "<obj>") for k,v in l.items() if k not in ("process_number","protocol_number","customers","name")}
-              out["processos"][l["id"]]["tipo"]=l.get("type"); out["processos"][l["id"]]["chaves_cliente"]=[sorted(c.keys()) for c in l.get("customers",[]) if isinstance(c,dict)][:1]
+              out["processos"][l["id"]]["tipo"]=l.get("type"); out["processos"][l["id"]]["origens_clientes"]=[c.get("origin") for c in l.get("customers",[]) if isinstance(c,dict)]; out["processos"][l["id"]]["chaves_cliente"]=[sorted(c.keys()) for c in l.get("customers",[]) if isinstance(c,dict)][:1]
           json.dump(out,open("mapa_categoria_custo.json","w"),ensure_ascii=False,indent=1,default=str)
           PY
       - if: always()
