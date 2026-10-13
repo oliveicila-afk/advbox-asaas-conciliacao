@@ -2,28 +2,8 @@
  "modo": "executar",
  "alvos": 6,
  "alterados": 5,
- "pendentes_centro": 6,
+ "pendentes_centro": 2,
  "erros": [
-  {
-   "id": 11446338,
-   "http": 422,
-   "valor": 67
-  },
-  {
-   "id": 11446340,
-   "http": 422,
-   "valor": 67
-  },
-  {
-   "id": 11523221,
-   "http": 422,
-   "valor": 67
-  },
-  {
-   "id": 11610529,
-   "http": 422,
-   "valor": 67
-  },
   {
    "id": 11932610,
    "http": 422,
