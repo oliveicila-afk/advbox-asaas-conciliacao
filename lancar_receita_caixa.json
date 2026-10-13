@@ -1,5 +1,5 @@
 {
- "modo": "plano",
+ "modo": "executar",
  "campos_lancamento": [
   "amount",
   "category",
@@ -127,5 +127,30 @@
    ]
   }
  ],
- "execucao": []
+ "execucao": [
+  {
+   "valor": 27928.22,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18193192}"
+  },
+  {
+   "valor": 11071.05,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18193193}"
+  },
+  {
+   "valor": 5879.91,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18193194}"
+  },
+  {
+   "valor": 2712.71,
+   "criado": true,
+   "http": 200,
+   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18193195}"
+  }
+ ]
 }
