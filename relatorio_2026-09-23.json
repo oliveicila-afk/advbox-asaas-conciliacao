@@ -1,13 +1,13 @@
 {
   "data": "2026-09-23",
-  "gerado_em": "2026-10-13T15:07:36.340872",
+  "gerado_em": "2026-10-13T17:18:33.505886",
   "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 53087.96,
-    "advbox": 1467.07,
-    "diferenca": 51620.89
+    "advbox": 1715.57,
+    "diferenca": 51372.39
   },
   "divergencias": {
     "nome_diferente": [],
@@ -31,17 +31,69 @@
       {
         "valor": 3000.0,
         "cliente_asaas": "Associação D. A. D. E. D. E. D. A. -. A."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Lais S. M. M."
       }
     ],
     "fantasmas_no_advbox": []
   },
-  "pendentes_sem_tese": [],
+  "pendentes_sem_tese": [
+    {
+      "valor": 27928.22,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 5698.07,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 11071.05,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 3675.05,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 3000.0,
+      "cliente_asaas": "Associação D. A. D. E. D. E. D. A. -. A.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 27928.22,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 5698.07,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 11071.05,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 3675.05,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 3000.0,
+      "cliente_asaas": "Associação D. A. D. E. D. E. D. A. -. A.",
+      "motivo": "pagador CNPJ sem processo"
+    }
+  ],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 1,
+    "detalhes": [
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      }
+    ]
   }
 }
