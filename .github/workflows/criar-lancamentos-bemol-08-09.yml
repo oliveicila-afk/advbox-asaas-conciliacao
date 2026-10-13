@@ -1,0 +1,125 @@
+name: Criar Lançamentos Bemol — 08/09/2026
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  criar-lancamentos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests -q
+
+      - name: Criar lançamentos Bemol no Advbox
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, requests, json
+
+          ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
+          TOKEN = os.environ["ADVBOX_TOKEN"].strip()
+
+          headers = {
+              "Authorization": f"Bearer {TOKEN}",
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+          }
+
+          # IDs fixos (mesmos usados nos outros scripts do projeto)
+          USER_ID        = 65747   # Priscila
+          CATEGORY_ID    = 1       # Categoria padrão
+          ASAAS_ACCOUNT  = 193264  # Conta ASAAS — OBRIGATÓRIO
+          COST_CENTER_ID = 60814   # Centro de custo padrão
+
+          # Os três fechamentos Bemol que formam os R$ 8.240,98 do dia 08/09
+          # Valores brutos (portal Bemol) com desconto de 6% aplicado
+          lancamentos = [
+              {
+                  "description": "Bemol — Ricardo Barros de Araújo | Fechamento 08/09/2026",
+                  "amount_bruto": 4000.00,
+                  "data": "2026-09-08",
+              },
+              {
+                  "description": "Bemol — Maria Hozana da Silva Matisui | Fechamento 08/09/2026",
+                  "amount_bruto": 4240.00,
+                  "data": "2026-09-08",
+              },
+              {
+                  "description": "Bemol — Flávia Pinheiro de Barros | Fechamento 08/09/2026",
+                  "amount_bruto": 527.00,
+                  "data": "2026-09-08",
+              },
+          ]
+
+          resultados = []
+          total_criado = 0.0
+
+          for item in lancamentos:
+              valor_liquido = round(item["amount_bruto"] * 0.94, 2)
+              payload = {
+                  "amount":        f"{valor_liquido:.2f}".replace(".", ","),
+                  "date_due":      item["data"],
+                  "date_payment":  item["data"],
+                  "description":   item["description"],
+                  "entry_type":    "credit",
+                  "users_id":      USER_ID,
+                  "categories_id": CATEGORY_ID,
+                  "debit_account": ASAAS_ACCOUNT,
+                  "cost_centers_id": COST_CENTER_ID,
+              }
+
+              resp = requests.post(
+                  f"{ADVBOX_BASE}/transactions",
+                  headers=headers,
+                  json=payload,
+                  timeout=30
+              )
+
+              ok = resp.status_code in (200, 201)
+              resultado = {
+                  "description":  item["description"],
+                  "bruto":        item["amount_bruto"],
+                  "liquido":      valor_liquido,
+                  "status_http":  resp.status_code,
+                  "ok":           ok,
+                  "body":         resp.text[:300]
+              }
+              resultados.append(resultado)
+
+              if ok:
+                  total_criado += valor_liquido
+                  print(f"  ✅ {item['description'][:50]} | R$ {valor_liquido:.2f}")
+              else:
+                  print(f"  ❌ {item['description'][:50]} | HTTP {resp.status_code} | {resp.text[:200]}")
+
+          print(f"\n💰 Total criado: R$ {total_criado:.2f}")
+          print(f"🎯 Esperado:     R$ 8240.98")
+          print(f"{'✅ OK' if round(total_criado, 2) == 8240.98 else '⚠️ DIVERGÊNCIA'}")
+
+          with open("bemol_lancamentos_resultado.json", "w") as f:
+              json.dump({
+                  "data_referencia": "2026-09-08",
+                  "total_criado": total_criado,
+                  "esperado": 8240.98,
+                  "conciliado": round(total_criado, 2) == 8240.98,
+                  "lancamentos": resultados
+              }, f, indent=2, ensure_ascii=False)
+          PY
+
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f bemol_lancamentos_resultado.json
+          git diff --cached --quiet || git commit -m "Lançamentos Bemol 08/09/2026 criados no Advbox"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
