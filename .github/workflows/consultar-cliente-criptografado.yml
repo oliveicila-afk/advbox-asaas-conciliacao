@@ -1,0 +1,80 @@
+name: Consultar cliente no Advbox (resultado criptografado)
+
+on:
+  workflow_dispatch:
+    inputs:
+      transaction_id:
+        description: "ID do lançamento no Advbox"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Ler lançamento, processos e tarefas (sem imprimir dados)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TX_ID: ${{ github.event.inputs.transaction_id }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          B = "https://app.advbox.com.br/api/v1"
+          H = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          def norm(n):
+              n = unicodedata.normalize("NFKD", str(n or "")).encode("ascii", "ignore").decode()
+              return " ".join(n.upper().split())
+          def g(path, **p):
+              for _ in range(6):
+                  r = requests.get(B + path, headers=H, params=p, timeout=60)
+                  if r.status_code != 429: break
+                  time.sleep(30)
+              time.sleep(2.2)
+              try: body = r.json()
+              except Exception: body = {"texto": r.text[:300]}
+              return r.status_code, body
+          out = {}
+          s, tx = g(f"/transactions/{os.environ['TX_ID']}")
+          out["transacao"] = {"status": s, "dados": tx}
+          d = tx.get("data", tx) if isinstance(tx, dict) else {}
+          nome = d.get("name")
+          s, cs = g("/customers", name=nome, limit=20)
+          lista = cs.get("data", []) if isinstance(cs, dict) else []
+          ex = [c for c in lista if norm(c.get("name")) == norm(nome)] or lista[:1]
+          cid = ex[0]["id"] if ex else None
+          out["cliente_id"] = cid
+          lids = []
+          if cid:
+              s, ls = g("/lawsuits", customer_id=cid, limit=50)
+              out["processos"] = {"status": s, "dados": ls}
+              lids = [x["id"] for x in (ls.get("data", []) if isinstance(ls, dict) else [])][:6]
+          out["tarefas_posts"] = []
+          tentativas = ([{"customer_id": cid}] if cid else []) + [{"lawsuit_id": i} for i in lids]
+          for p in tentativas:
+              s, ps = g("/posts", limit=50, **p)
+              out["tarefas_posts"].append({"filtro": p, "status": s, "dados": ps})
+          json.dump(out, open("resultado.json", "w"), ensure_ascii=False)
+          print("ok: processos=%d, consultas_de_tarefas=%d" % (len(lids), len(out["tarefas_posts"])))
+          PY
+      - name: Criptografar (só quem tem a chave privada abre) e apagar o texto puro
+        run: |
+          openssl rand -hex 32 > k.txt
+          openssl enc -aes-256-cbc -pbkdf2 -in resultado.json -out consulta_cliente.enc -pass file:k.txt
+          openssl pkeyutl -encrypt -pubin -inkey chave_publica.pem -pkeyopt rsa_padding_mode:oaep -in k.txt -out consulta_cliente.key.enc
+          rm -f resultado.json k.txt
+      - name: Commit (somente arquivos criptografados)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f consulta_cliente.enc consulta_cliente.key.enc
+          git commit -m "Consulta criptografada" || exit 0
+          git pull --rebase origin main || true
+          git push
