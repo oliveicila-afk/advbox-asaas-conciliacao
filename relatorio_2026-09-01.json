@@ -1,34 +1,29 @@
 {
   "data": "2026-09-01",
-  "gerado_em": "2026-10-13T01:42:02.592832",
-  "status": "NAO_CONCILIADO",
+  "gerado_em": "2026-10-13T01:47:25.374468",
+  "status": "CONCILIADO",
   "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 13298.15,
-    "advbox": 12982.65,
-    "diferenca": 315.5
+    "advbox": 13298.15,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Simone V."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Viviane D. O. M."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "correcoes": {
-    "total_realizadas": 1,
+    "total_realizadas": 2,
     "detalhes": [
       {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 315.5
+        "tipo": "CREATE",
+        "valor": 248.5
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
       }
     ]
   }
