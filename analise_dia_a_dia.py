@@ -96,6 +96,43 @@ def unpay_advbox_transaction(tx_id, headers_advbox: dict) -> bool:
         return False
 
 
+
+GENERICAS = {"HONORÁRIOS INICIAIS", "HONORÁRIOS FINAIS", "HONORÁRIOS DE SUCUMBÊNCIA", "HONORÁRIOS POR MENSALIDADE"}
+
+def carregar_settings_advbox(headers_advbox):
+    """IDs de categorias e centros de custo (nome -> id). 1 chamada, guardada."""
+    if _SETTINGS:
+        return _SETTINGS
+    r = requests.get("https://app.advbox.com.br/api/v1/settings", headers=headers_advbox, timeout=30)
+    time.sleep(2.2)
+    f = r.json().get("financial", {}) if r.status_code == 200 else {}
+    _SETTINGS["cat"] = {c["category"]: c["id"] for c in f.get("categories", [])}
+    _SETTINGS["cc"] = {c["cost_center"]: c["id"] for c in f.get("cost_centers", [])}
+    return _SETTINGS
+
+def classificacao_por_precedente(nome, headers_advbox):
+    """Tese do cliente = categoria e centro de custo do lançamento anterior mais recente
+    do MESMO cliente (receita com categoria da tese, não a genérica)."""
+    alvo = norm_nome(nome)
+    if not alvo:
+        return None
+    cands = [t for t in _ADVBOX_RAW
+             if t.get("entry_type") == "income"
+             and norm_nome(t.get("name")) == alvo
+             and t.get("category") and t["category"] not in GENERICAS and "-" in t["category"]
+             and t.get("cost_center")]
+    if not cands:
+        return None
+    cands.sort(key=lambda t: t.get("date_payment") or t.get("date_due") or "", reverse=True)
+    ref = cands[0]
+    st = carregar_settings_advbox(headers_advbox)
+    cat_id = st["cat"].get(ref["category"])
+    cc_id = st["cc"].get(ref["cost_center"])
+    if not cat_id or not cc_id:
+        return None
+    return {"categories_id": cat_id, "cost_centers_id": cc_id,
+            "categoria": ref["category"], "centro_custo": ref["cost_center"]}
+
 def buscar_cliente_advbox(asaas_tx: dict, headers_advbox: dict):
     """Acha o cliente no Advbox pelo CPF/CNPJ (preferido) ou pelo nome exato."""
     try:
@@ -127,12 +164,19 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
             log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' não encontrado no Advbox - NÃO criado (precisa cadastrar o cliente)", True)
             return False
         description = asaas_tx.get("description") or "Pagamento Asaas"
+        classif = classificacao_por_precedente(asaas_tx.get("_nome"), headers_advbox)
+        if not classif:
+            log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' sem lançamento anterior com tese - NÃO criado (informar a tese)", True)
+            pendentes_sem_tese.append({"valor": round(float(asaas_tx.get("value", 0)), 2),
+                                       "cliente_asaas": mascara_nome(asaas_tx.get("_nome"))})
+            return False
+        log_msg(f"  Tese pelo precedente: {classif['categoria']} | {classif['centro_custo']}", True)
         payload = {
             "users_id": 65747,
             "entry_type": "income",
             "debit_account": 193264,
-            "categories_id": inferir_categoria(description),
-            "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
+            "categories_id": classif["categories_id"],
+            "cost_centers_id": classif["cost_centers_id"],
             "amount": f"{float(asaas_tx.get('value', 0)):.2f}".replace(".", ","),
             "date_due": TARGET_DATE,
             "date_payment": TARGET_DATE,
@@ -248,6 +292,9 @@ def fetch_asaas_transactions():
 
 
 _ADVBOX_CACHE = None
+_ADVBOX_RAW = []
+_SETTINGS = {}
+pendentes_sem_tese = []
 
 def fetch_advbox_transactions():
     """Busca Advbox (limite da API: 30 req/min -> espera entre páginas e repete em 429)"""
@@ -358,6 +405,8 @@ def _fetch_advbox_transactions():
     log_msg(f"  Raw: {len(all_raw)} | type!=income: {filter_counts['type_not_income']} | status!=paid: {filter_counts['status_not_paid']} | debit!=ASAAS: {filter_counts['debit_bank_not_asaas']} | date!=target: {filter_counts['date_mismatch']} | MANTIDAS: {filter_counts['kept']}", True)
     log_msg(f"[ADVBOX] TOTAL: {len(transactions)} transações", True)
 
+    global _ADVBOX_RAW
+    _ADVBOX_RAW = all_raw
     return transactions
 
 
@@ -533,6 +582,7 @@ report = {
         "diferenca": round(abs(total_asaas_final - total_advbox_final), 2),
     },
     "divergencias": divergencias_atuais,
+    "pendentes_sem_tese": pendentes_sem_tese,
     "correcoes": {
         "total_realizadas": len(all_corrections),
         "detalhes": [
