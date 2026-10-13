@@ -533,6 +533,40 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             matched.append((a_tx, restantes_adv.pop(achou), v))
     sobra_asaas = sobra_asaas2
 
+    # Passo 1c: pagadores intermediários Bemol/BMP — a Bemol processa pagamentos de clientes
+    # e aparece no Asaas como pagador (CNPJ Bemol 35.410.271/0001-08 ou BMP 34.337.707/0001-00).
+    # O lançamento no Advbox já deve estar atribuído ao cliente contratante, não à Bemol.
+    # Aceitar como conciliado se: CNPJ Asaas é Bemol/BMP e existe lançamento Advbox com mesmo valor
+    # em QUALQUER categoria de honorários (iniciais, êxito ou sucumbência).
+    CNPJS_BEMOL = ("35410271000108", "34337707000100")  # Bemol + BMP (crédito Bemol)
+    CATS_HONORARIOS = ("HONOR", "EXITO", "ÊXITO", "SUCUMB", "INICIAL", "FINAL")
+    sobra_asaas3 = []
+    for a_tx in sobra_asaas:
+        cpf_raw = (a_tx.get("_cpf") or "").replace(".", "").replace("-", "").replace("/", "")
+        eh_bemol = cpf_raw in CNPJS_BEMOL
+        if not eh_bemol:
+            sobra_asaas3.append(a_tx)
+            continue
+        v = round(float(a_tx.get("value", 0)), 2)
+        # Buscar lançamento Advbox com mesmo valor e categoria de honorários
+        achou = None
+        for i, b_tx in enumerate(restantes_adv):
+            if val_adv(b_tx) == v:
+                cat = str(b_tx.get("category_name") or b_tx.get("category") or "").upper()
+                if any(c in cat for c in CATS_HONORARIOS) or cat == "":
+                    achou = i
+                    break
+        if achou is None:
+            # Tentar match só por valor (sem restrição de categoria) como fallback
+            achou = next((i for i, b_tx in enumerate(restantes_adv) if val_adv(b_tx) == v), None)
+        if achou is None:
+            sobra_asaas3.append(a_tx)
+        else:
+            n_bemol = mascara_nome(a_tx.get("_nome"))
+            log_msg(f"  ✅ Pagador Bemol/BMP ({n_bemol}) aceito como conciliado por valor R${v}", True)
+            matched.append((a_tx, restantes_adv.pop(achou), v))
+    sobra_asaas = sobra_asaas3
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
