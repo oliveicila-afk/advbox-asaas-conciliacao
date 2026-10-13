@@ -1,0 +1,702 @@
+[
+  {
+    "valor": -248.5,
+    "nome_completo": "SIMONE VILLANOVA",
+    "doc": "***.***.506-04",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 907869053 SIMONE VILLANOVA"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "SIMONE VILLANOVA",
+    "doc": "***.***.506-04",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 907869053 SIMONE VILLANOVA"
+  },
+  {
+    "valor": -67.0,
+    "nome_completo": "ELIANE DE PAULA ALVES",
+    "doc": "***.***.402-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906896625 ELIANE DE PAULA ALVES"
+  },
+  {
+    "valor": 67.0,
+    "nome_completo": "ELIANE DE PAULA ALVES",
+    "doc": "***.***.402-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906896625 ELIANE DE PAULA ALVES"
+  },
+  {
+    "valor": -160.8,
+    "nome_completo": "LEONOR BENFICA WINK",
+    "doc": "***.***.952-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906669898 LEONOR BENFICA WINK"
+  },
+  {
+    "valor": 160.8,
+    "nome_completo": "LEONOR BENFICA WINK",
+    "doc": "***.***.952-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906669898 LEONOR BENFICA WINK"
+  },
+  {
+    "valor": -500.0,
+    "nome_completo": "OMAR DOS ANJOS SILVA",
+    "doc": "***.***.468-20",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906667116 OMAR DOS ANJOS SILVA"
+  },
+  {
+    "valor": 500.0,
+    "nome_completo": "OMAR DOS ANJOS SILVA",
+    "doc": "***.***.468-20",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906667116 OMAR DOS ANJOS SILVA"
+  },
+  {
+    "valor": -100.0,
+    "nome_completo": "MARIA DO SOCORRO BARBOSA DOS SANTOS",
+    "doc": "***.***.452-49",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906661784 MARIA DO SOCORRO BARBOSA DOS SANTOS"
+  },
+  {
+    "valor": 100.0,
+    "nome_completo": "MARIA DO SOCORRO BARBOSA DOS SANTOS",
+    "doc": "***.***.452-49",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906661784 MARIA DO SOCORRO BARBOSA DOS SANTOS"
+  },
+  {
+    "valor": -67.0,
+    "nome_completo": "JOSÉ RIBAMAR SIQUEIRA DA CRUZ",
+    "doc": "***.***.652-34",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906653781 JOSÉ RIBAMAR SIQUEIRA DA CRUZ"
+  },
+  {
+    "valor": 67.0,
+    "nome_completo": "JOSÉ RIBAMAR SIQUEIRA DA CRUZ",
+    "doc": "***.***.652-34",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906653781 JOSÉ RIBAMAR SIQUEIRA DA CRUZ"
+  },
+  {
+    "valor": -187.5,
+    "nome_completo": "JACIRENE MARTINS PENA",
+    "doc": "***.***.352-49",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906125360 JACIRENE MARTINS PENA"
+  },
+  {
+    "valor": 187.5,
+    "nome_completo": "JACIRENE MARTINS PENA",
+    "doc": "***.***.352-49",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906125360 JACIRENE MARTINS PENA"
+  },
+  {
+    "valor": -248.5,
+    "nome_completo": "ESTER FIGUEIREDO ARAUJO",
+    "doc": "***.***.772-20",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 906103434 ESTER FIGUEIREDO ARAUJO"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "ESTER FIGUEIREDO ARAUJO",
+    "doc": "***.***.772-20",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 906103434 ESTER FIGUEIREDO ARAUJO"
+  },
+  {
+    "valor": -125.0,
+    "nome_completo": "RODRIGO FERNANDES DE OLIVEIRA",
+    "doc": "***.***.667-11",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 905624095 RODRIGO FERNANDES DE OLIVEIRA"
+  },
+  {
+    "valor": 125.0,
+    "nome_completo": "RODRIGO FERNANDES DE OLIVEIRA",
+    "doc": "***.***.667-11",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 905624095 RODRIGO FERNANDES DE OLIVEIRA"
+  },
+  {
+    "valor": -250.0,
+    "nome_completo": "FABIO AMAZONAS MASSULO",
+    "doc": "***.***.622-04",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 905623677 FABIO AMAZONAS MASSULO"
+  },
+  {
+    "valor": 250.0,
+    "nome_completo": "FABIO AMAZONAS MASSULO",
+    "doc": "***.***.622-04",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 905623677 FABIO AMAZONAS MASSULO"
+  },
+  {
+    "valor": -129.9,
+    "nome_completo": "EVANGELINA FERREIRA",
+    "doc": "***.***.582-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 905623414 EVANGELINA FERREIRA"
+  },
+  {
+    "valor": 129.9,
+    "nome_completo": "EVANGELINA FERREIRA",
+    "doc": "***.***.582-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 905623414 EVANGELINA FERREIRA"
+  },
+  {
+    "valor": -248.5,
+    "nome_completo": "RAIMUNDO BECKMAN DA SILVA NUNES",
+    "doc": "***.***.552-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 905270513 RAIMUNDO BECKMAN DA SILVA NUNES"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "RAIMUNDO BECKMAN DA SILVA NUNES",
+    "doc": "***.***.552-91",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 905270513 RAIMUNDO BECKMAN DA SILVA NUNES"
+  },
+  {
+    "valor": -100.5,
+    "nome_completo": "CARLOS ALBERTO DOS SANTOS FERREIRA",
+    "doc": "***.***.272-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 904531587 CARLOS ALBERTO DOS SANTOS FERREIRA"
+  },
+  {
+    "valor": 100.5,
+    "nome_completo": "CARLOS ALBERTO DOS SANTOS FERREIRA",
+    "doc": "***.***.272-91",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 904531587 CARLOS ALBERTO DOS SANTOS FERREIRA"
+  },
+  {
+    "valor": -100.5,
+    "nome_completo": "MARINETE GERALDA DA SILVA",
+    "doc": "***.***.982-00",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 904531266 MARINETE GERALDA DA SILVA"
+  },
+  {
+    "valor": 100.5,
+    "nome_completo": "MARINETE GERALDA DA SILVA",
+    "doc": "***.***.982-00",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 904531266 MARINETE GERALDA DA SILVA"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "JEMIMA CARDOSO DE SOUSA",
+    "doc": "***.***.102-68",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 933646856 JEMIMA CARDOSO DE SOUSA"
+  },
+  {
+    "valor": 497.0,
+    "nome_completo": "JEMIMA CARDOSO DE SOUSA",
+    "doc": "***.***.102-68",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 933646856 JEMIMA CARDOSO DE SOUSA"
+  },
+  {
+    "valor": -685.0,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com QR Code para BARCELOS CONTABIL LTDA"
+  },
+  {
+    "valor": -189.83,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "BILL_PAYMENT",
+    "descricao": "Pagamento de conta"
+  },
+  {
+    "valor": -99.9,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com QR Code para CLARO S A"
+  },
+  {
+    "valor": -149.99,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com QR Code para TIM S A"
+  },
+  {
+    "valor": -44284.56,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com dados manuais para Thiago Calandrini De Oliveira Dos Anjos"
+  },
+  {
+    "valor": 44174.56,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "PIX_TRANSACTION_DEBIT_REFUND",
+    "descricao": "Estorno de transação via Pix"
+  },
+  {
+    "valor": -399.0,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "BILL_PAYMENT",
+    "descricao": "Pagamento de conta"
+  },
+  {
+    "valor": -44174.56,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com dados manuais para Thiago Calandrini De Oliveira Dos Anjos"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "RUTH VIEIRA LIMA",
+    "doc": "***.***.772-49",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de boleto - fatura nr. 699051167 RUTH VIEIRA LIMA"
+  },
+  {
+    "valor": 679.66,
+    "nome_completo": "RUTH VIEIRA LIMA",
+    "doc": "***.***.772-49",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 699051167 RUTH VIEIRA LIMA"
+  },
+  {
+    "valor": -0.55,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "INSTANT_TEXT_MESSAGE_FEE",
+    "descricao": "Taxa de notificação por WhatsApp da cobrança 893812497 Associação dos Administrativos da Educação do"
+  },
+  {
+    "valor": -2.42,
+    "nome_completo": "JACIRENE MARTINS PENA",
+    "doc": "***.***.352-49",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 932660495 JACIRENE MARTINS PENA"
+  },
+  {
+    "valor": -6.09,
+    "nome_completo": "JACIRENE MARTINS PENA",
+    "doc": "***.***.352-49",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 932660495 JACIRENE MARTINS PENA"
+  },
+  {
+    "valor": 187.5,
+    "nome_completo": "JACIRENE MARTINS PENA",
+    "doc": "***.***.352-49",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 932660495 JACIRENE MARTINS PENA"
+  },
+  {
+    "valor": -3.21,
+    "nome_completo": "ESTER FIGUEIREDO ARAUJO",
+    "doc": "***.***.772-20",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 932660386 ESTER FIGUEIREDO ARAUJO"
+  },
+  {
+    "valor": -7.92,
+    "nome_completo": "ESTER FIGUEIREDO ARAUJO",
+    "doc": "***.***.772-20",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 932660386 ESTER FIGUEIREDO ARAUJO"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "ESTER FIGUEIREDO ARAUJO",
+    "doc": "***.***.772-20",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 932660386 ESTER FIGUEIREDO ARAUJO"
+  },
+  {
+    "valor": -1.61,
+    "nome_completo": "RODRIGO FERNANDES DE OLIVEIRA",
+    "doc": "***.***.667-11",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 932659611 RODRIGO FERNANDES DE OLIVEIRA"
+  },
+  {
+    "valor": -4.22,
+    "nome_completo": "RODRIGO FERNANDES DE OLIVEIRA",
+    "doc": "***.***.667-11",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 932659611 RODRIGO FERNANDES DE OLIVEIRA"
+  },
+  {
+    "valor": 125.0,
+    "nome_completo": "RODRIGO FERNANDES DE OLIVEIRA",
+    "doc": "***.***.667-11",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 932659611 RODRIGO FERNANDES DE OLIVEIRA"
+  },
+  {
+    "valor": -3.23,
+    "nome_completo": "FABIO AMAZONAS MASSULO",
+    "doc": "***.***.622-04",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 932659106 FABIO AMAZONAS MASSULO"
+  },
+  {
+    "valor": -7.96,
+    "nome_completo": "FABIO AMAZONAS MASSULO",
+    "doc": "***.***.622-04",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 932659106 FABIO AMAZONAS MASSULO"
+  },
+  {
+    "valor": 250.0,
+    "nome_completo": "FABIO AMAZONAS MASSULO",
+    "doc": "***.***.622-04",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 932659106 FABIO AMAZONAS MASSULO"
+  },
+  {
+    "valor": -1.67,
+    "nome_completo": "EVANGELINA FERREIRA",
+    "doc": "***.***.582-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 932658929 EVANGELINA FERREIRA"
+  },
+  {
+    "valor": -4.37,
+    "nome_completo": "EVANGELINA FERREIRA",
+    "doc": "***.***.582-15",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 932658929 EVANGELINA FERREIRA"
+  },
+  {
+    "valor": 129.9,
+    "nome_completo": "EVANGELINA FERREIRA",
+    "doc": "***.***.582-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 932658929 EVANGELINA FERREIRA"
+  },
+  {
+    "valor": 4363.11,
+    "nome_completo": "Caixa Economica Federal",
+    "doc": "00360305000104",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "TED recebida - fatura nr. 932787371 Caixa Economica Federal"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "TALYSO WELISSON FALCAO OLIVEIRA",
+    "doc": "***.***.032-02",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 836241768 TALYSO WELISSON FALCAO OLIVEIRA"
+  },
+  {
+    "valor": 892.04,
+    "nome_completo": "TALYSO WELISSON FALCAO OLIVEIRA",
+    "doc": "***.***.032-02",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 836241768 TALYSO WELISSON FALCAO OLIVEIRA"
+  },
+  {
+    "valor": -248.5,
+    "nome_completo": "WANESSA REIS FILGUEIRAS",
+    "doc": "***.***.232-34",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 904034277 WANESSA REIS FILGUEIRAS"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "WANESSA REIS FILGUEIRAS",
+    "doc": "***.***.232-34",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 904034277 WANESSA REIS FILGUEIRAS"
+  },
+  {
+    "valor": -248.5,
+    "nome_completo": "RUTINEY AUGUSTA DE SOUZA",
+    "doc": "***.***.122-00",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 903996797 RUTINEY AUGUSTA DE SOUZA"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "RUTINEY AUGUSTA DE SOUZA",
+    "doc": "***.***.122-00",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 903996797 RUTINEY AUGUSTA DE SOUZA"
+  },
+  {
+    "valor": -282.99,
+    "nome_completo": "ANANDA MACIEL MAFRA",
+    "doc": "***.***.482-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 903996176 ANANDA MACIEL MAFRA"
+  },
+  {
+    "valor": 282.99,
+    "nome_completo": "ANANDA MACIEL MAFRA",
+    "doc": "***.***.482-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 903996176 ANANDA MACIEL MAFRA"
+  },
+  {
+    "valor": -67.0,
+    "nome_completo": "Maria Janete Xavier Pacheco",
+    "doc": "***.***.072-49",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 660725059 Maria Janete Xavier Pacheco"
+  },
+  {
+    "valor": 67.0,
+    "nome_completo": "Maria Janete Xavier Pacheco",
+    "doc": "***.***.072-49",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 660725059 Maria Janete Xavier Pacheco. Nota fiscal nr. 856"
+  },
+  {
+    "valor": -1360.0,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "TRANSFER",
+    "descricao": "Transação via Pix com chave para GUILHERME DOS SANTOS GIMACK"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "ALFREDO JACAUNA PINHEIRO NETO",
+    "doc": "***.***.802-63",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de boleto - fatura nr. 772040397 ALFREDO JACAUNA PINHEIRO NETO"
+  },
+  {
+    "valor": 661.37,
+    "nome_completo": "ALFREDO JACAUNA PINHEIRO NETO",
+    "doc": "***.***.802-63",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 772040397 ALFREDO JACAUNA PINHEIRO NETO"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "MIGUEL LUCIO BARBOSA CARMIN",
+    "doc": "***.***.542-91",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 720923709 MIGUEL LUCIO BARBOSA CARMIN"
+  },
+  {
+    "valor": 67.0,
+    "nome_completo": "MIGUEL LUCIO BARBOSA CARMIN",
+    "doc": "***.***.542-91",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 720923709 MIGUEL LUCIO BARBOSA CARMIN"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "IGELVANIS DE SOUSA FILHA",
+    "doc": "***.***.662-15",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 931957287 IGELVANIS DE SOUSA FILHA"
+  },
+  {
+    "valor": 581.38,
+    "nome_completo": "IGELVANIS DE SOUSA FILHA",
+    "doc": "***.***.662-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 931957287 IGELVANIS DE SOUSA FILHA"
+  },
+  {
+    "valor": -3.21,
+    "nome_completo": "RAIMUNDO BECKMAN DA SILVA NUNES",
+    "doc": "***.***.552-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 931692017 RAIMUNDO BECKMAN DA SILVA NUNES"
+  },
+  {
+    "valor": -7.92,
+    "nome_completo": "RAIMUNDO BECKMAN DA SILVA NUNES",
+    "doc": "***.***.552-91",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 931692017 RAIMUNDO BECKMAN DA SILVA NUNES"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "RAIMUNDO BECKMAN DA SILVA NUNES",
+    "doc": "***.***.552-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 931692017 RAIMUNDO BECKMAN DA SILVA NUNES"
+  },
+  {
+    "valor": -1.29,
+    "nome_completo": "CARLOS ALBERTO DOS SANTOS FERREIRA",
+    "doc": "***.***.272-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 931691508 CARLOS ALBERTO DOS SANTOS FERREIRA"
+  },
+  {
+    "valor": -3.49,
+    "nome_completo": "CARLOS ALBERTO DOS SANTOS FERREIRA",
+    "doc": "***.***.272-91",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 931691508 CARLOS ALBERTO DOS SANTOS FERREIRA"
+  },
+  {
+    "valor": 100.5,
+    "nome_completo": "CARLOS ALBERTO DOS SANTOS FERREIRA",
+    "doc": "***.***.272-91",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 931691508 CARLOS ALBERTO DOS SANTOS FERREIRA"
+  },
+  {
+    "valor": -1.29,
+    "nome_completo": "MARINETE GERALDA DA SILVA",
+    "doc": "***.***.982-00",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 931691266 MARINETE GERALDA DA SILVA"
+  },
+  {
+    "valor": -3.49,
+    "nome_completo": "MARINETE GERALDA DA SILVA",
+    "doc": "***.***.982-00",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 931691266 MARINETE GERALDA DA SILVA"
+  },
+  {
+    "valor": 100.5,
+    "nome_completo": "MARINETE GERALDA DA SILVA",
+    "doc": "***.***.982-00",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 931691266 MARINETE GERALDA DA SILVA"
+  },
+  {
+    "valor": -3.73,
+    "nome_completo": "BRUNO DOS SANTOS SOUZA",
+    "doc": "***.***.658-98",
+    "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+    "descricao": "Taxa de antecipação - fatura nr. 931689829 BRUNO DOS SANTOS SOUZA"
+  },
+  {
+    "valor": -9.13,
+    "nome_completo": "BRUNO DOS SANTOS SOUZA",
+    "doc": "***.***.658-98",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa de cartão - fatura nr. 931689829 BRUNO DOS SANTOS SOUZA"
+  },
+  {
+    "valor": 289.17,
+    "nome_completo": "BRUNO DOS SANTOS SOUZA",
+    "doc": "***.***.658-98",
+    "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+    "descricao": "Antecipação - fatura nr. 931689829 BRUNO DOS SANTOS SOUZA"
+  },
+  {
+    "valor": -0.55,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "INSTANT_TEXT_MESSAGE_FEE",
+    "descricao": "Taxa de notificação por WhatsApp da cobrança 893812497 Associação dos Administrativos da Educação do"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "ROGER ROBSON BATISTA CARVALHO",
+    "doc": "***.***.332-20",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 852080842 ROGER ROBSON BATISTA CARVALHO"
+  },
+  {
+    "valor": 214.52,
+    "nome_completo": "ROGER ROBSON BATISTA CARVALHO",
+    "doc": "***.***.332-20",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 852080842 ROGER ROBSON BATISTA CARVALHO"
+  },
+  {
+    "valor": -0.55,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "INSTANT_TEXT_MESSAGE_FEE",
+    "descricao": "Taxa de notificação por WhatsApp da cobrança 650559237 Walquimar Vilaça Batista Borges"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "Walquimar Vilaça Batista Borges",
+    "doc": "***.***.142-91",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 650559237 Walquimar Vilaça Batista Borges"
+  },
+  {
+    "valor": 73.87,
+    "nome_completo": "Walquimar Vilaça Batista Borges",
+    "doc": "***.***.142-91",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 650559237 Walquimar Vilaça Batista Borges. Nota fiscal nr. 830"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "ROBERTO ANTUNES DA SILVA",
+    "doc": "***.***.432-20",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 859293322 ROBERTO ANTUNES DA SILVA"
+  },
+  {
+    "valor": 35.0,
+    "nome_completo": "ROBERTO ANTUNES DA SILVA",
+    "doc": "***.***.432-20",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 859293322 ROBERTO ANTUNES DA SILVA"
+  },
+  {
+    "valor": -0.49,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "INVOICE_FEE",
+    "descricao": "Taxa de emissão da nota fiscal de serviço nr. 406 - Caixa Economica Federal"
+  },
+  {
+    "valor": -0.49,
+    "nome_completo": "",
+    "doc": "",
+    "tipo": "INVOICE_FEE",
+    "descricao": "Taxa de emissão da nota fiscal de serviço nr. 405 - Caixa Economica Federal"
+  },
+  {
+    "valor": -248.5,
+    "nome_completo": "SONIA MARIA BATISTA MONTEFUSCO",
+    "doc": "***.***.092-15",
+    "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+    "descricao": "Baixa da antecipação - fatura nr. 903523043 SONIA MARIA BATISTA MONTEFUSCO"
+  },
+  {
+    "valor": 248.5,
+    "nome_completo": "SONIA MARIA BATISTA MONTEFUSCO",
+    "doc": "***.***.092-15",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 903523043 SONIA MARIA BATISTA MONTEFUSCO"
+  },
+  {
+    "valor": -1.99,
+    "nome_completo": "VANDERLEY LOPES DA SILVA",
+    "doc": "***.***.672-49",
+    "tipo": "PAYMENT_FEE",
+    "descricao": "Taxa do Pix - fatura nr. 870183120 VANDERLEY LOPES DA SILVA"
+  },
+  {
+    "valor": 1000.0,
+    "nome_completo": "VANDERLEY LOPES DA SILVA",
+    "doc": "***.***.672-49",
+    "tipo": "PAYMENT_RECEIVED",
+    "descricao": "Cobrança recebida - fatura nr. 870183120 VANDERLEY LOPES DA SILVA"
+  }
+]
