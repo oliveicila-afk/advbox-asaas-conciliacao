@@ -1,6 +1,14 @@
 [
  {
   "id": "pay_2ymjzm629v3yp9eg",
+  "estornos": [
+   {
+    "status": "DONE",
+    "value": 374.25,
+    "dateCreated": "2026-09-15 16:03:44",
+    "endToEndIdentifier": null
+   }
+  ],
   "fatura_nr": "904531355",
   "cliente_iniciais": "E B D C",
   "value": 374.25,
@@ -20,6 +28,14 @@
  },
  {
   "id": "pay_s2yomd13v4xq4viu",
+  "estornos": [
+   {
+    "status": "DONE",
+    "value": 374.25,
+    "dateCreated": "2026-09-15 16:03:31",
+    "endToEndIdentifier": null
+   }
+  ],
   "fatura_nr": "878442693",
   "cliente_iniciais": "E B D C",
   "value": 374.25,
