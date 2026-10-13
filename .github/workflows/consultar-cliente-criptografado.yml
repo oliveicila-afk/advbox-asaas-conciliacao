@@ -45,19 +45,18 @@ jobs:
           s, tx = g(f"/transactions/{os.environ['TX_ID']}")
           out["transacao"] = {"status": s, "dados": tx}
           d = tx.get("data", tx) if isinstance(tx, dict) else {}
-          nome = d.get("name")
-          s, cs = g("/customers", name=nome, limit=20)
-          lista = cs.get("data", []) if isinstance(cs, dict) else []
-          ex = [c for c in lista if norm(c.get("name")) == norm(nome)] or lista[:1]
-          cid = ex[0]["id"] if ex else None
+          cid = d.get("customers_id")
           out["cliente_id"] = cid
           lids = []
           if cid:
               s, ls = g("/lawsuits", customer_id=cid, limit=50)
               out["processos"] = {"status": s, "dados": ls}
               lids = [x["id"] for x in (ls.get("data", []) if isinstance(ls, dict) else [])][:6]
+              s, cu = g(f"/customers/{cid}")
+              out["cliente"] = {"status": s, "dados": cu}
           out["tarefas_posts"] = []
-          tentativas = ([{"customer_id": cid}] if cid else []) + [{"lawsuit_id": i} for i in lids]
+          # o filtro de tarefas por cliente não funcionou; tenta por processo (campos: lawsuits_id)
+          tentativas = [{"lawsuits_id": i} for i in lids[:3]] + [{"lawsuit_id": i} for i in lids[:1]]
           for p in tentativas:
               s, ps = g("/posts", limit=50, **p)
               out["tarefas_posts"].append({"filtro": p, "status": s, "dados": ps})
