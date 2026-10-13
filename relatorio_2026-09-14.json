@@ -1,27 +1,27 @@
 {
   "data": "2026-09-14",
-  "gerado_em": "2026-10-13T13:13:10.978226",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T14:04:56.004902",
+  "status": "CONCILIADO",
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 27161.66,
-    "advbox": 27094.66,
-    "diferenca": 67.0
+    "advbox": 27161.66,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Ana C. D. S. M."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 1,
+    "detalhes": [
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      }
+    ]
   }
 }
