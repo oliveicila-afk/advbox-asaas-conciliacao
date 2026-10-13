@@ -1,0 +1,112 @@
+name: Ler tarefas financeiras do Advbox (somente leitura, sem nomes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      inicio:
+        description: "Data inicial das tarefas YYYY-MM-DD"
+        required: true
+        default: "2026-09-10"
+      fim:
+        description: "Data final das tarefas YYYY-MM-DD"
+        required: true
+        default: "2026-09-21"
+
+permissions:
+  contents: write
+
+jobs:
+  ler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Ler tarefas (/posts) e extrair só o necessário
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          INICIO: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+        run: |
+          python3 - <<'PY'
+          import os, re, time, json, unicodedata, requests
+          from collections import Counter
+
+          ini, fim = os.environ["INICIO"], os.environ["FIM"]
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+
+          def iniciais(s):
+              s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+              return " ".join(p[0] for p in s.upper().split() if p) or "-"
+
+          posts, offset = [], 0
+          while True:
+              for _ in range(6):
+                  r = requests.get("https://app.advbox.com.br/api/v1/posts", headers=h,
+                                   params={"limit": 1000, "offset": offset}, timeout=90)
+                  if r.status_code != 429:
+                      break
+                  time.sleep(30)
+              time.sleep(2.2)
+              if r.status_code != 200:
+                  print("ERRO", r.status_code, r.text[:200]); break
+              b = r.json().get("data", [])
+              posts.extend(b)
+              if len(b) < 1000:
+                  break
+              offset += 1000
+          print("posts lidos:", len(posts))
+
+          def no_periodo(p):
+              for k in ("date", "created_at", "date_deadline"):
+                  v = str(p.get(k) or "")[:10]
+                  if ini <= v <= fim:
+                      return True
+              return False
+
+          sel = [p for p in posts if no_periodo(p)]
+          print("no período:", len(sel))
+          titulos = Counter(str(p.get("task") or "")[:80] for p in sel)
+
+          money = re.compile(r"R?\$?\s?\d{1,3}(?:\.\d{3})*,\d{2}|\d{1,3}(?:\.\d{3})+|\b\d{3,6}\b")
+          kw = ("ENTRADA", "ÊXITO", "EXITO", "SUCUMB", "ALVAR", "CAIXA", "CEF", "REPASSE", "HONOR", "INICIAL", "TESE", "BEMOL")
+          itens = []
+          for p in sel:
+              titulo = str(p.get("task") or "")
+              notas = str(p.get("notes") or "")
+              if not (re.search(r"financeir|fechamento|alvar|caixa|honor|êxito|exito|pagamento", titulo, re.I)
+                      or re.search(r"caixa|cef|alvar|êxito|exito|sucumb|entrada|repasse", notas, re.I)):
+                  continue
+              lw = p.get("lawsuit") or {}
+              clientes = []
+              if isinstance(lw, dict):
+                  for c in (lw.get("customers") or []):
+                      if isinstance(c, dict):
+                          clientes.append(iniciais(c.get("name")))
+              trechos = []
+              up = notas.upper()
+              for k in kw:
+                  for m in re.finditer(re.escape(k), up):
+                      a, z = max(0, m.start() - 40), min(len(notas), m.end() + 60)
+                      t = re.sub(r"\d{3}\.\d{3}\.\d{3}-\d{2}|\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}", "[doc]", notas[a:z])
+                      trechos.append(re.sub(r"\s+", " ", t)); break
+              itens.append({"id": p.get("id"), "date": str(p.get("date") or "")[:10],
+                            "criado": str(p.get("created_at") or "")[:10], "titulo": titulo[:120],
+                            "lawsuits_id": p.get("lawsuits_id"), "clientes": clientes,
+                            "valores_nas_notas": money.findall(notas)[:12], "trechos": trechos[:4]})
+          json.dump({"periodo": [ini, fim], "titulos": titulos.most_common(80), "tarefas": itens,
+                     "chaves_lawsuit": sorted((sel[0].get("lawsuit") or {}).keys()) if sel else []},
+                    open("tarefas_financeiras.json", "w"), ensure_ascii=False, indent=1)
+          print("tarefas financeiras extraídas:", len(itens))
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f tarefas_financeiras.json
+          git diff --cached --quiet || git commit -m "Tarefas financeiras do Advbox ${{ github.event.inputs.inicio }} a ${{ github.event.inputs.fim }}"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
