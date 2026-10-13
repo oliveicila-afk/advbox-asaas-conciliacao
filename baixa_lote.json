@@ -1,0 +1,25 @@
+[
+ {
+  "modelo_categoria": "HONOR\u00c1RIOS CONTRATUAIS INICIAIS-PEDAGOGO 1/3 F\u00c9RIAS"
+ },
+ {
+  "id": "11446339",
+  "antes": "2026-10-13",
+  "http": 200,
+  "resp": "{\"success\":true,\"lawsuits_id\":\"11446339\"}",
+  "enviado": {
+   "entry_type": "income",
+   "users_id": 65747,
+   "debit_account": 193264,
+   "categories_id": 70072,
+   "cost_centers_id": 6285,
+   "customers_id": 12380177,
+   "lawsuits_id": 11611075,
+   "amount": "67,00",
+   "date_due": "2026-09-10",
+   "date_payment": "2026-09-10"
+  },
+  "depois": "2026-09-10",
+  "banco": "ASAAS"
+ }
+]
