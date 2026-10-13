@@ -3,3 +3,6 @@ job_id.txt
 relatorio_*.json
 debug_*.log
 artifact.zip
+
+debug_*.log
+advbox_all_*.json
