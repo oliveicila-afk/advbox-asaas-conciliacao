@@ -749,6 +749,34 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
                 jud.remove(x)
                 matched.append((x, b_tx, round(float(x.get("value", 0)), 2)))
 
+    # Passo 1g: recebimento do Asaas sem par no dia, mas o lançamento certo JÁ EXISTE no Advbox
+    # (mesmo cliente, mesmo valor, vencimento = dia) com a data de pagamento errada ou sem baixa.
+    # Em vez de criar duplicado, corrige a data de pagamento para o dia do recebimento.
+    corrigir_datas = []
+    ids_usados = {str(b.get("id")) for _, b, _ in matched}
+    sobra_asaas6 = []
+    for a_tx in sobra_asaas:
+        v = round(float(a_tx.get("value", 0)), 2)
+        n = norm_nome(a_tx.get("_nome"))
+        cand = None
+        if n:
+            for t in _ADVBOX_RAW:
+                if (t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
+                        and norm_nome(t.get("name")) == n and val_adv(t) == v
+                        and str(t.get("date_due") or "")[:10] == TARGET_DATE
+                        and str(t.get("date_payment") or "")[:10] != TARGET_DATE
+                        and str(t.get("id")) not in ids_usados):
+                    cand = t
+                    break
+        if cand is None:
+            sobra_asaas6.append(a_tx)
+        else:
+            log_msg(f"  🔧 Lançamento {cand.get('id')} (R${v}) já existe com data de pagamento diferente - será corrigida para {TARGET_DATE}", True)
+            ids_usados.add(str(cand.get("id")))
+            corrigir_datas.append((cand, v))
+            matched.append((a_tx, cand, v))
+    sobra_asaas = sobra_asaas6
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
@@ -786,6 +814,17 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
             if tx_id:
                 if unpay_advbox_transaction(tx_id, headers_advbox):
                     all_corrections.append(("DESMARCAR_PAGAMENTO", valor))
+
+    if corrigir_datas and not DRY_RUN:
+        log_msg(f"\n[CORRIGINDO] Ajustando data de pagamento de {len(corrigir_datas)} lançamento(s) existente(s)...", True)
+        for cand, v in corrigir_datas:
+            rr = requests.put(f"https://app.advbox.com.br/api/v1/transactions/{cand.get('id')}",
+                              headers={**headers_advbox, "Content-Type": "application/json"},
+                              json={"date_payment": TARGET_DATE}, timeout=30)
+            time.sleep(2.2)
+            log_msg(f"  AJUSTAR DATA {cand.get('id')}: {rr.status_code}", True)
+            if rr.status_code in (200, 204):
+                all_corrections.append(("AJUSTAR_DATA", v))
 
     if caixa_planos and not DRY_RUN:
         log_msg(f"\n[CORRIGINDO] Lançando receita cheia de {len(caixa_planos)} repasse(s) de êxito...", True)
