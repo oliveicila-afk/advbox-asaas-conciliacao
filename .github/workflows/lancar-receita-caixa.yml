@@ -110,17 +110,15 @@ jobs:
                   cust_ids = [c.get("id") for c in (lei.get("customers") or []) if isinstance(c, dict)]
                   item.update({"lawsuits_id": lei.get("id"), "tese": (lei.get("type") or {}).get("name") if isinstance(lei.get("type"), dict) else lei.get("type"),
                                "clientes": [ini(c.get("name")) for c in (lei.get("customers") or []) if isinstance(c, dict)], "customers_ids": cust_ids})
-                  # modelo: honorários de êxito já lançados e pagos no mesmo dia para esse cliente/processo
-                  cands = []
-                  for t in trs:
-                      if t.get("entry_type") != "income": continue
-                      if str(t.get("date_payment") or "")[:10] != p["dia"]: continue
-                      if str(t.get("debit_bank") or "").upper() != "ASAAS": continue
-                      mesmo = (t.get("lawsuits_id") == lei.get("id")) or (t.get("customers_id") in cust_ids and t.get("customers_id"))
-                      if mesmo: cands.append(t)
-                  item["modelos"] = [{"id": t.get("id"), "valor": t.get("value", t.get("amount")), "categories_id": t.get("categories_id"),
-                                      "cost_centers_id": t.get("cost_centers_id"), "customers_id": t.get("customers_id"),
-                                      "lawsuits_id": t.get("lawsuits_id"), "categoria": t.get("category_name") or t.get("category")} for t in cands]
+                  # modelo: lançamento de honorários já existente (pago no dia) desse processo; detalhe traz os ids
+                  fee = {7470600: 17774989, 7379574: 17774990, 7057435: 17774992, 5986292: 17774994, 12329227: 17774998}.get(lei.get("id"))
+                  item["modelos"] = []
+                  if fee:
+                      d = requests.get(f"{B}/transactions/{fee}", headers=hb, timeout=30).json()
+                      if d.get("lawsuits_id") == lei.get("id") and str(d.get("date_payment") or "")[:10] == p["dia"]:
+                          item["modelos"].append({"id": d.get("id"), "valor": d.get("amount"), "categories_id": d.get("categories_id"),
+                              "cost_centers_id": d.get("cost_centers_id"), "customers_id": d.get("customers_id"),
+                              "lawsuits_id": d.get("lawsuits_id"), "categoria": d.get("category")})
               plano.append(item)
 
           resultado = {"modo": "executar" if executar else "plano", "campos_lancamento": sorted(amostra.keys()), "itens": plano, "execucao": []}
