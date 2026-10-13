@@ -108,6 +108,47 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
         return False
 
 
+
+import unicodedata
+
+def norm_nome(n):
+    if not n:
+        return ""
+    n = unicodedata.normalize("NFKD", str(n)).encode("ascii", "ignore").decode()
+    return " ".join(n.upper().split())
+
+def mascara_nome(n):
+    partes = (n or "").split()
+    if not partes:
+        return "(sem nome)"
+    return partes[0].title() + "".join(f" {p[0].upper()}." for p in partes[1:])
+
+_CACHE_PAG = {}
+_CACHE_CLI = {}
+
+def asaas_nome(tx, headers):
+    """Nome do cliente no Asaas: lançamento -> cobrança (paymentId) -> cliente.
+    Antecipações: anticipationId -> cobrança -> cliente."""
+    try:
+        base = "https://api.asaas.com/v3"
+        pid = tx.get("paymentId")
+        if not pid and tx.get("anticipationId"):
+            a = requests.get(f"{base}/anticipations/{tx['anticipationId']}", headers=headers, timeout=30).json()
+            pid = a.get("payment")
+        if not pid:
+            return None
+        if pid not in _CACHE_PAG:
+            _CACHE_PAG[pid] = requests.get(f"{base}/payments/{pid}", headers=headers, timeout=30).json().get("customer")
+        cid = _CACHE_PAG[pid]
+        if not cid:
+            return None
+        if cid not in _CACHE_CLI:
+            _CACHE_CLI[cid] = requests.get(f"{base}/customers/{cid}", headers=headers, timeout=30).json().get("name")
+        return _CACHE_CLI[cid]
+    except Exception as e:
+        log_msg(f"  ⚠️ nome Asaas não resolvido: {type(e).__name__}", False)
+        return None
+
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE LEITURA COM LOGGING MASSIVO
 # ---------------------------------------------------------------------------
@@ -151,7 +192,9 @@ def fetch_asaas_transactions():
     for t in all_raw:
         if t.get("type") in ASAAS_INCOME_TYPES and t.get("id") not in vistos:
             vistos.add(t.get("id"))
+            t["_nome"] = asaas_nome(t, headers_asaas)
             transactions.append(t)
+    log_msg(f"[ASAAS] Sem nome resolvido: {sum(1 for t in transactions if not t.get('_nome'))}", True)
     log_msg(f"[ASAAS] Receitas mantidas: {len(transactions)} | soma: {sum(float(t.get('value',0)) for t in transactions):.2f}", True)
 
     log_msg(f"\n[ASAAS] TOTAL: {len(transactions)} transações", True)
@@ -298,6 +341,7 @@ headers_advbox = {
 attempt = 0
 reconciliation_complete = False
 all_corrections = []
+divergencias_atuais = {}
 total_asaas_final = 0
 total_advbox_final = 0
 
@@ -320,34 +364,52 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
 
     log_msg(f"\n[MATCHING] Identificando divergências...", True)
 
-    def index_by_value(txs, value_key_fn):
-        idx = {}
-        for tx in txs:
-            v = round(value_key_fn(tx), 2)
-            idx.setdefault(v, []).append(tx)
-        return idx
+    def val_adv(tx):
+        return round(float(str(tx.get("value", tx.get("amount", 0))).replace(",", ".")), 2)
 
-    asaas_idx = index_by_value(asaas_transactions, lambda tx: float(tx.get("value", 0)))
-    advbox_idx = index_by_value(
-        advbox_transactions,
-        lambda tx: float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
-    )
-
+    # Passo 1: valor E nome iguais
+    restantes_adv = list(advbox_transactions)
     matched = []
+    sobra_asaas = []
+    for a_tx in asaas_transactions:
+        v = round(float(a_tx.get("value", 0)), 2)
+        n = norm_nome(a_tx.get("_nome"))
+        achou = None
+        for i, b_tx in enumerate(restantes_adv):
+            if val_adv(b_tx) == v and n and norm_nome(b_tx.get("name")) == n:
+                achou = i
+                break
+        if achou is None:
+            sobra_asaas.append(a_tx)
+        else:
+            matched.append((a_tx, restantes_adv.pop(achou), v))
+
+    # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
+    nome_diferente = []
     unmatched_asaas = []
-    remaining_advbox = {v: list(txs) for v, txs in advbox_idx.items()}
+    for a_tx in sobra_asaas:
+        v = round(float(a_tx.get("value", 0)), 2)
+        achou = next((i for i, b_tx in enumerate(restantes_adv) if val_adv(b_tx) == v), None)
+        if achou is None:
+            unmatched_asaas.append(a_tx)
+        else:
+            nome_diferente.append((a_tx, restantes_adv.pop(achou)))
+    unmatched_advbox = restantes_adv
 
-    for valor, asaas_list in asaas_idx.items():
-        for asaas_tx in asaas_list:
-            if valor in remaining_advbox and remaining_advbox[valor]:
-                advbox_tx = remaining_advbox[valor].pop(0)
-                matched.append((asaas_tx, advbox_tx, valor))
-            else:
-                unmatched_asaas.append(asaas_tx)
-
-    unmatched_advbox = [tx for txs in remaining_advbox.values() for tx in txs]
-
-    log_msg(f"Matches: {len(matched)} | Faltando: {len(unmatched_asaas)} | Fantasmas: {len(unmatched_advbox)}", True)
+    divergencias_atuais = {
+        "nome_diferente": [
+            {"valor": round(float(a.get("value", 0)), 2), "asaas": mascara_nome(a.get("_nome")),
+             "advbox": mascara_nome(b.get("name")), "advbox_id": b.get("id")}
+            for a, b in nome_diferente],
+        "faltando_no_advbox": [
+            {"valor": round(float(a.get("value", 0)), 2), "cliente_asaas": mascara_nome(a.get("_nome"))}
+            for a in unmatched_asaas],
+        "fantasmas_no_advbox": [
+            {"valor": val_adv(b), "cliente_advbox": mascara_nome(b.get("name")), "advbox_id": b.get("id")}
+            for b in unmatched_advbox],
+    }
+    log_msg(f"Matches (valor+nome): {len(matched)} | Nome diferente: {len(nome_diferente)} | Faltando: {len(unmatched_asaas)} | Fantasmas: {len(unmatched_advbox)}", True)
+    log_msg(f"Divergências: {json.dumps(divergencias_atuais, ensure_ascii=False)}", True)
 
     # Correções
     if unmatched_advbox and not DRY_RUN:
@@ -383,8 +445,9 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     log_msg(f"Advbox (dupla): R$ {total_advbox_final:.2f}", True)
     log_msg(f"Diferença: R$ {diferenca:.2f}", True)
 
-    if diferenca < TOLERANCE:
-        log_msg(f"\n✅ VALORES BATEM!", True)
+    sem_divergencia = not (unmatched_asaas or unmatched_advbox or nome_diferente)
+    if diferenca < TOLERANCE and sem_divergencia:
+        log_msg(f"\n✅ VALORES E NOMES BATEM!", True)
         reconciliation_complete = True
     else:
         if attempt < MAX_RECONCILIATION_ATTEMPTS:
@@ -417,6 +480,7 @@ report = {
         "advbox": round(total_advbox_final, 2),
         "diferenca": round(abs(total_asaas_final - total_advbox_final), 2),
     },
+    "divergencias": divergencias_atuais,
     "correcoes": {
         "total_realizadas": len(all_corrections),
         "detalhes": [
