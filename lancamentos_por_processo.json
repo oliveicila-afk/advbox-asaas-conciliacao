@@ -1,62 +1,202 @@
 {
- "15740961": [
+ "13659979": [
   {
-   "id": 17475800,
+   "id": 14233995,
    "tipo": "income",
-   "valor": 5861.55,
-   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
-   "pago": "",
-   "venc": "2027-01-22",
-   "banco": "CONTADORIA"
-  }
- ],
- "5173864": [
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-04-23",
+   "venc": "2026-04-23",
+   "banco": "ASAAS"
+  },
   {
-   "id": 12139864,
+   "id": 14233997,
    "tipo": "income",
-   "valor": 5852.08,
-   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
    "pago": "",
-   "venc": "2025-12-30",
+   "venc": "2026-06-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14233998,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-07-23",
+   "venc": "2026-07-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14233999,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-08-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234000,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-09-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234001,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-10-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234002,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-11-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234003,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-12-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234004,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2027-01-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234005,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2027-02-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234006,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2027-03-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234028,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-02-26",
+   "venc": "2026-02-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234029,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-03-30",
+   "venc": "2026-03-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234031,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-05-23",
+   "venc": "2026-05-23",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234032,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-06-23",
+   "venc": "2026-06-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234033,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-07-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234034,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "2026-08-26",
+   "venc": "2026-08-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234035,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-09-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234036,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-10-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234037,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-11-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234038,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2026-12-26",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 14234039,
+   "tipo": "income",
+   "valor": 3000,
+   "cat": "HONORÁRIOS CONSULTORIAS",
+   "pago": "",
+   "venc": "2027-01-26",
    "banco": "ASAAS"
   }
- ],
- "5836169": [
-  {
-   "id": 13803545,
-   "tipo": "income",
-   "valor": 143.56,
-   "cat": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
-   "pago": "",
-   "venc": "2026-01-07",
-   "banco": "ASAAS"
-  }
- ],
- "7721868": [
-  {
-   "id": 15408661,
-   "tipo": "income",
-   "valor": 2871.44,
-   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL",
-   "pago": "",
-   "venc": "2026-10-23",
-   "banco": "CONTADORIA"
-  }
- ],
- "14766140": [],
- "2348305": [],
- "12757688": [],
- "13114809": [],
- "7000508": [
-  {
-   "id": 15116112,
-   "tipo": "income",
-   "valor": 34842.75,
-   "cat": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO ESCALONAMENTO",
-   "pago": "",
-   "venc": "2026-06-15",
-   "banco": "CONTADORIA"
-  }
- ],
- "7843581": []
+ ]
 }
