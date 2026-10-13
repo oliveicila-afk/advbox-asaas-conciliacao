@@ -1,0 +1,14 @@
+{
+ "categoria_id": 71101,
+ "clientes_encontrados": 1,
+ "put_http": 422,
+ "put_resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"entry_type\":[\"Select the transaction type: credit or debit\"]}}",
+ "depois": {
+  "category": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
+  "cost_center": "CONCURSO-TRÁFEGO PAGO",
+  "customers_id": null,
+  "lawsuits_id": null,
+  "amount": 9351.31,
+  "date_payment": "2026-09-28"
+ }
+}
