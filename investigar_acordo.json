@@ -1,0 +1,24 @@
+{
+ "processos": [
+  {
+   "lawsuits_id": 16085012,
+   "tese": "SEGURO PRESTAMISTA",
+   "grupo": "CONSUMIDOR",
+   "clientes": [
+    "F D S M"
+   ],
+   "lancamentos": [
+    {
+     "id": 17381789,
+     "tipo": "income",
+     "valor": 11000,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+     "centro": "PROFESSOR/PEDAGOGO-PROSPECÇÃO ATIVA",
+     "pago": "",
+     "venc": "2026-09-22",
+     "banco": "CONTADORIA"
+    }
+   ]
+  }
+ ]
+}
