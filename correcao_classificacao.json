@@ -1,6 +1,6 @@
 {
  "data": "2026-09-01",
- "dry_run": true,
+ "dry_run": false,
  "encontrados": 2,
  "itens": [
   {
@@ -9,7 +9,10 @@
    "cliente": "Priscila D. S. R. B.",
    "valor": 521.46,
    "categoria_atual": "HONORÁRIOS CONTRATUAIS",
-   "resultado": "PULADO: cliente com várias teses, sem regra"
+   "metodo": "regra_manual_definida_pela_priscila",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PROMOÇÃO VERTICAL",
+   "put_status": 200,
+   "resultado": "ALTERADO"
   },
   {
    "id": 17313100,
@@ -17,13 +20,16 @@
    "cliente": "Kennedy P. D. S.",
    "valor": 4000,
    "categoria_atual": "HONORÁRIOS INICIAIS",
-   "resultado": "PULADO: categoria manual ainda não aparece na API (aguarde e rode de novo)"
+   "metodo": "regra_manual_definida_pela_priscila",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-LICENÇA PARA ESTUDO",
+   "put_status": 200,
+   "resultado": "ALTERADO"
   }
  ],
  "resumo": {
-  "alterados": 0,
+  "alterados": 2,
   "simulados": 0,
-  "pulados": 2,
+  "pulados": 0,
   "erros": 0
  },
  "analise_somente_leitura": {
