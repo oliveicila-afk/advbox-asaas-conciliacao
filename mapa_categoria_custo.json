@@ -148,6 +148,9 @@
    "step": "ARQUIVAMENTO",
    "notes": null,
    "tipo": "ANULAÇÃO DE QUESTÃO E/OU DISCURSIVA",
+   "origens_clientes": [
+    "INSTAGRAM"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -180,6 +183,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "PETIÇÃO INICIAL",
    "tipo": "GRATIFICAÇÃO DE CURSO",
+   "origens_clientes": [
+    "INDICAÇÃO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -212,6 +218,11 @@
    "step": "ARQUIVAMENTO",
    "notes": "FIC",
    "tipo": "FIC",
+   "origens_clientes": [
+    "TRÁFEGO | CONCURSO PÚBLICO",
+    null,
+    "PARTE CONTRÁRIA"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -244,6 +255,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "mandado de segurança",
    "tipo": "GRATIFICAÇÃO DE CURSO",
+   "origens_clientes": [
+    "INDICAÇÃO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -276,6 +290,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "retroativo",
    "tipo": "PC/AM - ESCALONAMENTO",
+   "origens_clientes": [
+    "INDICAÇÃO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -308,6 +325,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "inicial",
    "tipo": "DATA BASE",
+   "origens_clientes": [
+    "INSTAGRAM"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -340,6 +360,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "Ação de Cobrança de Retroativos Promoção Vertical Seduc",
    "tipo": "RETROATIVOS VERTICAL - SEDUC",
+   "origens_clientes": [
+    "ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -372,6 +395,9 @@
    "step": "ARQUIVAMENTO",
    "notes": "horizontal matrícula C",
    "tipo": "PROMOÇÃO HORIZONTAL - SEDUC",
+   "origens_clientes": [
+    "ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -404,6 +430,9 @@
    "step": "ARQUIVAMENTO",
    "notes": null,
    "tipo": "PROMOÇÃO HORIZONTAL - SEDUC",
+   "origens_clientes": [
+    "ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -436,6 +465,9 @@
    "step": "EXECUÇÃO/COBRANÇA",
    "notes": null,
    "tipo": "RMC",
+   "origens_clientes": [
+    "ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -468,6 +500,9 @@
    "step": "ARQUIVAMENTO",
    "notes": null,
    "tipo": "SEGURO PRESTAMISTA",
+   "origens_clientes": [
+    "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -500,6 +535,9 @@
    "step": "RH/FINANCEIRO",
    "notes": "MONITAR O PROVEITO ECONOMICO OBTIDO",
    "tipo": "JUROS ABUSIVO",
+   "origens_clientes": [
+    "SITE DO ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -532,6 +570,9 @@
    "step": "EXECUÇÃO/COBRANÇA",
    "notes": null,
    "tipo": "JUROS ABUSIVO",
+   "origens_clientes": [
+    "TRAFEGO | PROMOÇÃO HORIZONTAL | PROFESSOR | SEDUC | AM"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -564,6 +605,9 @@
    "step": "ARQUIVAMENTO",
    "notes": null,
    "tipo": "SEGURO PRESTAMISTA",
+   "origens_clientes": [
+    "ESCRITÓRIO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
@@ -596,6 +640,9 @@
    "step": "EXECUÇÃO/COBRANÇA",
    "notes": null,
    "tipo": "SEGURO PRESTAMISTA",
+   "origens_clientes": [
+    "INDICAÇÃO"
+   ],
    "chaves_cliente": [
     [
      "customer_id",
