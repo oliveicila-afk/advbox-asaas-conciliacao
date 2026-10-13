@@ -1,6 +1,6 @@
 {
   "data": "2026-09-03",
-  "gerado_em": "2026-10-13T04:12:09.460932",
+  "gerado_em": "2026-10-13T04:27:42.791499",
   "status": "NAO_CONCILIADO",
   "tentativas": 5,
   "max_tentativas": 5,
@@ -10,20 +10,7 @@
     "diferenca": 815.5
   },
   "divergencias": {
-    "nome_diferente": [
-      {
-        "valor": 15421.98,
-        "asaas": "Caixa E. F.",
-        "advbox": "Elizeth S. D. C. D. M.",
-        "advbox_id": 17456672
-      },
-      {
-        "valor": 3149.86,
-        "asaas": "Caixa E. F.",
-        "advbox": "Anderson S. G.",
-        "advbox_id": 17456673
-      }
-    ],
+    "nome_diferente": [],
     "faltando_no_advbox": [
       {
         "valor": 248.5,
