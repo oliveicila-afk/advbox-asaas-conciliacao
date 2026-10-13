@@ -1,0 +1,23 @@
+{
+ "data": "2026-09-01",
+ "dry_run": true,
+ "encontrados": 2,
+ "itens": [
+  {
+   "id": 18166371,
+   "cliente": "Simone V.",
+   "valor": 248.5,
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+   "novo_centro_custo": "PROFESSOR/PEDAGOGO-OUTROS",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  },
+  {
+   "id": 18166372,
+   "cliente": "Viviane D. O. M.",
+   "valor": 67,
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
+   "novo_centro_custo": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  }
+ ]
+}
