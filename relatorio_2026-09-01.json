@@ -1,13 +1,13 @@
 {
   "data": "2026-09-01",
-  "gerado_em": "2026-10-13T00:40:20.877243",
+  "gerado_em": "2026-10-13T00:51:42.076342",
   "status": "NAO_CONCILIADO",
   "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
-    "asaas": 25672.26,
+    "asaas": 13298.15,
     "advbox": 0,
-    "diferenca": 25672.26
+    "diferenca": 13298.15
   },
   "correcoes": {
     "total_realizadas": 0,

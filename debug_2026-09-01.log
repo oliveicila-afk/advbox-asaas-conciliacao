@@ -1,0 +1,342 @@
+====================================================================================================
+INÍCIO DO LOG DE DEBUG
+Data/Hora: 2026-10-13 00:51:28.523668
+Target Date: 2026-09-01
+DRY_RUN: True
+====================================================================================================
+
+[VALIDAÇÃO] ASAAS_TOKEN definido: True
+[VALIDAÇÃO] ADVBOX_TOKEN definido: True
+
+🔄 INICIANDO LOOP DE RECONCILIAÇÃO
+
+====================================================================================================
+TENTATIVA 1/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:30 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=6ocbU6lETNt9I7P583FdoCHgE6cnPodYgqIkhLKPDs6BPOnXaRKNGcO0PpZwKUeWQqyLyllUkGQFVjvldwrkOby0x0gj2vAzgCwo5MGV79QTIZkwx6jspysFShvFzgMMNfVq"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b31be80d019-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b31be80d019',t:'MTc5MTg1MjY5MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas:  29 tx | R$ 13298.15
+Advbox: 0 tx | R$ 0.00
+
+[MATCHING] Identificando divergências...
+Matches: 0 | Faltando: 29 | Fantasmas: 0
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:31 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=FFOhrDnpLr0pTkl2lAvuL19sksXl92nDy6HqMvKE0LuqkJ%2BBAkcgmhEBVRKQM0FWnzpljDELUNeX6sgm9eCA3LMzDmEctV4lQKiADAE7X%2FZKNtfIs8zQF4lhtIvxiX76eNou"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b3b3996cf2a-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b3b3996cf2a',t:'MTc5MTg1MjY5MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas (dupla):  R$ 13298.15
+Advbox (dupla): R$ 0.00
+Diferença: R$ 13298.15
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 2/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:33 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=upSUvnKJFBTGyRSnAs%2F9giyHlJT6NRfv%2Bm6%2Ft7iMQAysTlBC8FBvGHxSpXmI93rT4WpZbCbUTpTdpnN1zNsV%2BfpTT4x4icKu9oNTowmewGTCukg0iSWOgkVI9k3ihxLTPNYQ"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b465afff3e0-MIA'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b465afff3e0',t:'MTc5MTg1MjY5Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas:  29 tx | R$ 13298.15
+Advbox: 0 tx | R$ 0.00
+
+[MATCHING] Identificando divergências...
+Matches: 0 | Faltando: 29 | Fantasmas: 0
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:35 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=uL37dpD1WIe7oioTnoQZZYTRMnEVwk1tK%2FmnP%2Bso9%2FviTlDgkLMsKhHQgZW0otnX5Ox%2FgcZ%2BOOZJcLBdIbw895EdP%2Fr7VFlgQin6V8ZOwAAZpUBxn7ycQKzZuwXYf7ptf316"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b506bbeeb36-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b506bbeeb36',t:'MTc5MTg1MjY5NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas (dupla):  R$ 13298.15
+Advbox (dupla): R$ 0.00
+Diferença: R$ 13298.15
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 3/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:35 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=xHCPYdAa3H%2FTbDw80BwHXosALpRUFkWneln6fbnSNpdM%2FYEXxlrFN9J4YgbaSOpTG%2FhIAEbj0m7PdsHCdxpSWq1%2BC%2Bo5LZvmtUi6go%2BM%2FKU3p3txxEvzwEh4J1DxCK%2BV%2B5b6"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b554f29745e-MIA'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b554f29745e',t:'MTc5MTg1MjY5NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas:  29 tx | R$ 13298.15
+Advbox: 0 tx | R$ 0.00
+
+[MATCHING] Identificando divergências...
+Matches: 0 | Faltando: 29 | Fantasmas: 0
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:37 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=G%2FLP%2Fl9Iw82xpqE2PAGe14pJiaOCsDQsZG4s3XZDnlkwZSxj06mi%2FW4JhiduSvsyRPEDwFgARETp6BeM2ZdgGSWTwyZ7wrlN3vbhv713zpWN1EwCc1hdWn9ZOy1zQJboovuv"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b5f6d83d019-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b5f6d83d019',t:'MTc5MTg1MjY5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas (dupla):  R$ 13298.15
+Advbox (dupla): R$ 0.00
+Diferença: R$ 13298.15
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 4/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:39 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=VJ%2Fv9RAbJrkskAYqb8wTpKR7bKuaYcB0VcQgY1CmRDccwq%2BhE2l2wIMNItXiv9bApoNmlZZ%2FDLMhB1kZzSjOMEBveCMejUkrFMNtiwCDRwMjmUjLIpJdfucjen8TebPFIjz5"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b685dad2710-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b685dad2710',t:'MTc5MTg1MjY5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas:  29 tx | R$ 13298.15
+Advbox: 0 tx | R$ 0.00
+
+[MATCHING] Identificando divergências...
+Matches: 0 | Faltando: 29 | Fantasmas: 0
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:39 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=nJcZTzjLDAU7fmTo0YxwDmhi4PUTMfwEbOc%2BuAC8OgMeb%2FxdSCChRnpGEhtPb%2BEIe4LTJbtgXg%2F2LmAU%2B2N1ijPcUqohp%2BXUp1U0yjgRssPGOEclFx4QqhVHO40jdMF7CGSf"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b6d1a3215e0-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b6d1a3215e0',t:'MTc5MTg1MjY5OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas (dupla):  R$ 13298.15
+Advbox (dupla): R$ 0.00
+Diferença: R$ 13298.15
+⚠️  Tentando novamente...
+
+====================================================================================================
+TENTATIVA 5/5
+====================================================================================================
+
+[LEITURA 1] Buscando transações...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:41 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=zQnNlIaNsKb%2BGXdBD5lAniu0jylforVnYocdWrgYexSasvXFBzG%2F%2F%2BvLyhXVbc6yXXeZSPMepNG%2BJvczS9tNV5ldFFSZRSctmuIaXFvMnUcbYN5i60aA0PmK%2Frr9nZ7SlcvA"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b761d11228b-SJC'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b761d11228b',t:'MTc5MTg1MjcwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas:  29 tx | R$ 13298.15
+Advbox: 0 tx | R$ 0.00
+
+[MATCHING] Identificando divergências...
+Matches: 0 | Faltando: 29 | Fantasmas: 0
+
+[DUPLA CHECAGEM] Relendo...
+
+[ASAAS] Iniciando fetch
+  Status: 200
+[ASAAS] Bruto: 86 | tipos: {'INSTANT_TEXT_MESSAGE_FEE': 15, 'PAYMENT_FEE': 27, 'PAYMENT_RECEIVED': 19, 'RECEIVABLE_ANTICIPATION_FEE': 10, 'RECEIVABLE_ANTICIPATION_GROSS_CREDIT': 10, 'INVOICE_FEE': 3, 'RECEIVABLE_ANTICIPATION_DEBIT': 2}
+[ASAAS] Receitas mantidas: 29 | soma: 13298.15
+
+[ASAAS] TOTAL: 29 transações
+
+[ADVBOX] Iniciando fetch
+  Requisição: offset=0, limit=100
+  Status: 403
+  Headers resposta: {'Date': 'Tue, 13 Oct 2026 00:51:42 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Server': 'cloudflare', 'Nel': '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}', 'cf-cache-status': 'DYNAMIC', 'Report-To': '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FSdIOKrhQaIDrKH8Oli1F8RARCVvVn9ePMEg%2Bog6MpavpSzX6leBZNp5Slm9rsB9WPe5h1iMvtP8lxgqgiL%2BOUAJJ3FVz%2Bgz0u1ZJKqBJp2gxHvi4DvqDcJIbGyOd2mjxULK"}]}', 'Content-Encoding': 'gzip', 'CF-RAY': 'a49a5b7b8ef6695e-MIA'}
+  ERRO HTTP! Corpo: <html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.15.8</center>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a49a5b7b8ef6695e',t:'MTc5MTg1MjcwMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChil
+
+[ADVBOX] === RESUMO DE FILTROS ===
+  Raw: 0 | type!=income: 0 | status!=paid: 0 | debit!=ASAAS: 0 | date!=target: 0 | MANTIDAS: 0
+[ADVBOX] TOTAL: 0 transações
+
+Asaas (dupla):  R$ 13298.15
+Advbox (dupla): R$ 0.00
+Diferença: R$ 13298.15
+❌ Limite de tentativas atingido
+
+====================================================================================================
+RESULTADO FINAL
+====================================================================================================
+❌ NÃO CONCILIADA após 5 tentativa(s)
+  Asaas: R$ 13298.15
+  Advbox: R$ 0.00
+  Diferença: R$ 13298.15
+  Correções: 0
+
+📄 Relatório: relatorio_2026-09-01.json
+📋 Log detalhado: debug_2026-09-01.log
+
+====================================================================================================
+FIM DO LOG
+====================================================================================================
