@@ -51,13 +51,20 @@ jobs:
               c = _cache_cli[cid] or {}
               return c.get("name"), c.get("cpfCnpj","")
 
-          r = requests.get(f"{base}/financialTransactions",
-              headers=headers,
-              params={"startDate": data, "endDate": data,
-                      "transactionType": "PAYMENT_RECEIVED,RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
-                      "limit": 100},
-              timeout=30)
-          txs = r.json().get("data", [])
+          txs = []
+          offset = 0
+          while True:
+              r = requests.get(f"{base}/financialTransactions",
+                  headers=headers,
+                  params={"startDate": data, "endDate": data,
+                          "transactionType": "PAYMENT_RECEIVED,RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+                          "limit": 100, "offset": offset},
+                  timeout=30)
+              batch = r.json().get("data", [])
+              txs.extend(batch)
+              if not r.json().get("hasMore", False) or len(batch) == 0:
+                  break
+              offset += 100
           print(f"Total: {len(txs)} transações em {data}")
 
           resultado = []
