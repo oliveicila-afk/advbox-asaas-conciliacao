@@ -1,13 +1,13 @@
 {
   "data": "2026-09-30",
-  "gerado_em": "2026-10-13T15:21:26.634998",
+  "gerado_em": "2026-10-13T17:45:09.088149",
   "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "tentativas": 3,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 32569.96,
-    "advbox": 14069.82,
-    "diferenca": 18500.14
+    "advbox": 10351.51,
+    "diferenca": 22218.45
   },
   "divergencias": {
     "nome_diferente": [
@@ -26,125 +26,181 @@
     ],
     "faltando_no_advbox": [
       {
-        "valor": 67.0,
-        "cliente_asaas": "Jemuel A. D. S."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Tatiana D. P. B. R."
-      },
-      {
-        "valor": 117.63,
-        "cliente_asaas": "Israel M. D. S."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Ozias B. F."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Harloanne L. G."
-      },
-      {
         "valor": 2712.71,
         "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Ingrid S. M."
       },
       {
         "valor": 6260.31,
         "cliente_asaas": "Caixa E. F."
       },
       {
-        "valor": 67.0,
-        "cliente_asaas": "José A. S. D. S."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Kátia R. B. D. S."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Joana D. D. C. G."
-      },
-      {
         "valor": 8000.0,
         "cliente_asaas": "Juridico M."
       },
       {
-        "valor": 73.81,
-        "cliente_asaas": "Nádia L. N. D. C."
-      },
-      {
-        "valor": 500.0,
-        "cliente_asaas": "Vera D. S. Q. M."
-      },
-      {
         "valor": 5245.43,
         "cliente_asaas": "Juridico M."
-      },
-      {
-        "valor": 68.36,
-        "cliente_asaas": "Deliene S. B."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Lucilene D. N."
       }
     ],
-    "fantasmas_no_advbox": [
+    "fantasmas_no_advbox": []
+  },
+  "pendentes_sem_tese": [
+    {
+      "valor": 2712.71,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 6260.31,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 8000.0,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 5245.43,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 2712.71,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 6260.31,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 8000.0,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 5245.43,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 2712.71,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 6260.31,
+      "cliente_asaas": "Caixa E. F.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 8000.0,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 5245.43,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    }
+  ],
+  "correcoes": {
+    "total_realizadas": 23,
+    "detalhes": [
       {
-        "valor": 521.46,
-        "cliente_advbox": "Priscila D. S. R. B.",
-        "advbox_id": 11530877
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 521.46
       },
       {
-        "valor": 935.0,
-        "cliente_advbox": "Elias S. C.",
-        "advbox_id": 16695553
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 935.0
       },
       {
-        "valor": 102.04,
-        "cliente_advbox": "Luciney F. P.",
-        "advbox_id": 17065929
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 102.04
       },
       {
-        "valor": 128.44,
-        "cliente_advbox": "Israel M. D. S.",
-        "advbox_id": 17265657
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 128.44
       },
       {
-        "valor": 3149.0,
-        "cliente_advbox": "Jaira M. M. S. D. S.",
-        "advbox_id": 17430107
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 3149.0
       },
       {
-        "valor": 497.0,
-        "cliente_advbox": "Andresa M. T.",
-        "advbox_id": 17859337
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 497.0
       },
       {
-        "valor": 248.5,
-        "cliente_advbox": "Orivaldo D. S. B. J.",
-        "advbox_id": 17909642
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 248.5
       },
       {
-        "valor": 248.5,
-        "cliente_advbox": "Odilene R. D.",
-        "advbox_id": 17931067
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 248.5
       },
       {
-        "valor": 248.5,
-        "cliente_advbox": "Celice M. S. D. F.",
-        "advbox_id": 17931090
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 248.5
+      },
+      {
+        "tipo": "AJUSTAR_DATA",
+        "valor": 997.33
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 117.63
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 73.81
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 500.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 68.36
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
       }
     ]
-  },
-  "pendentes_sem_tese": [],
-  "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
   }
 }
