@@ -1,0 +1,59 @@
+name: Consultar cobrança Asaas (somente leitura, sem nomes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "IDs de cobrança separados por vírgula (pay_...)"
+        required: true
+        default: "pay_2ymjzm629v3yp9eg,pay_s2yomd13v4xq4viu"
+
+permissions:
+  contents: write
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Consultar cobranças
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - <<'PY'
+          import os, json, re, unicodedata, requests
+          h = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          def ini(s):
+              s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+              return " ".join(p[0] for p in s.upper().split() if p) or "-"
+          out = []
+          for pid in [i.strip() for i in os.environ["IDS"].split(",") if i.strip()]:
+              p = requests.get(f"https://api.asaas.com/v3/payments/{pid}", headers=h, timeout=30).json()
+              c = requests.get(f"https://api.asaas.com/v3/customers/{p.get('customer')}", headers=h, timeout=30).json() if p.get("customer") else {}
+              out.append({"id": pid,
+                          "fatura_nr": p.get("invoiceNumber"),
+                          "cliente_iniciais": ini(c.get("name")),
+                          "value": p.get("value"), "netValue": p.get("netValue"),
+                          "status": p.get("status"), "billingType": p.get("billingType"),
+                          "dueDate": p.get("dueDate"), "originalDueDate": p.get("originalDueDate"),
+                          "paymentDate": p.get("paymentDate"), "clientPaymentDate": p.get("clientPaymentDate"),
+                          "creditDate": p.get("creditDate"), "estimatedCreditDate": p.get("estimatedCreditDate"),
+                          "anticipated": p.get("anticipated"), "anticipable": p.get("anticipable"),
+                          "externalReference": p.get("externalReference"),
+                          "installment": p.get("installment")})
+          print(json.dumps(out, ensure_ascii=False, indent=1))
+          json.dump(out, open("consulta_cobranca_resultado.json", "w"), ensure_ascii=False, indent=1)
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f consulta_cobranca_resultado.json
+          git diff --cached --quiet || git commit -m "Resultado: consulta de cobranças Asaas"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
