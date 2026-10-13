@@ -1,0 +1,33 @@
+{
+  "data": "2026-09-18",
+  "gerado_em": "2026-10-13T09:55:56.333092",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 6817.3,
+    "advbox": 2343.93,
+    "diferenca": 4473.37
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 5522.98,
+        "cliente_asaas": "Caixa E. F."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 1049.61,
+        "cliente_advbox": "Joao M. S. L.",
+        "advbox_id": 17774998
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
