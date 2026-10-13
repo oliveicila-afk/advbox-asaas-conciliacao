@@ -46,6 +46,14 @@ while True:
 
 st = get("/settings").json().get("financial", {})
 CAT = {c["category"]: c["id"] for c in st.get("categories", [])}
+CAT_NORM = {norm(k): v for k, v in CAT.items()}
+# regras manuais (só no modo "um dia"): "valor=NOME DA CATEGORIA;valor=NOME..."
+REGRAS_MANUAIS = {}
+for par in os.environ.get("REGRAS_MANUAIS", "").split(";"):
+    if "=" in par:
+        a, b = par.split("=", 1)
+        try: REGRAS_MANUAIS[round(float(a.strip().replace(",", ".")), 2)] = b.strip()
+        except ValueError: pass
 CC = {c["cost_center"]: c["id"] for c in st.get("cost_centers", [])}
 
 TODAS = DATA.upper() == "TODAS"
@@ -113,7 +121,14 @@ for t in alvos:
     ref, qt = tese_unica_do_cliente(t)
     v = round(float(t.get("amount") or 0), 2)
     nova = None
-    if ref:
+    if not TODAS and v in REGRAS_MANUAIS:
+        nome_cat = REGRAS_MANUAIS[v]
+        if norm(nome_cat) not in CAT_NORM:
+            item["resultado"] = "PULADO: categoria manual ainda não aparece na API (aguarde e rode de novo)"
+            out["itens"].append(item); continue
+        nova = next(k for k in CAT if norm(k) == norm(nome_cat))
+        item["metodo"] = "regra_manual_definida_pela_priscila"
+    elif ref:
         nova, item["metodo"] = ref["category"], "tese_unica_do_cliente"
     elif v in VALORES_PROMO:
         nova, item["metodo"] = CAT_PROMO, "regra_valor_promocao_horizontal"

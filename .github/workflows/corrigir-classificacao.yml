@@ -11,6 +11,11 @@ on:
         required: false
         default: "true"
 
+      regras_manuais:
+        description: "Opcional. Ex: 4000=NOME DA CATEGORIA (só no modo de um dia)"
+        required: false
+        default: ""
+
 permissions:
   contents: write
 
@@ -28,6 +33,7 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           TARGET_DATE: ${{ github.event.inputs.target_date }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
+          REGRAS_MANUAIS: ${{ github.event.inputs.regras_manuais }}
         run: python3 corrigir_classificacao.py
       - name: Commit resultado
         if: always()
