@@ -1,0 +1,98 @@
+{
+ "inicio": "2026-09-09",
+ "fim": "2026-09-10",
+ "dias": {
+  "2026-09-09": {
+   "total_linhas": 36,
+   "por_tipo": {
+    "PAYMENT_RECEIVED": {
+     "qtd": 8,
+     "soma": 16866.92
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
+     "qtd": 7,
+     "soma": -18.21
+    },
+    "PAYMENT_FEE": {
+     "qtd": 8,
+     "soma": -45.12
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+     "qtd": 7,
+     "soma": 1328.65
+    },
+    "INSTANT_TEXT_MESSAGE_FEE": {
+     "qtd": 1,
+     "soma": -0.55
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+     "qtd": 5,
+     "soma": -989.42
+    }
+   },
+   "destaque_valor": [
+    {
+     "id": "ftn_002061186682",
+     "type": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+     "value": 374.25,
+     "date": "2026-09-09",
+     "paymentId": null
+    },
+    {
+     "id": "ftn_002060425354",
+     "type": "RECEIVABLE_ANTICIPATION_DEBIT",
+     "value": -374.25,
+     "date": "2026-09-09",
+     "paymentId": null
+    },
+    {
+     "id": "ftn_002060425325",
+     "type": "PAYMENT_RECEIVED",
+     "value": 374.25,
+     "date": "2026-09-09",
+     "paymentId": "pay_s2yomd13v4xq4viu"
+    }
+   ],
+   "estornos_devolucoes": []
+  },
+  "2026-09-10": {
+   "total_linhas": 44,
+   "por_tipo": {
+    "PAYMENT_FEE": {
+     "qtd": 11,
+     "soma": -51.16
+    },
+    "PAYMENT_RECEIVED": {
+     "qtd": 7,
+     "soma": 2889.44
+    },
+    "TRANSFER": {
+     "qtd": 5,
+     "soma": -3689.29
+    },
+    "BILL_PAYMENT": {
+     "qtd": 2,
+     "soma": -806.98
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
+     "qtd": 7,
+     "soma": -17.71
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+     "qtd": 7,
+     "soma": 1330.8
+    },
+    "INSTANT_TEXT_MESSAGE_FEE": {
+     "qtd": 2,
+     "soma": -1.1
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+     "qtd": 3,
+     "soma": -503.4
+    }
+   },
+   "destaque_valor": [],
+   "estornos_devolucoes": []
+  }
+ }
+}
