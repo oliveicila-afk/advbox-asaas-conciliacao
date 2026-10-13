@@ -68,10 +68,12 @@ jobs:
                   nome = norm((cache_cli[cid] or {}).get("name"))
                   if pagador not in nome: continue
                   campos = " | ".join(str(p.get(k) or "") for k in ("description", "externalReference"))
+                  longas = re.findall(r"\d[\d\-\.\/]{18,}\d", campos)
                   pagos.append({"dia": dia, "valor": t.get("value"), "paymentId": t["paymentId"],
                                 "fatura_nr": p.get("invoiceNumber"), "billingType": p.get("billingType"),
-                                "descricao_mascarada": cnj_re.sub("[CNJ]", campos)[:300],
-                                "cnjs": cnjs(campos), "n_cnjs": len(cnjs(campos))})
+                                "descricao_mascarada": re.sub(r"\d", "#", campos)[:300],
+                                "longas": [so_digitos(x) for x in longas],
+                                "cnjs": [], "n_cnjs": 0})
           print("pagamentos do pagador:", len(pagos))
 
           # 2) processos do Advbox
@@ -96,16 +98,20 @@ jobs:
           saida = []
           for p in pagos:
               achados = []
-              for c in p["cnjs"]:
-                  l = idx.get(c)
-                  if l:
-                      achados.append({"cnj_final": c[-6:], "lawsuits_id": l.get("id"),
-                                      "tipo": (l.get("type") or {}).get("name") if isinstance(l.get("type"), dict) else l.get("type"),
-                                      "grupo": (l.get("group") or {}).get("name") if isinstance(l.get("group"), dict) else l.get("group"),
-                                      "clientes": [ini(c2.get("name")) for c2 in (l.get("customers") or []) if isinstance(c2, dict)]})
-                  else:
-                      achados.append({"cnj_final": c[-6:], "lawsuits_id": None})
-              saida.append({**{k: v for k, v in p.items() if k != "cnjs"}, "processos": achados})
+              for ds in p["longas"]:
+                  for off in range(0, len(ds) - 19):
+                      c = ds[off:off + 20]
+                      l = idx.get(c)
+                      if l:
+                          achados.append({"janela": [off, len(ds)], "lawsuits_id": l.get("id"),
+                                          "tipo": (l.get("type") or {}).get("name") if isinstance(l.get("type"), dict) else l.get("type"),
+                                          "grupo": (l.get("group") or {}).get("name") if isinstance(l.get("group"), dict) else l.get("group"),
+                                          "clientes": [ini(c2.get("name")) for c2 in (l.get("customers") or []) if isinstance(c2, dict)],
+                                          "status_closure": l.get("status_closure")})
+              p2 = {k: v for k, v in p.items() if k not in ("cnjs", "n_cnjs", "longas")}
+              p2["tamanhos_numeros"] = [len(x) for x in p["longas"]]
+              p2["processos"] = achados
+              saida.append(p2)
           json.dump({"dias": dias, "pagador": pagador, "pagamentos": saida, "chaves_lawsuit": sorted(lw[0].keys()) if lw else []},
                     open("caixa_processos.json", "w"), ensure_ascii=False, indent=1)
           PY
