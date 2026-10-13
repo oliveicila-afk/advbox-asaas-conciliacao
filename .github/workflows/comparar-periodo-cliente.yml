@@ -31,12 +31,18 @@ jobs:
           i0=dt.date.fromisoformat(os.environ["INI"]); i1=dt.date.fromisoformat(os.environ["FIM"])
           cp, cc = {}, {}
           def nome(t):
+            try:
+              return nome_(t)
+            except Exception:
+              return None
+          def nome_(t):
               pid=t.get("paymentId")
               if not pid and t.get("anticipationId"):
                   pid=requests.get(f"{A}/anticipations/{t['anticipationId']}",headers=ha,timeout=30).json().get("payment")
               if not pid: return None
               if pid not in cp: cp[pid]=requests.get(f"{A}/payments/{pid}",headers=ha,timeout=30).json().get("customer")
               c=cp[pid]
+              if not c: return None
               if c not in cc: cc[c]=requests.get(f"{A}/customers/{c}",headers=ha,timeout=30).json().get("name")
               return cc[c]
           asaas=defaultdict(list); d=i0
