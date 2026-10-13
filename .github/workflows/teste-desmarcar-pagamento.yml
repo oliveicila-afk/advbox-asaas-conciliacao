@@ -1,0 +1,46 @@
+name: Teste desmarcar pagamento Advbox (1 lançamento)
+
+on:
+  workflow_dispatch:
+    inputs:
+      transaction_id:
+        description: "ID do lançamento no Advbox"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  teste:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: PUT date_payment=null (1 chamada) e registra resposta
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TX_ID: ${{ github.event.inputs.transaction_id }}
+        run: |
+          python3 - <<'PY'
+          import os, requests, json
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json",
+               "Content-Type": "application/json"}
+          u = f"https://app.advbox.com.br/api/v1/transactions/{os.environ['TX_ID']}"
+          r = requests.put(u, headers=h, json={"date_payment": None}, timeout=30)
+          out = {"status": r.status_code, "body": r.text[:800]}
+          json.dump(out, open("teste_desmarcar.json","w"), indent=2, ensure_ascii=False)
+          print(out)
+          PY
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f teste_desmarcar.json
+          git commit -m "Teste desmarcar pagamento" || exit 0
+          git pull --rebase origin main || true
+          git push
