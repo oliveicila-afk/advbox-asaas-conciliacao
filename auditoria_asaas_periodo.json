@@ -1,7 +1,68 @@
 {
- "inicio": "2026-09-09",
- "fim": "2026-09-09",
+ "inicio": "2026-09-07",
+ "fim": "2026-09-10",
  "dias": {
+  "2026-09-07": {
+   "total_linhas": 3,
+   "por_tipo": {
+    "INSTANT_TEXT_MESSAGE_FEE": {
+     "qtd": 1,
+     "soma": -0.55
+    },
+    "PAYMENT_FEE": {
+     "qtd": 1,
+     "soma": -1.99
+    },
+    "PAYMENT_RECEIVED": {
+     "qtd": 1,
+     "soma": 397.0
+    }
+   },
+   "destaque_valor": [],
+   "estornos_devolucoes": []
+  },
+  "2026-09-08": {
+   "total_linhas": 81,
+   "por_tipo": {
+    "PAYMENT_FEE": {
+     "qtd": 20,
+     "soma": -91.19
+    },
+    "PAYMENT_RECEIVED": {
+     "qtd": 24,
+     "soma": 20329.06
+    },
+    "TRANSFER": {
+     "qtd": 3,
+     "soma": -71304.87
+    },
+    "PIX_TRANSACTION_DEBIT_REFUND": {
+     "qtd": 1,
+     "soma": 17558.66
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
+     "qtd": 10,
+     "soma": -26.63
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+     "qtd": 10,
+     "soma": 2220.89
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+     "qtd": 13,
+     "soma": -7452.06
+    }
+   },
+   "destaque_valor": [],
+   "estornos_devolucoes": [
+    {
+     "id": "ftn_002059479730",
+     "type": "PIX_TRANSACTION_DEBIT_REFUND",
+     "value": 17558.66,
+     "paymentId": null
+    }
+   ]
+  },
   "2026-09-09": {
    "total_linhas": 36,
    "por_tipo": {
@@ -30,82 +91,46 @@
      "soma": -989.42
     }
    },
-   "destaque_valor": [
-    {
-     "object": "financialTransaction",
-     "id": "ftn_002061186682",
-     "value": 374.25,
-     "type": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
-     "date": "2026-09-09",
-     "paymentId": null,
-     "externalReference": null,
-     "splitId": null,
-     "transferId": null,
-     "anticipationId": "fba1448e-0973-4f49-b49c-a9ebb6d258e1",
-     "billId": null,
-     "invoiceId": null,
-     "paymentDunningId": null,
-     "creditBureauReportId": null,
-     "_anticipationId": {
-      "id": "fba1448e-0973-4f49-b49c-a9ebb6d258e1",
-      "payment": "pay_2ymjzm629v3yp9eg",
-      "installment": null,
-      "value": 362.57,
-      "totalValue": 374.25,
-      "netValue": 357.43,
-      "fee": 5.14,
-      "status": "DEBITED",
-      "anticipationDate": "2026-09-09",
-      "dueDate": "2026-10-13",
-      "requestDate": "2026-09-08"
-     }
+   "destaque_valor": [],
+   "estornos_devolucoes": []
+  },
+  "2026-09-10": {
+   "total_linhas": 44,
+   "por_tipo": {
+    "PAYMENT_FEE": {
+     "qtd": 11,
+     "soma": -51.16
     },
-    {
-     "object": "financialTransaction",
-     "id": "ftn_002060425354",
-     "value": -374.25,
-     "type": "RECEIVABLE_ANTICIPATION_DEBIT",
-     "date": "2026-09-09",
-     "paymentId": null,
-     "externalReference": null,
-     "splitId": null,
-     "transferId": null,
-     "anticipationId": "8eadb347-ea23-4708-9731-45e99acdc304",
-     "billId": null,
-     "invoiceId": null,
-     "paymentDunningId": null,
-     "creditBureauReportId": null,
-     "_anticipationId": {
-      "id": "8eadb347-ea23-4708-9731-45e99acdc304",
-      "payment": "pay_s2yomd13v4xq4viu",
-      "installment": null,
-      "value": 362.57,
-      "totalValue": 374.25,
-      "netValue": 358.04,
-      "fee": 4.53,
-      "status": "DEBITED",
-      "anticipationDate": "2026-08-10",
-      "dueDate": "2026-09-09",
-      "requestDate": "2026-08-08"
-     }
+    "PAYMENT_RECEIVED": {
+     "qtd": 7,
+     "soma": 2889.44
     },
-    {
-     "object": "financialTransaction",
-     "id": "ftn_002060425325",
-     "value": 374.25,
-     "type": "PAYMENT_RECEIVED",
-     "date": "2026-09-09",
-     "paymentId": "pay_s2yomd13v4xq4viu",
-     "externalReference": "16044023",
-     "splitId": null,
-     "transferId": null,
-     "anticipationId": null,
-     "billId": null,
-     "invoiceId": null,
-     "paymentDunningId": null,
-     "creditBureauReportId": null
+    "TRANSFER": {
+     "qtd": 5,
+     "soma": -3689.29
+    },
+    "BILL_PAYMENT": {
+     "qtd": 2,
+     "soma": -806.98
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
+     "qtd": 7,
+     "soma": -17.71
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+     "qtd": 7,
+     "soma": 1330.8
+    },
+    "INSTANT_TEXT_MESSAGE_FEE": {
+     "qtd": 2,
+     "soma": -1.1
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+     "qtd": 3,
+     "soma": -503.4
     }
-   ],
+   },
+   "destaque_valor": [],
    "estornos_devolucoes": []
   }
  }
