@@ -1,11 +1,22 @@
 {
- "data": "2026-09-06",
+ "data": "2026-09-07",
  "dry_run": true,
- "encontrados": 0,
- "itens": [],
+ "encontrados": 1,
+ "itens": [
+  {
+   "id": 10758631,
+   "data": "2026-09-07",
+   "cliente": "Divan H. F. B.",
+   "valor": 397,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "metodo": "tese_unica_do_cliente",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  }
+ ],
  "resumo": {
   "alterados": 0,
-  "simulados": 0,
+  "simulados": 1,
   "pulados": 0,
   "erros": 0
  },
