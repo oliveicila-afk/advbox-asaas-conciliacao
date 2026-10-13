@@ -1,0 +1,162 @@
+{
+ "dias": [
+  "2026-09-14",
+  "2026-09-16",
+  "2026-09-17",
+  "2026-09-18"
+ ],
+ "pagador": "CAIXA",
+ "pagamentos": [
+  {
+   "dia": "2026-09-14",
+   "valor": 14444.24,
+   "paymentId": "pay_uyncz3y0ro9eyode",
+   "fatura_nr": "910186697",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "635222",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-14",
+   "valor": 4339.5,
+   "paymentId": "pay_0z9lqlmz6j0m6hjn",
+   "fatura_nr": "910186691",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "995732",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-14",
+   "valor": 6435.01,
+   "paymentId": "pay_igezmnkq6ni6nrdr",
+   "fatura_nr": "910186681",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "790042",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-16",
+   "valor": 3019.82,
+   "paymentId": "pay_ud4d6sjud9ahdq3y",
+   "fatura_nr": "912135477",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. | ",
+   "n_cnjs": 0,
+   "processos": []
+  },
+  {
+   "dia": "2026-09-16",
+   "valor": 7980.18,
+   "paymentId": "pay_kbcm4lyho76t5a7u",
+   "fatura_nr": "912135470",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. | ",
+   "n_cnjs": 0,
+   "processos": []
+  },
+  {
+   "dia": "2026-09-17",
+   "valor": 2541.36,
+   "paymentId": "pay_o1jgx8katxpvafyq",
+   "fatura_nr": "913208704",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0228040001",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "110912",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-17",
+   "valor": 11592.79,
+   "paymentId": "pay_4rez4orx4zo9t7ye",
+   "fatura_nr": "913015927",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248040001",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "512112",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-17",
+   "valor": 1623.84,
+   "paymentId": "pay_0jrnyjliwjy8sbiu",
+   "fatura_nr": "912940771",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ DISTRITO FEDERAL | [CNJ]0248070001",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "017042",
+     "lawsuits_id": null
+    }
+   ]
+  },
+  {
+   "dia": "2026-09-18",
+   "valor": 5522.98,
+   "paymentId": "pay_3n5zexpp31v4vr7n",
+   "fatura_nr": "913833033",
+   "billingType": "TRANSFER",
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0268041000",
+   "n_cnjs": 1,
+   "processos": [
+    {
+     "cnj_final": "006202",
+     "lawsuits_id": null
+    }
+   ]
+  }
+ ],
+ "chaves_lawsuit": [
+  "contingency",
+  "created_at",
+  "customers",
+  "exit_execution",
+  "exit_production",
+  "fees_expec",
+  "fees_money",
+  "folder",
+  "group",
+  "group_id",
+  "id",
+  "notes",
+  "process_date",
+  "process_number",
+  "protocol_number",
+  "responsible",
+  "responsible_id",
+  "stage",
+  "stages_id",
+  "status_closure",
+  "step",
+  "steps_id",
+  "type",
+  "type_lawsuit_id"
+ ]
+}
