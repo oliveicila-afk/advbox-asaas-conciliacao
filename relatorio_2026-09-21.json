@@ -1,27 +1,27 @@
 {
   "data": "2026-09-21",
-  "gerado_em": "2026-10-13T15:03:31.114412",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T17:09:39.127125",
+  "status": "CONCILIADO",
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 2111.43,
-    "advbox": 2044.43,
-    "diferenca": 67.0
+    "advbox": 2111.43,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Luiz A. D. O. J."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 1,
+    "detalhes": [
+      {
+        "tipo": "CREATE",
+        "valor": 67.0
+      }
+    ]
   }
 }
