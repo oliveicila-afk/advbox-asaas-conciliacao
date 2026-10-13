@@ -1,13 +1,13 @@
 {
   "data": "2026-09-22",
-  "gerado_em": "2026-10-13T15:05:25.585246",
+  "gerado_em": "2026-10-13T17:13:59.933270",
   "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 7297.26,
-    "advbox": 1279.17,
-    "diferenca": 6018.09
+    "advbox": 1030.67,
+    "diferenca": 6266.59
   },
   "divergencias": {
     "nome_diferente": [],
@@ -17,17 +17,27 @@
         "cliente_asaas": "Juridico M."
       }
     ],
-    "fantasmas_no_advbox": [
+    "fantasmas_no_advbox": []
+  },
+  "pendentes_sem_tese": [
+    {
+      "valor": 6266.59,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    },
+    {
+      "valor": 6266.59,
+      "cliente_asaas": "Juridico M.",
+      "motivo": "pagador CNPJ sem processo"
+    }
+  ],
+  "correcoes": {
+    "total_realizadas": 1,
+    "detalhes": [
       {
-        "valor": 248.5,
-        "cliente_advbox": "Lais S. M. M.",
-        "advbox_id": 17383970
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 248.5
       }
     ]
-  },
-  "pendentes_sem_tese": [],
-  "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
   }
 }
