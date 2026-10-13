@@ -1,0 +1,33 @@
+{
+  "data": "2026-09-22",
+  "gerado_em": "2026-10-13T15:05:25.585246",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 7297.26,
+    "advbox": 1279.17,
+    "diferenca": 6018.09
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 6266.59,
+        "cliente_asaas": "Juridico M."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 248.5,
+        "cliente_advbox": "Lais S. M. M.",
+        "advbox_id": 17383970
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
