@@ -20,7 +20,7 @@ ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
 TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
 TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
 
-ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "ANTICIPATED_RECEIVED"]
+ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"]
 DRY_RUN = os.environ.get("DRY_RUN", "false").lower() in ["true", "1", "yes"]
 
 MAX_RECONCILIATION_ATTEMPTS = 5
@@ -121,55 +121,38 @@ def fetch_asaas_transactions():
 
     log_msg(f"\n[ASAAS] Iniciando fetch", True)
 
-    for income_type in ASAAS_INCOME_TYPES:
-        log_msg(f"[ASAAS] Tipo: {income_type}", True)
-        offset = 0
-        limit = 100
-
-        while True:
-            try:
-                params = {
-                    "startDate": TARGET_DATE,
-                    "finishDate": TARGET_DATE,
-                    "type": income_type,
-                    "limit": limit,
-                    "offset": offset,
-                }
-                log_msg(f"  Requisição: offset={offset}, limit={limit}, params={params}", False)
-
-                resp = requests.get(
-                    "https://api.asaas.com/v3/financialTransactions",
-                    headers=headers_asaas,
-                    params=params,
-                    timeout=30
-                )
-
-                log_msg(f"  Status: {resp.status_code}", True)
-                log_msg(f"  Headers resposta: {dict(resp.headers)}", False)
-
-                if resp.status_code != 200:
-                    log_msg(f"  ERRO HTTP! Corpo: {resp.text[:500]}", True)
-                    break
-
-                data = resp.json()
-                log_msg(f"  Chaves: {list(data.keys())}", True)
-                log_msg(f"  hasMore: {data.get('hasMore')}", True)
-                log_msg(f"  Dados completos: {json.dumps(data, indent=2, default=str)}", False)
-
-                batch = data.get("data", [])
-                log_msg(f"  Batch size: {len(batch)}", True)
-
-                transactions.extend(batch)
-
-                has_more = data.get("hasMore", False)
-                if not has_more or len(batch) == 0:
-                    log_msg(f"  Fim da paginação", True)
-                    break
-                offset += limit
-
-            except Exception as e:
-                log_msg(f"  ❌ EXCEÇÃO: {type(e).__name__}: {str(e)}", True)
+    # Mesmo critério do workflow consultar-total-asaas: sem filtro "type" na API
+    # (ele não filtra e duplicava os dados); filtra o tipo aqui e remove duplicados.
+    all_raw = []
+    offset = 0
+    limit = 100
+    while True:
+        try:
+            params = {"startDate": TARGET_DATE, "finishDate": TARGET_DATE, "limit": limit, "offset": offset}
+            resp = requests.get("https://api.asaas.com/v3/financialTransactions",
+                                headers=headers_asaas, params=params, timeout=30)
+            log_msg(f"  Status: {resp.status_code}", True)
+            if resp.status_code != 200:
+                log_msg(f"  ERRO HTTP! Corpo: {resp.text[:500]}", True)
                 break
+            data = resp.json()
+            batch = data.get("data", [])
+            all_raw.extend(batch)
+            if not data.get("hasMore", False) or len(batch) == 0:
+                break
+            offset += limit
+        except Exception as e:
+            log_msg(f"  ❌ EXCEÇÃO: {type(e).__name__}: {str(e)}", True)
+            break
+
+    from collections import Counter
+    log_msg(f"[ASAAS] Bruto: {len(all_raw)} | tipos: {dict(Counter(t.get('type') for t in all_raw))}", True)
+    vistos = set()
+    for t in all_raw:
+        if t.get("type") in ASAAS_INCOME_TYPES and t.get("id") not in vistos:
+            vistos.add(t.get("id"))
+            transactions.append(t)
+    log_msg(f"[ASAAS] Receitas mantidas: {len(transactions)} | soma: {sum(float(t.get('value',0)) for t in transactions):.2f}", True)
 
     log_msg(f"\n[ASAAS] TOTAL: {len(transactions)} transações", True)
     return transactions
@@ -188,7 +171,7 @@ def fetch_advbox_transactions():
     offset = 0
     limit = 100
     all_raw = []
-    max_pages = 20  # Limite máximo de páginas para não ficar puxando dados eternamente
+    max_pages = 1000  # Limite máximo de páginas para não ficar puxando dados eternamente
     page_count = 0
     filter_counts = {
         "type_not_income": 0,
