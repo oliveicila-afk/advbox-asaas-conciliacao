@@ -1,12 +1,45 @@
 {
- "data": "2026-09-02",
- "dry_run": false,
- "encontrados": 0,
- "itens": [],
+ "data": "2026-09-03",
+ "dry_run": true,
+ "encontrados": 3,
+ "itens": [
+  {
+   "id": 17458879,
+   "data": "2026-09-03",
+   "cliente": "Elsimar D. J. N.",
+   "valor": 73.78,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "metodo": "tese_unica_do_cliente",
+   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
+   "resultado": "SIMULAÇÃO (nada alterado)"
+  },
+  {
+   "id": 18152235,
+   "data": "2026-09-03",
+   "cliente": "(sem nome)",
+   "valor": 815.5,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "resultado": "PULADO: cliente com várias teses, sem regra",
+   "leitura": {
+    "motivo": "lançamento sem cliente vinculado"
+   }
+  },
+  {
+   "id": 18152427,
+   "data": "2026-09-03",
+   "cliente": "(sem nome)",
+   "valor": 815.5,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "resultado": "PULADO: cliente com várias teses, sem regra",
+   "leitura": {
+    "motivo": "lançamento sem cliente vinculado"
+   }
+  }
+ ],
  "resumo": {
   "alterados": 0,
-  "simulados": 0,
-  "pulados": 0,
+  "simulados": 1,
+  "pulados": 2,
   "erros": 0
  },
  "analise_somente_leitura": {

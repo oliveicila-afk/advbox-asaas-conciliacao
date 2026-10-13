@@ -1,0 +1,59 @@
+{
+  "data": "2026-09-03",
+  "gerado_em": "2026-10-13T04:12:09.460932",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 20695.58,
+    "advbox": 21511.08,
+    "diferenca": 815.5
+  },
+  "divergencias": {
+    "nome_diferente": [
+      {
+        "valor": 15421.98,
+        "asaas": "Caixa E. F.",
+        "advbox": "Elizeth S. D. C. D. M.",
+        "advbox_id": 17456672
+      },
+      {
+        "valor": 3149.86,
+        "asaas": "Caixa E. F.",
+        "advbox": "Anderson S. G.",
+        "advbox_id": 17456673
+      }
+    ],
+    "faltando_no_advbox": [
+      {
+        "valor": 248.5,
+        "cliente_asaas": "Amos L."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Gilberto L. D. A."
+      },
+      {
+        "valor": 500.0,
+        "cliente_asaas": "Elcilene D. S. C. C."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 815.5,
+        "cliente_advbox": "(sem nome)",
+        "advbox_id": 18152235
+      },
+      {
+        "valor": 815.5,
+        "cliente_advbox": "(sem nome)",
+        "advbox_id": 18152427
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
