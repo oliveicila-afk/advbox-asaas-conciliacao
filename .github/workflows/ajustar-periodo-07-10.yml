@@ -1,0 +1,48 @@
+name: Ajustar Advbox 07–10/09 (500 pago + desmarcar um 374,25)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ajustar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Aplicar ajustes
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json", "Content-Type": "application/json"}
+          base = "https://app.advbox.com.br/api/v1/transactions"
+          ajustes = [
+              (17359510, "2026-09-09", "voltar para pago (R$ 500,00, vence 09/09)"),
+              (17805644, "",           "desmarcar pagamento (um dos dois R$ 374,25 de 09/09)"),
+          ]
+          res = []
+          for tx_id, novo, motivo in ajustes:
+              g = requests.get(f"{base}/{tx_id}", headers=h, timeout=30)
+              antes = g.json().get("date_payment") if g.status_code == 200 else None
+              r = requests.put(f"{base}/{tx_id}", headers=h, json={"date_payment": novo}, timeout=30)
+              res.append({"id": tx_id, "motivo": motivo, "date_payment_antes": antes, "date_payment_novo": novo,
+                          "http": r.status_code, "ok": r.status_code in (200, 204)})
+              print(res[-1])
+          json.dump(res, open("ajuste_07_10_resultado.json", "w"), ensure_ascii=False, indent=1)
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f ajuste_07_10_resultado.json
+          git diff --cached --quiet || git commit -m "Ajuste Advbox 07-10/09: 500 pago e um 374,25 desmarcado"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
