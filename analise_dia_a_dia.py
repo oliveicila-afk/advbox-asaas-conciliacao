@@ -142,6 +142,43 @@ def classificacao_por_precedente(nome, headers_advbox):
             "categoria": ref["category"], "centro_custo": ref["cost_center"]}
 
 
+def _so_alnum(n):
+    return re.sub(r"[^A-Z0-9]", "", norm_nome(n))
+
+def categoria_promocao_horizontal(headers_advbox):
+    """Única categoria de Promoção Horizontal que não é de êxito (regra 67/497/597)."""
+    st = carregar_settings_advbox(headers_advbox)
+    cats = [(n, i) for n, i in st["cat"].items()
+            if "PROMOÇÃO HORIZONTAL" in n.upper() and "ÊXITO" not in n.upper() and "EXITO" not in n.upper()
+            and "RETROATIVO" not in n.upper()]
+    return cats[0] if len(cats) == 1 else None
+
+def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
+    """Define a data de pagamento de um lançamento que JÁ existe. A API exige o payload completo
+    (entry_type, conta ASAAS, categoria, centro de custo, cliente, processo). Se a categoria gravada
+    não existe mais (422 em categories_id) e o valor é 67/497/597, troca pela categoria de Promoção Horizontal."""
+    u = f"https://app.advbox.com.br/api/v1/transactions/{tx_id}"
+    hj = {**headers_advbox, "Content-Type": "application/json"}
+    d = requests.get(u, headers=headers_advbox, timeout=30).json()
+    time.sleep(2.2)
+    p = {"entry_type": d.get("entry_type") or "income", "users_id": d.get("users_id") or 65747, "debit_account": 193264,
+         "categories_id": d.get("categories_id"), "cost_centers_id": d.get("cost_centers_id"),
+         "customers_id": d.get("customers_id"), "lawsuits_id": d.get("lawsuits_id"),
+         "amount": f"{float(d.get('amount', valor)):.2f}".replace(".", ","),
+         "date_due": str(d.get("date_due"))[:10], "date_payment": data_pag, "description": d.get("description") or ""}
+    p = {k: v for k, v in p.items() if v is not None}
+    rr = requests.put(u, headers=hj, json=p, timeout=30)
+    time.sleep(2.2)
+    if rr.status_code == 422 and "categories_id" in rr.text and round(float(valor), 2) in (67.0, 497.0, 597.0):
+        ph = categoria_promocao_horizontal(headers_advbox)
+        if ph:
+            log_msg(f"  categoria antiga inválida -> usando '{ph[0]}' (regra 67/497/597)", True)
+            p["categories_id"] = ph[1]
+            rr = requests.put(u, headers=hj, json=p, timeout=30)
+            time.sleep(2.2)
+    return rr.status_code in (200, 204)
+
+
 def indice_processos(headers_advbox):
     """Índice {20 dígitos do processo: processo Advbox} (lido uma vez, respeitando o limite da API)."""
     global _LAWSUIT_IDX
@@ -249,14 +286,25 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
             return False
         description = asaas_tx.get("description") or "Pagamento Asaas"
         classif = classificacao_por_precedente(asaas_tx.get("_nome"), headers_advbox)
+        if not classif:
+            # Sem lançamento pago anterior: copia categoria e centro de custo do lançamento PREVISTO (em aberto) do mesmo cliente
+            alvo_n = norm_nome(asaas_tx.get("_nome"))
+            prev = [t for t in _ADVBOX_RAW if t.get("entry_type") == "income" and not t.get("date_payment")
+                    and norm_nome(t.get("name")) == alvo_n and t.get("category") and t["category"] not in GENERICAS
+                    and "-" in t["category"] and t.get("cost_center")]
+            prev.sort(key=lambda t: str(t.get("date_due") or ""))
+            if prev:
+                st = carregar_settings_advbox(headers_advbox)
+                ci, ccid = st["cat"].get(prev[0]["category"]), st["cc"].get(prev[0]["cost_center"])
+                if ci and ccid:
+                    classif = {"categories_id": ci, "cost_centers_id": ccid,
+                               "categoria": prev[0]["category"], "centro_custo": prev[0]["cost_center"]}
         if not classif and round(float(asaas_tx.get("value", 0)), 2) in (67.0, 497.0, 597.0):
             # regra combinada: valores 67/497/597 podem ser Promoção Horizontal
-            st = carregar_settings_advbox(headers_advbox)
-            cats = [(n, i) for n, i in st["cat"].items()
-                    if "PROMOÇÃO HORIZONTAL" in n.upper() and "ÊXITO" not in n.upper() and "EXITO" not in n.upper()]
-            if len(cats) == 1:
-                classif = {"categories_id": cats[0][1], "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
-                           "categoria": cats[0][0], "centro_custo": "padrão ASAAS"}
+            ph = categoria_promocao_horizontal(headers_advbox)
+            if ph:
+                classif = {"categories_id": ph[1], "cost_centers_id": COST_CENTER_ASAAS_PADRAO,
+                           "categoria": ph[0], "centro_custo": "padrão ASAAS"}
         if not classif:
             log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' sem lançamento anterior com tese - NÃO criado (informar a tese)", True)
             pendentes_sem_tese.append({"valor": round(float(asaas_tx.get("value", 0)), 2),
@@ -775,6 +823,20 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
                         and str(t.get("id")) not in ids_usados):
                     cand = t
                     break
+        if cand is None and n:
+            # Parcela de consultoria/parceria: o lançamento já existe em aberto (previsto, vencimento de outro dia).
+            # Dá baixa na parcela em aberto MAIS ANTIGA do mesmo cliente e valor, em vez de criar outra.
+            abertas = [t for t in _ADVBOX_RAW
+                       if t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
+                       and not t.get("date_payment")
+                       and (str(t.get("category") or "").startswith("HONORÁRIOS CONSULTORIAS")
+                            or "PARCEIROS" in str(t.get("category") or "").upper()
+                            or str(t.get("cost_center") or "").upper() == "PARCERIAS")
+                       and _so_alnum(t.get("name")) == _so_alnum(n) and val_adv(t) == v
+                       and str(t.get("id")) not in ids_usados]
+            abertas.sort(key=lambda t: str(t.get("date_due") or ""))
+            if abertas:
+                cand = abertas[0]
         if cand is None:
             sobra_asaas6.append(a_tx)
         else:
@@ -825,12 +887,9 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     if corrigir_datas and not DRY_RUN:
         log_msg(f"\n[CORRIGINDO] Ajustando data de pagamento de {len(corrigir_datas)} lançamento(s) existente(s)...", True)
         for cand, v in corrigir_datas:
-            rr = requests.put(f"https://app.advbox.com.br/api/v1/transactions/{cand.get('id')}",
-                              headers={**headers_advbox, "Content-Type": "application/json"},
-                              json={"date_payment": TARGET_DATE}, timeout=30)
-            time.sleep(2.2)
-            log_msg(f"  AJUSTAR DATA {cand.get('id')}: {rr.status_code}", True)
-            if rr.status_code in (200, 204):
+            ok = pagar_lancamento_existente(cand.get("id"), TARGET_DATE, v, headers_advbox)
+            log_msg(f"  AJUSTAR DATA {cand.get('id')}: {'ok' if ok else 'FALHOU'}", True)
+            if ok:
                 all_corrections.append(("AJUSTAR_DATA", v))
 
     if caixa_planos and not DRY_RUN:
@@ -884,6 +943,52 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
         else:
             log_msg(f"❌ Limite de tentativas atingido", True)
 
+def revisao_do_mes(headers_asaas, headers_advbox):
+    """REVISÃO antes de dar a conciliação como feita: do dia 1 do mês até o dia anterior ao alvo,
+    soma da receita do Asaas (sem investimento) x soma do Advbox (conta ASAAS, por data de pagamento), dia a dia."""
+    from datetime import date, timedelta
+    alvo = date.fromisoformat(TARGET_DATE)
+    d = alvo.replace(day=1)
+    dias_div = []
+    while d < alvo:
+        iso = d.isoformat()
+        off, vistos, tot_a = 0, set(), 0.0
+        while True:
+            j = requests.get("https://api.asaas.com/v3/financialTransactions", headers=headers_asaas,
+                             params={"startDate": iso, "finishDate": iso, "limit": 100, "offset": off}, timeout=30).json()
+            for t in j.get("data", []):
+                if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES:
+                    continue
+                vistos.add(t["id"])
+                nome = (asaas_nome(t, headers_asaas) or "").upper()
+                if any(k in nome for k in NOMES_INVESTIMENTO):
+                    continue
+                tot_a += float(t.get("value", 0))
+            if not j.get("hasMore") or not j.get("data"):
+                break
+            off += 100
+        tot_b = sum(float(str(t.get("amount", 0)).replace(",", ".")) for t in _ADVBOX_RAW
+                    if t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
+                    and str(t.get("date_payment") or "")[:10] == iso)
+        if abs(tot_a - tot_b) >= TOLERANCE:
+            dias_div.append({"dia": iso, "asaas": round(tot_a, 2), "advbox": round(tot_b, 2), "diferenca": round(tot_a - tot_b, 2)})
+        d += timedelta(days=1)
+    return dias_div
+
+
+# REVISÃO DO MÊS (regra do escritório: só é conciliação feita se o mês até aqui também fechar)
+revisao_mes = []
+try:
+    revisao_mes = revisao_do_mes({"access_token": ASAAS_TOKEN, "Accept": "application/json"},
+                                 {"Authorization": f"Bearer {ADVBOX_TOKEN}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+    if revisao_mes:
+        log_msg(f"⚠️ REVISÃO DO MÊS: {len(revisao_mes)} dia(s) anteriores não fecham: {revisao_mes}", True)
+        reconciliation_complete = False
+    else:
+        log_msg("✅ REVISÃO DO MÊS: todos os dias anteriores fecham", True)
+except Exception as e:
+    log_msg(f"⚠️ revisão do mês não concluída: {type(e).__name__}: {e}", True)
+
 # RELATÓRIO FINAL
 log_msg(f"\n{'='*100}\nRESULTADO FINAL\n{'='*100}", True)
 
@@ -911,6 +1016,7 @@ report = {
     },
     "divergencias": divergencias_atuais,
     "pendentes_sem_tese": pendentes_sem_tese,
+    "revisao_mes": revisao_mes,
     "correcoes": {
         "total_realizadas": len(all_corrections),
         "detalhes": [
