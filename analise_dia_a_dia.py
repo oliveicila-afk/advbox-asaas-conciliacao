@@ -236,6 +236,13 @@ def buscar_cliente_advbox(asaas_tx: dict, headers_advbox: dict):
 def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
     """Cria a receita já paga na conta ASAAS, ligada ao cliente (nome vem do cliente)."""
     try:
+        # Pagador PESSOA JURÍDICA (CNPJ) via TED/Pix sem processo: precisa de identificação manual do cliente/tese
+        doc = "".join(ch for ch in str(asaas_tx.get("_cpf") or "") if ch.isdigit())
+        if len(doc) == 14:
+            log_msg(f"  CREATE: pagador CNPJ '{mascara_nome(asaas_tx.get('_nome'))}' R${float(asaas_tx.get('value', 0)):.2f} - NÃO criado (identificar cliente/tese manualmente)", True)
+            pendentes_sem_tese.append({"valor": round(float(asaas_tx.get("value", 0)), 2),
+                                       "cliente_asaas": mascara_nome(asaas_tx.get("_nome")), "motivo": "pagador CNPJ sem processo"})
+            return False
         customers_id = buscar_cliente_advbox(asaas_tx, headers_advbox)
         if not customers_id:
             log_msg(f"  CREATE: cliente '{mascara_nome(asaas_tx.get('_nome'))}' não encontrado no Advbox - NÃO criado (precisa cadastrar o cliente)", True)
