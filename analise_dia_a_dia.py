@@ -138,6 +138,10 @@ def classificacao_por_precedente(nome, headers_advbox):
     cc_id = st["cc"].get(ref["cost_center"])
     if not cat_id or not cc_id:
         return None
+    nova = aplicar_regra_consultoria(ref["category"], ref["cost_center"], headers_advbox)
+    if nova:
+        return {"categories_id": nova[1], "cost_centers_id": cc_id,
+                "categoria": nova[0], "centro_custo": ref["cost_center"]}
     return {"categories_id": cat_id, "cost_centers_id": cc_id,
             "categoria": ref["category"], "centro_custo": ref["cost_center"]}
 
@@ -153,6 +157,28 @@ def categoria_promocao_horizontal(headers_advbox):
             and "RETROATIVO" not in n.upper()]
     return cats[0] if len(cats) == 1 else None
 
+CAT_CONSULTORIA_ANTIGA = "HONORÁRIOS CONSULTORIAS"
+CAT_CONSULTORIA_CLIENTE = "HONORÁRIOS CONTRATUAIS INICIAIS-CONSULTORIA"
+CENTROS_SEM_AJUSTE_CONSULTORIA = ("PARCERIAS", "GERAL")
+
+def categoria_consultoria_cliente(headers_advbox):
+    """Regra do escritório (ensinada na tela do Advbox): consultoria de CLIENTE usa a categoria
+    'HONORÁRIOS CONTRATUAIS INICIAIS-CONSULTORIA', e não 'HONORÁRIOS CONSULTORIAS'.
+    Parceria (centro de custo PARCERIAS) e centro GERAL ficam como estão."""
+    st = carregar_settings_advbox(headers_advbox)
+    alvo = _sem_acento(CAT_CONSULTORIA_CLIENTE)
+    ach = [(n, i) for n, i in st["cat"].items() if _sem_acento(n).endswith(alvo)]
+    return ach[0] if len(ach) == 1 else None
+
+def aplicar_regra_consultoria(categoria, centro, headers_advbox):
+    """Devolve (nome, id) da categoria correta se a regra se aplica; senão None."""
+    if _sem_acento(categoria) != _sem_acento(CAT_CONSULTORIA_ANTIGA):
+        return None
+    if _sem_acento(centro) in CENTROS_SEM_AJUSTE_CONSULTORIA:
+        return None
+    return categoria_consultoria_cliente(headers_advbox)
+
+
 def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
     """Define a data de pagamento de um lançamento que JÁ existe. A API exige o payload completo
     (entry_type, conta ASAAS, categoria, centro de custo, cliente, processo). Se a categoria gravada
@@ -166,6 +192,10 @@ def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
          "customers_id": d.get("customers_id"), "lawsuits_id": d.get("lawsuits_id"),
          "amount": f"{float(d.get('amount', valor)):.2f}".replace(".", ","),
          "date_due": str(d.get("date_due"))[:10], "date_payment": data_pag, "description": d.get("description") or ""}
+    nova = aplicar_regra_consultoria(d.get("category"), d.get("cost_center"), headers_advbox)
+    if nova:
+        log_msg(f"  consultoria de cliente -> categoria '{nova[0]}'", True)
+        p["categories_id"] = nova[1]
     p = {k: v for k, v in p.items() if v is not None}
     rr = requests.put(u, headers=hj, json=p, timeout=30)
     time.sleep(2.2)
@@ -403,6 +433,9 @@ def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
                 if ci and ccid:
                     classif = {"categories_id": ci, "cost_centers_id": ccid,
                                "categoria": prev[0]["category"], "centro_custo": prev[0]["cost_center"]}
+                    nova = aplicar_regra_consultoria(prev[0]["category"], prev[0]["cost_center"], headers_advbox)
+                    if nova:
+                        classif.update({"categories_id": nova[1], "categoria": nova[0]})
         if not classif and round(float(asaas_tx.get("value", 0)), 2) in (67.0, 497.0, 597.0):
             # regra combinada: valores 67/497/597 podem ser Promoção Horizontal
             ph = categoria_promocao_horizontal(headers_advbox)
@@ -938,6 +971,7 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
                        if t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
                        and not t.get("date_payment")
                        and (str(t.get("category") or "").startswith("HONORÁRIOS CONSULTORIAS")
+                            or str(t.get("category") or "").endswith("INICIAIS-CONSULTORIA")
                             or "PARCEIROS" in str(t.get("category") or "").upper()
                             or str(t.get("cost_center") or "").upper() == "PARCERIAS")
                        and _so_alnum(t.get("name")) == _so_alnum(n) and val_adv(t) == v
