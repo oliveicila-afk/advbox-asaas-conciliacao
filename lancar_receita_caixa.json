@@ -35,22 +35,18 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-23",
-   "valor": 5698.07,
-   "fatura_nr": "917765122",
-   "processo_achado": true,
-   "lawsuits_id": 13114809,
-   "tese": "JUROS ABUSIVO",
-   "clientes": [
-    "M R D O P"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 15116112,
+     "valor": 34842.75,
+     "categories_id": 76416,
+     "cost_centers_id": 62601,
+     "customers_id": 5860461,
+     "lawsuits_id": 7000508,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO ESCALONAMENTO",
+     "pago": false
+    }
+   ]
   },
   {
    "dia": "2026-09-23",
@@ -65,37 +61,18 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-28",
-   "valor": 3608.27,
-   "fatura_nr": "921805178",
-   "processo_achado": true,
-   "lawsuits_id": 2348305,
-   "tese": "ANULAÇÃO DE QUESTÃO E/OU DISCURSIVA",
-   "clientes": [
-    "H L P C"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-28",
-   "valor": 1588.73,
-   "fatura_nr": "921757078",
-   "processo_achado": true,
-   "lawsuits_id": 7843581,
-   "tese": "RMC",
-   "clientes": [
-    "V L V D O"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 12139864,
+     "valor": 5852.08,
+     "categories_id": 70054,
+     "cost_centers_id": 61953,
+     "customers_id": 5804384,
+     "lawsuits_id": 5173864,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-GRATIFICAÇÃO DE CURSO",
+     "pago": false
+    }
+   ]
   },
   {
    "dia": "2026-09-28",
@@ -110,41 +87,18 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-28",
-   "valor": 9351.31,
-   "fatura_nr": "921499853",
-   "processo_achado": true,
-   "lawsuits_id": 5836169,
-   "tese": "FIC",
-   "clientes": [
-    "D P D F",
-    "E D A",
-    "F G V"
-   ],
-   "customers_ids": [
-    null,
-    null,
-    null
-   ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-29",
-   "valor": 17105.45,
-   "fatura_nr": "922824827",
-   "processo_achado": true,
-   "lawsuits_id": 14766140,
-   "tese": "SEGURO PRESTAMISTA",
-   "clientes": [
-    "R B D A"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 17475800,
+     "valor": 5861.55,
+     "categories_id": 70066,
+     "cost_centers_id": 61935,
+     "customers_id": 15060432,
+     "lawsuits_id": 15740961,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+     "pago": false
+    }
+   ]
   },
   {
    "dia": "2026-09-30",
@@ -159,22 +113,18 @@
    "customers_ids": [
     null
    ],
-   "modelos": []
-  },
-  {
-   "dia": "2026-09-30",
-   "valor": 6260.31,
-   "fatura_nr": "923741689",
-   "processo_achado": true,
-   "lawsuits_id": 12757688,
-   "tese": "JUROS ABUSIVO",
-   "clientes": [
-    "F G R"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": []
+   "modelos": [
+    {
+     "id": 15408661,
+     "valor": 2871.44,
+     "categories_id": 70060,
+     "cost_centers_id": 61966,
+     "customers_id": 8358932,
+     "lawsuits_id": 7721868,
+     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+     "pago": false
+    }
+   ]
   }
  ],
  "execucao": []
