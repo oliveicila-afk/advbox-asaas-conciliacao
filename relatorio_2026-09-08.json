@@ -1,83 +1,23 @@
 {
   "data": "2026-09-08",
-  "gerado_em": "2026-10-13T05:55:12.873575",
+  "gerado_em": "2026-10-13T06:38:41.435977",
   "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
-    "asaas": 14308.97,
-    "advbox": 50711.38,
-    "diferenca": 36402.41
+    "asaas": 22549.95,
+    "advbox": 14308.97,
+    "diferenca": 8240.98
   },
   "divergencias": {
     "nome_diferente": [],
     "faltando_no_advbox": [
       {
-        "valor": 248.5,
-        "cliente_asaas": "Wanessa R. F."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Rutiney A. D. S."
-      },
-      {
-        "valor": 250.0,
-        "cliente_asaas": "Andrea P. P."
-      },
-      {
-        "valor": 73.9,
-        "cliente_asaas": "Joelma M. D. S."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Zeni S. C."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Moises F. D. C."
-      },
-      {
-        "valor": 282.99,
-        "cliente_asaas": "Ananda M. M."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Sonia M. B. M."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Roosewelt R. D. L."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Franciely M."
-      },
-      {
-        "valor": 129.9,
-        "cliente_asaas": "Calene M. H."
-      },
-      {
-        "valor": 67.0,
-        "cliente_asaas": "Maria J. X. P."
+        "valor": 8240.98,
+        "cliente_asaas": "Bmp S. D. C. D. S."
       }
     ],
-    "fantasmas_no_advbox": [
-      {
-        "valor": 10602.77,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152237
-      },
-      {
-        "valor": 10602.77,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152430
-      },
-      {
-        "valor": 17558.66,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152431
-      }
-    ]
+    "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
