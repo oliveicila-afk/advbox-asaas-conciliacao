@@ -1,0 +1,87 @@
+name: Corrigir duplicado R$ 374,25 — 09/09/2026
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Comparar clientes e desmarcar o duplicado (só se for claro)
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, re, unicodedata, requests
+
+          def norm(s):
+              s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+              return re.sub(r"\s+", " ", s).strip().upper()
+
+          def ini(s):
+              return " ".join(p[0] for p in norm(s).split() if p) or "-"
+
+          ha = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          hb = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+                "User-Agent": "Mozilla/5.0", "Accept": "application/json", "Content-Type": "application/json"}
+
+          pay = requests.get("https://api.asaas.com/v3/payments/pay_s2yomd13v4xq4viu", headers=ha, timeout=30).json()
+          cli = requests.get(f"https://api.asaas.com/v3/customers/{pay.get('customer')}", headers=ha, timeout=30).json()
+          nome_asaas = norm(cli.get("name"))
+
+          ids = [16943792, 17805644]
+          info = {}
+          for i in ids:
+              r = requests.get(f"https://app.advbox.com.br/api/v1/transactions/{i}", headers=hb, timeout=30)
+              tx = r.json() if r.status_code == 200 else {}
+              info[i] = {
+                  "http": r.status_code,
+                  "iniciais": ini(tx.get("name")),
+                  "bate_com_asaas": norm(tx.get("name")) == nome_asaas and bool(nome_asaas),
+                  "date_payment": tx.get("date_payment"),
+                  "date_due": tx.get("date_due"),
+                  "created_at": tx.get("created_at"),
+                  "lawsuits_id": tx.get("lawsuits_id") or tx.get("process_id"),
+              }
+          print(json.dumps({"iniciais_asaas": ini(cli.get("name")), "advbox": info}, ensure_ascii=False, indent=1))
+
+          bate = [i for i in ids if info[i]["bate_com_asaas"]]
+          mesmo_cliente = info[ids[0]]["iniciais"] == info[ids[1]]["iniciais"]
+          acao = {"acao": "nenhuma", "motivo": ""}
+          alvo = None
+          if len(bate) == 1:
+              alvo = [i for i in ids if i not in bate][0]
+              acao["motivo"] = "so um lançamento bate com o cliente do Asaas"
+          elif len(bate) == 2:
+              alvo = max(ids)  # mesmo cliente nos dois: mantém o mais antigo
+              acao["motivo"] = "os dois batem com o cliente do Asaas (duplicado); mantém o mais antigo"
+          else:
+              acao["motivo"] = "nenhum bate com o cliente do Asaas — ambíguo, nada alterado"
+
+          if alvo and info[alvo]["date_payment"]:
+              r = requests.put(f"https://app.advbox.com.br/api/v1/transactions/{alvo}", headers=hb,
+                               json={"date_payment": ""}, timeout=30)
+              acao.update({"acao": "desmarcar_pagamento", "id": alvo, "http": r.status_code, "ok": r.status_code in (200, 204)})
+          print(json.dumps(acao, ensure_ascii=False))
+          with open("duplicado_374_25_resultado.json", "w") as f:
+              json.dump({"iniciais_asaas": ini(cli.get("name")), "advbox": info, "resultado": acao,
+                         "mesmo_cliente_nos_dois": mesmo_cliente}, f, ensure_ascii=False, indent=1)
+          PY
+
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f duplicado_374_25_resultado.json
+          git diff --cached --quiet || git commit -m "Resultado: duplicado R\$ 374,25 de 09/09"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
