@@ -34,11 +34,10 @@ COST_CENTER_ASAAS_PADRAO = 60814
 
 # Transações de investimento: excluídas da conciliação (já lançadas na conta de investimentos do Advbox)
 NOMES_INVESTIMENTO = ("LVMX", "FII ", "FIDC", "FUNDO DE INVESTIMENTO", "FUNDO IMOBILIARIO",
-                      "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT",
-                      "BMP SOCIEDADE", "SOCIEDADE DE CREDITO DIRETO", "SCD SA")
+                      "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT")
 
 # CNPJs de entidades financeiras/investimento que devem ser excluídas da conciliação
-CNPJS_INVESTIMENTO = ("34337707000100",)  # BMP Sociedade de Crédito Direto S.A.
+CNPJS_INVESTIMENTO: tuple = ()  # adicionar CNPJs conforme identificado
 
 # LOGGING EM ARQUIVO
 LOG_FILE = f"debug_{TARGET_DATE}.log"
