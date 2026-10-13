@@ -1,0 +1,380 @@
+{
+ "periodo": [
+  "2026-09-10",
+  "2026-09-21"
+ ],
+ "titulos": [
+  [
+   "COMENTÁRIO",
+   159
+  ],
+  [
+   "ANÁLISE DE PROCESSO NORMAL",
+   105
+  ],
+  [
+   "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   50
+  ],
+  [
+   "ALERTA DE TAREFA EXCLUÍDA",
+   39
+  ],
+  [
+   "COMUNICAR I APRESENTAÇÃO DE CONTESTAÇÃO",
+   29
+  ],
+  [
+   "PETIÇÃO INICIAL RÁPIDA",
+   24
+  ],
+  [
+   "REQUERER INFORMAÇÕES/DOCUMENTOS DO CLIENTE",
+   17
+  ],
+  [
+   "ESTUDO DE PROCESSO PARA AUDIÊNCIA",
+   4
+  ],
+  [
+   "ANÁLISE DE PROCESSO RÁPIDA",
+   3
+  ],
+  [
+   "AUDIÊNCIA PRESENCIAL NORMAL",
+   3
+  ],
+  [
+   "PETIÇÃO INICIAL NORMAL",
+   2
+  ],
+  [
+   "COMUNICAR I INVERSÃO DO ÔNUS DA PROVA I DEFERIMENTO DA GRATUIDADE DE JUSTIÇA",
+   2
+  ],
+  [
+   "DILIGÊNCIA | VERIFICAR SITUAÇÃO DO PROCESSO",
+   2
+  ],
+  [
+   "ESTUDO DE PROCESSO PARA SUSTENTAÇÃO ORAL RÁPIDO",
+   2
+  ],
+  [
+   "SUSTENTAÇÃO ORAL PRESENCIAL RÁPIDA",
+   2
+  ],
+  [
+   "CONTRARRAZÕES RÁPIDA",
+   1
+  ],
+  [
+   "ACOMPANHAMENTO DE PAD",
+   1
+  ],
+  [
+   "CONSULTORIA INVESTIGATIVA",
+   1
+  ],
+  [
+   "PETIÇÃO DE MEIO COMPLEXA",
+   1
+  ],
+  [
+   "REALIZAR DISTRATO DE CLIENTE",
+   1
+  ],
+  [
+   "PETIÇÃO DE MEIO NORMAL",
+   1
+  ],
+  [
+   "VERIFICAÇÃO DE DOCUMENTOS PARA PETIÇÃO INICIAL",
+   1
+  ],
+  [
+   "PETIÇÃO DE MEIO RÁPIDA",
+   1
+  ],
+  [
+   "COMUN. FINAN | RETORNO CONTADORIA",
+   1
+  ],
+  [
+   "COMUNICAR CLIENTE | ACORDÃO DESFAVORAVEL",
+   1
+  ],
+  [
+   "COMUNICAR CLIENTE | SENTENÇA FAVORAVEL",
+   1
+  ],
+  [
+   "EXECUÇÃO DEFINITIVA SIMPLES",
+   1
+  ],
+  [
+   "CONSULTORIA NORMAL",
+   1
+  ],
+  [
+   "RÉPLICA SIMPLES",
+   1
+  ],
+  [
+   "COMUNICAR CLIENTE | LIMINAR NEGADA",
+   1
+  ],
+  [
+   "AUDIÊNCIA ONLINE RÁPIDA",
+   1
+  ]
+ ],
+ "tarefas": [
+  {
+   "id": 273788441,
+   "date": "2026-09-10",
+   "criado": "2026-09-10",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18141405,
+   "clientes": [
+    "A D S A"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2016",
+    "R$497,00",
+    " 26,97",
+    "2021",
+    "2025",
+    "2024"
+   ],
+   "trechos": [
+    "manutenção - R$497,00 em 2x + 26,97% no êxito. Tese 1: retroativos de horizontal - Quantas horizon",
+    "- R$497,00 em 2x + 26,97% no êxito. Tese 1: retroativos de horizontal - Quantas horizontais: 3 -"
+   ]
+  },
+  {
+   "id": 273093538,
+   "date": "2026-09-10",
+   "criado": "2026-09-09",
+   "titulo": "ACOMPANHAMENTO DE PAD",
+   "lawsuits_id": 18074210,
+   "clientes": [
+    "R D A Q"
+   ],
+   "valores_nas_notas": [
+    "2016",
+    "R$ 18.000,00",
+    " 19,97",
+    "R$ 8.000,00",
+    "R$ 8.000,00"
+   ],
+   "trechos": [
+    "tiva SINDICÂNCIA/PAD: R$ 8.000,00 DE ENTRADA + R$ 8.000,00 NO ÊXITO Todos os dados referentes a fatos",
+    "12x sem juros - 19,97% do percentual de êxito Propostas divididas em 3 frentes: Tese: Acompanhament",
+    " Propostas divididas em 3 frentes: Tese: Acompanhamento de Sindicância/PAD até a finalização na esf"
+   ]
+  },
+  {
+   "id": 274796698,
+   "date": "2026-09-12",
+   "criado": "2026-09-12",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18212187,
+   "clientes": [
+    "J M P"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "1.500",
+    " 19,97"
+   ],
+   "trechos": [
+    "R$1.500 em 8x S/ Juros + 19,97% sobre o êxito. Origem: Cross-Sell CASO NOVO - RETORNO DE CONSULTORIA ",
+    ": 12/09/2026 Informações gerais: Tese: Ação de Revisão de Aposentadoria Plano: R$1.500 em 8x S/ "
+   ]
+  },
+  {
+   "id": 275307826,
+   "date": "2026-09-14",
+   "criado": "2026-09-14",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18248670,
+   "clientes": [
+    "A S"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2005",
+    "641.898.132",
+    " 34,97"
+   ],
+   "trechos": [
+    "os: 5 anos - Exerce atividades desde a entrada no cargo",
+    ".132-49 → plano: simples - 34,97 Tese 1: Implementação e retroativos de diagonal - Quantas dia"
+   ]
+  },
+  {
+   "id": 275149371,
+   "date": "2026-09-14",
+   "criado": "2026-09-14",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18223078,
+   "clientes": [
+    "E P D A"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2017",
+    "2020",
+    "497",
+    " 26,97",
+    "221.593",
+    "221.593",
+    "221.593",
+    "221.593"
+   ],
+   "trechos": [
+    "dou para pagamento à vista) + 26,97% no êxito. Tese 1: Implementação e retroativos de horizontal (ped",
+    "gamento à vista) + 26,97% no êxito. Tese 1: Implementação e retroativos de horizontal (pedagoga 221."
+   ]
+  },
+  {
+   "id": 275224456,
+   "date": "2026-09-14",
+   "criado": "2026-09-14",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18231995,
+   "clientes": [
+    "F S S C"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "1993",
+    "R497,00",
+    " 26,97",
+    "2021",
+    "2025",
+    "1970",
+    "2019"
+   ],
+   "trechos": [
+    "anutenção - R497,00 à vista + 26,97% no êxito! Tese 1: retroativos de horizontal Quantas horizonta",
+    " R497,00 à vista + 26,97% no êxito! Tese 1: retroativos de horizontal Quantas horizontais: 1 ⁠Te"
+   ]
+  },
+  {
+   "id": 275892159,
+   "date": "2026-09-15",
+   "criado": "2026-09-15",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18280446,
+   "clientes": [
+    "J D S A"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2021",
+    " 34,97",
+    "2026",
+    "2024"
+   ],
+   "trechos": [
+    "L para ESP - ⁠tempo de retroativo: deu entrada em agosto de 2026 - AGUARDAR FINALIZAR PRAZO DE 60 DIAS ",
+    "a Elva → plano: simples - 34,97% Tese 1: Implementação e retroativos de vertical - Mudança de "
+   ]
+  },
+  {
+   "id": 276743618,
+   "date": "2026-09-17",
+   "criado": "2026-09-17",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18340356,
+   "clientes": [
+    "R T F N"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2016",
+    "497",
+    " 26,97",
+    "2024"
+   ],
+   "trechos": [
+    "ção - R$497 em 2x sem juros + 26,97% no êxito. Tese 1: Retroativos de horizontal - Quantas horizon",
+    " em 2x sem juros + 26,97% no êxito. Tese 1: Retroativos de horizontal - Quantas horizontais: 3 -"
+   ]
+  },
+  {
+   "id": 277647467,
+   "date": "2026-09-18",
+   "criado": "2026-09-18",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18408595,
+   "clientes": [
+    "A F N"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "1993",
+    "497",
+    " 26,97",
+    "1971",
+    "2024"
+   ],
+   "trechos": [
+    "o: Manutenção -R$ 497 em 2x + 26,97% no êxito. Tese 1: Retroativos de horizontal - Quantas horizon",
+    "ão -R$ 497 em 2x + 26,97% no êxito. Tese 1: Retroativos de horizontal - Quantas horizontais: 1 -"
+   ]
+  },
+  {
+   "id": 277334268,
+   "date": "2026-09-18",
+   "criado": "2026-09-18",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18380376,
+   "clientes": [
+    "O B M B"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2012",
+    "1.500",
+    "497",
+    "1997",
+    " 26,97",
+    "2025",
+    "2025",
+    "2083",
+    "2025",
+    "R$ 7.990,78",
+    "1.500"
+   ],
+   "trechos": [
+    " no cartão / 26,97% para as demandas de êxito Tese 1: Implementação e retroativos de horizontal - ",
+    " / 26,97% para as demandas de êxito Tese 1: Implementação e retroativos de horizontal - Quantas h"
+   ]
+  },
+  {
+   "id": 278359857,
+   "date": "2026-09-21",
+   "criado": "2026-09-21",
+   "titulo": "NOVA AÇÃO | SOLICITAÇÃO DE DOCUMENTOS",
+   "lawsuits_id": 18437204,
+   "clientes": [
+    "V R S M"
+   ],
+   "valores_nas_notas": [
+    "2026",
+    "2017",
+    "497",
+    " 26,97"
+   ],
+   "trechos": [
+    ": manutenção - R$ 497 em 2x + 26,97% no êxito. Tese 1: Implementação e retroativos de horizontal -",
+    "o - R$ 497 em 2x + 26,97% no êxito. Tese 1: Implementação e retroativos de horizontal - Quantas h"
+   ]
+  }
+ ],
+ "chaves_lawsuit": []
+}
