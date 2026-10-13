@@ -724,6 +724,31 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
         matched.append((a_tx, fee_tx, v))
     sobra_asaas = sobra_asaas5
 
+    # Passo 1f: acordo pago em PARTES — vários TEDs do mesmo pagador judicial cuja SOMA bate com 1 lançamento
+    # de êxito/sucumbência no Advbox (ex.: acordo de R$ 11.000 pago em 2 TEDs).
+    jud = [a for a in sobra_asaas if any(p in norm_nome(a.get("_nome") or "") for p in PAGADORES_JUDICIAIS)]
+    for b_i in range(len(restantes_adv) - 1, -1, -1):
+        b_tx = restantes_adv[b_i]
+        cat = str(b_tx.get("category_name") or b_tx.get("category") or "").upper()
+        if not ("EXITO" in cat or "ÊXITO" in cat or "SUCUMB" in cat) or len(jud) < 2:
+            continue
+        alvo_v = val_adv(b_tx)
+        achou_g = None
+        for r_ in (2, 3):
+            for g in itertools.combinations(jud, r_):
+                if abs(round(sum(float(x.get("value", 0)) for x in g), 2) - alvo_v) <= TOLERANCE:
+                    achou_g = g
+                    break
+            if achou_g:
+                break
+        if achou_g:
+            log_msg(f"  ✅ Acordo pago em {len(achou_g)} parte(s) somando R${alvo_v} conciliado com 1 lançamento de êxito", True)
+            restantes_adv.pop(b_i)
+            for x in achou_g:
+                sobra_asaas.remove(x)
+                jud.remove(x)
+                matched.append((x, b_tx, round(float(x.get("value", 0)), 2)))
+
     # Passo 2: mesmo valor, nome diferente -> divergência de NOME (só relatar, não corrigir sozinho)
     nome_diferente = []
     unmatched_asaas = []
