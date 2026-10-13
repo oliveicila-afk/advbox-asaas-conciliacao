@@ -1,0 +1,20 @@
+[
+  {
+    "id": "17456672",
+    "valor": 15421.98,
+    "cliente_mask": "",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PROMOÇÃO VERTICAL",
+    "categoria_id": "",
+    "pago": true,
+    "descricao": "PAGAMENTO DE EXITO VIA TED - TJ AMAZONAS - PROCESSO 0120367-38.2024.8.04.1000 - "
+  },
+  {
+    "id": "17456673",
+    "valor": 3149.86,
+    "cliente_mask": "",
+    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-DANO A BAGAGEM",
+    "categoria_id": "",
+    "pago": true,
+    "descricao": "PAGAMENTO DE EXITO VIA TED - TJ AMAZONAS - PROCESSO 0001172-85.2026.8.04.7500 - "
+  }
+]
