@@ -1,21 +1,17 @@
 {
   "data": "2026-09-08",
-  "gerado_em": "2026-10-13T05:36:22.011293",
+  "gerado_em": "2026-10-13T05:55:12.873575",
   "status": "NAO_CONCILIADO",
   "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
-    "asaas": 22549.95,
+    "asaas": 14308.97,
     "advbox": 50711.38,
-    "diferenca": 28161.43
+    "diferenca": 36402.41
   },
   "divergencias": {
     "nome_diferente": [],
     "faltando_no_advbox": [
-      {
-        "valor": 8240.98,
-        "cliente_asaas": "Bmp S. D. C. D. S."
-      },
       {
         "valor": 248.5,
         "cliente_asaas": "Wanessa R. F."
