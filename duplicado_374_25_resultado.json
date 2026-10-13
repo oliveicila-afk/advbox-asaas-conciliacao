@@ -1,0 +1,28 @@
+{
+ "iniciais_asaas": "E B D C",
+ "advbox": {
+  "16943792": {
+   "http": 200,
+   "iniciais": "-",
+   "bate_com_asaas": false,
+   "date_payment": "2026-09-09",
+   "date_due": "2026-09-09",
+   "created_at": "2026-08-16 22:01:19",
+   "lawsuits_id": null
+  },
+  "17805644": {
+   "http": 200,
+   "iniciais": "-",
+   "bate_com_asaas": false,
+   "date_payment": "2026-09-09",
+   "date_due": "2026-09-09",
+   "created_at": "2026-09-24 10:25:48",
+   "lawsuits_id": 13475741
+  }
+ },
+ "resultado": {
+  "acao": "nenhuma",
+  "motivo": "nenhum bate com o cliente do Asaas — ambíguo, nada alterado"
+ },
+ "mesmo_cliente_nos_dois": true
+}
