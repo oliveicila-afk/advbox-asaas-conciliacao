@@ -1,0 +1,71 @@
+{
+  "data": "2026-09-29",
+  "gerado_em": "2026-10-13T15:18:01.135508",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 26115.08,
+    "advbox": 9282.8,
+    "diferenca": 16832.28
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 7.96,
+        "cliente_asaas": "Andrea P. P."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Daniela B. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Lizane D. S. M."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Nelcindo D. S. C."
+      },
+      {
+        "valor": 17105.45,
+        "cliente_asaas": "Caixa E. F."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Marcos P. A. F."
+      },
+      {
+        "valor": 1129.7,
+        "cliente_asaas": "Rodrigo S. D. S."
+      },
+      {
+        "valor": 67.0,
+        "cliente_asaas": "Jefferson R. P."
+      }
+    ],
+    "fantasmas_no_advbox": [
+      {
+        "valor": 997.33,
+        "cliente_advbox": "Huana M. M. D. S.",
+        "advbox_id": 15528449
+      },
+      {
+        "valor": 248.5,
+        "cliente_advbox": "Trindade D. J. G. K.",
+        "advbox_id": 17785642
+      },
+      {
+        "valor": 500.0,
+        "cliente_advbox": "Vera D. S. Q. M.",
+        "advbox_id": 17894929
+      }
+    ]
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
