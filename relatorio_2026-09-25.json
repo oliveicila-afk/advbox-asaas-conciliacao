@@ -1,35 +1,45 @@
 {
   "data": "2026-09-25",
-  "gerado_em": "2026-10-13T15:11:18.731644",
+  "gerado_em": "2026-10-13T17:22:53.992800",
   "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 1543.17,
-    "advbox": 879.5,
-    "diferenca": 663.67
+    "advbox": 1376.5,
+    "diferenca": 166.67
   },
   "divergencias": {
     "nome_diferente": [],
     "faltando_no_advbox": [
       {
-        "valor": 248.5,
-        "cliente_asaas": "Norberta G. M."
-      },
-      {
         "valor": 166.67,
         "cliente_asaas": "Ingrid C. D. J."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Maurila A. R. S."
       }
     ],
     "fantasmas_no_advbox": []
   },
-  "pendentes_sem_tese": [],
+  "pendentes_sem_tese": [
+    {
+      "valor": 166.67,
+      "cliente_asaas": "Ingrid C. D. J."
+    },
+    {
+      "valor": 166.67,
+      "cliente_asaas": "Ingrid C. D. J."
+    }
+  ],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 2,
+    "detalhes": [
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      }
+    ]
   }
 }
