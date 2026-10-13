@@ -7481,26 +7481,5 @@
     "doc": "***.***.932-97",
     "tipo": "PAYMENT_RECEIVED",
     "descricao": "Cobrança recebida - fatura nr. 784402381 MARIO EDUARDO BARROS CAMARA"
-  },
-  {
-    "valor": -0.55,
-    "nome_completo": "",
-    "doc": "",
-    "tipo": "INSTANT_TEXT_MESSAGE_FEE",
-    "descricao": "Taxa de notificação por WhatsApp da cobrança 646906832 Divan Henrique Fernandes Barcelos"
-  },
-  {
-    "valor": -1.99,
-    "nome_completo": "Divan Henrique Fernandes Barcelos",
-    "doc": "***.***.547-59",
-    "tipo": "PAYMENT_FEE",
-    "descricao": "Taxa do Pix - fatura nr. 646906832 Divan Henrique Fernandes Barcelos"
-  },
-  {
-    "valor": 397.0,
-    "nome_completo": "Divan Henrique Fernandes Barcelos",
-    "doc": "***.***.547-59",
-    "tipo": "PAYMENT_RECEIVED",
-    "descricao": "Cobrança recebida - fatura nr. 646906832 Divan Henrique Fernandes Barcelos"
   }
 ]
