@@ -1,0 +1,131 @@
+{
+ "17774989": {
+  "http": 200,
+  "d": {
+   "id": 17774989,
+   "users_id": 65747,
+   "debit_account": 193264,
+   "bank": "ASAAS",
+   "categories_id": 70060,
+   "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+   "entry_type": "income",
+   "cost_centers_id": 61966,
+   "cost_center": "PROFESSOR/PEDAGOGO-PROSPECÇÃO ATIVA",
+   "customers_id": 7960193,
+   "lawsuits_id": 7470600,
+   "departments_id": null,
+   "department": null,
+   "amount": 4960.43,
+   "date_due": "2026-09-14",
+   "date_payment": "2026-09-14",
+   "is_internal": false,
+   "is_recurrent": false,
+   "created_at": "2026-09-22 18:08:34"
+  }
+ },
+ "17774990": {
+  "http": 200,
+  "d": {
+   "id": 17774990,
+   "users_id": 65747,
+   "debit_account": 193264,
+   "bank": "ASAAS",
+   "categories_id": 70061,
+   "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO VERTICAL",
+   "entry_type": "income",
+   "cost_centers_id": 61966,
+   "cost_center": "PROFESSOR/PEDAGOGO-PROSPECÇÃO ATIVA",
+   "customers_id": 7618213,
+   "lawsuits_id": 7379574,
+   "departments_id": null,
+   "department": null,
+   "amount": 1554.36,
+   "date_due": "2026-09-14",
+   "date_payment": "2026-09-14",
+   "is_internal": false,
+   "is_recurrent": false,
+   "created_at": "2026-09-22 18:08:36"
+  }
+ },
+ "17774992": {
+  "http": 200,
+  "d": {
+   "id": 17774992,
+   "users_id": 65747,
+   "debit_account": 193264,
+   "bank": "ASAAS",
+   "categories_id": 70064,
+   "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO",
+   "entry_type": "income",
+   "cost_centers_id": 62601,
+   "cost_center": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "customers_id": 6486785,
+   "lawsuits_id": 7057435,
+   "departments_id": null,
+   "department": null,
+   "amount": 2325.26,
+   "date_due": "2026-09-14",
+   "date_payment": "2026-09-14",
+   "is_internal": false,
+   "is_recurrent": false,
+   "created_at": "2026-09-22 18:08:38"
+  }
+ },
+ "17774994": {
+  "http": 200,
+  "d": {
+   "id": 17774994,
+   "users_id": 65747,
+   "debit_account": 193264,
+   "bank": "ASAAS",
+   "categories_id": 70064,
+   "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO",
+   "entry_type": "income",
+   "cost_centers_id": 62601,
+   "cost_center": "SERVIDOR PUBLICO-TRÁFEGO PAGO",
+   "customers_id": 6611826,
+   "lawsuits_id": 5986292,
+   "departments_id": null,
+   "department": null,
+   "amount": 3557.33,
+   "date_due": "2026-09-17",
+   "date_payment": "2026-09-17",
+   "is_internal": false,
+   "is_recurrent": false,
+   "created_at": "2026-09-22 18:08:41"
+  }
+ },
+ "17774998": {
+  "http": 200,
+  "d": {
+   "id": 17774998,
+   "users_id": 65747,
+   "debit_account": 193264,
+   "bank": "ASAAS",
+   "categories_id": 70066,
+   "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+   "entry_type": "income",
+   "cost_centers_id": 61967,
+   "cost_center": "PROFESSOR/PEDAGOGO-TRÁFEGO PAGO",
+   "customers_id": 11915145,
+   "lawsuits_id": 12329227,
+   "departments_id": null,
+   "department": null,
+   "amount": 1049.61,
+   "date_due": "2026-09-18",
+   "date_payment": "2026-09-18",
+   "is_internal": false,
+   "is_recurrent": false,
+   "created_at": "2026-09-22 18:08:44"
+  }
+ },
+ "settings_keys": [
+  "users",
+  "origins",
+  "tasks",
+  "stages",
+  "lawsuit_types",
+  "financial"
+ ],
+ "settings_http": 200
+}
