@@ -158,8 +158,19 @@ def fetch_asaas_transactions():
     return transactions
 
 
+_ADVBOX_CACHE = None
+
 def fetch_advbox_transactions():
-    """Busca Advbox com logging COMPLETO"""
+    """Busca Advbox (limite da API: 30 req/min -> espera entre páginas e repete em 429)"""
+    global _ADVBOX_CACHE
+    if DRY_RUN and _ADVBOX_CACHE is not None:
+        return list(_ADVBOX_CACHE)
+    res = _fetch_advbox_transactions()
+    if DRY_RUN:
+        _ADVBOX_CACHE = list(res)
+    return res
+
+def _fetch_advbox_transactions():
     transactions = []
     headers_advbox = {
         "Authorization": f"Bearer {ADVBOX_TOKEN}",
@@ -170,7 +181,7 @@ def fetch_advbox_transactions():
     log_msg(f"\n[ADVBOX] Iniciando fetch", True)
 
     offset = 0
-    limit = 100
+    limit = 1000
     all_raw = []
     max_pages = 400  # Limite máximo de páginas para não ficar puxando dados eternamente
     page_count = 0
@@ -187,12 +198,19 @@ def fetch_advbox_transactions():
             params = {"limit": limit, "offset": offset}
             log_msg(f"  Requisição: offset={offset}, limit={limit}", False)
 
-            resp = requests.get(
-                "https://app.advbox.com.br/api/v1/transactions",
-                headers=headers_advbox,
-                params=params,
-                timeout=30
-            )
+            import time
+            for _tent in range(6):
+                resp = requests.get(
+                    "https://app.advbox.com.br/api/v1/transactions",
+                    headers=headers_advbox,
+                    params=params,
+                    timeout=60
+                )
+                if resp.status_code != 429:
+                    break
+                log_msg("  429 (limite da API) - aguardando 30s", True)
+                time.sleep(30)
+            time.sleep(2.2)
 
             log_msg(f"  Status: {resp.status_code}", True)
             log_msg(f"  Headers resposta: {dict(resp.headers)}", False)
