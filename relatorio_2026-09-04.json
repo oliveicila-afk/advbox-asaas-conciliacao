@@ -1,55 +1,51 @@
 {
   "data": "2026-09-04",
-  "gerado_em": "2026-10-13T04:42:18.873086",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T04:51:02.089888",
+  "status": "CONCILIADO",
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 2613.67,
-    "advbox": 15909.69,
-    "diferenca": 13296.02
+    "advbox": 2613.67,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 1500.0,
-        "cliente_asaas": "Rosimario D. A. Q."
-      },
-      {
-        "valor": 165.67,
-        "cliente_asaas": "Jaira M. M. S. D. S."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Hilda D. R. S. A."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Jenilson M. D. S."
-      }
-    ],
-    "fantasmas_no_advbox": [
-      {
-        "valor": 2162.67,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152236
-      },
-      {
-        "valor": 2162.67,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152428
-      },
-      {
-        "valor": 11133.35,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152429
-      }
-    ]
+    "faltando_no_advbox": [],
+    "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 7,
+    "detalhes": [
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 2162.67
+      },
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 2162.67
+      },
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 11133.35
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 1500.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 165.67
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      }
+    ]
   }
 }

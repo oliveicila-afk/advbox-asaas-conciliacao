@@ -1,46 +1,12 @@
 {
  "data": "2026-09-04",
- "dry_run": true,
- "encontrados": 3,
- "itens": [
-  {
-   "id": 18152236,
-   "data": "2026-09-04",
-   "cliente": "(sem nome)",
-   "valor": 2162.67,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "resultado": "PULADO: cliente com várias teses, sem regra",
-   "leitura": {
-    "motivo": "lançamento sem cliente vinculado"
-   }
-  },
-  {
-   "id": 18152428,
-   "data": "2026-09-04",
-   "cliente": "(sem nome)",
-   "valor": 2162.67,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "resultado": "PULADO: cliente com várias teses, sem regra",
-   "leitura": {
-    "motivo": "lançamento sem cliente vinculado"
-   }
-  },
-  {
-   "id": 18152429,
-   "data": "2026-09-04",
-   "cliente": "(sem nome)",
-   "valor": 11133.35,
-   "categoria_atual": "HONORÁRIOS INICIAIS",
-   "resultado": "PULADO: cliente com várias teses, sem regra",
-   "leitura": {
-    "motivo": "lançamento sem cliente vinculado"
-   }
-  }
- ],
+ "dry_run": false,
+ "encontrados": 0,
+ "itens": [],
  "resumo": {
   "alterados": 0,
   "simulados": 0,
-  "pulados": 3,
+  "pulados": 0,
   "erros": 0
  },
  "analise_somente_leitura": {
@@ -61,7 +27,7 @@
    ],
    [
     248.5,
-    225,
+    227,
     "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
     0.37
    ],
