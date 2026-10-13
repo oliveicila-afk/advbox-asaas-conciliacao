@@ -1,43 +1,43 @@
 {
   "data": "2026-09-22",
-  "gerado_em": "2026-10-13T17:13:59.933270",
+  "gerado_em": "2026-10-13T22:23:42.935967",
   "status": "NAO_CONCILIADO",
-  "tentativas": 2,
+  "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 7297.26,
-    "advbox": 1030.67,
-    "diferenca": 6266.59
+    "advbox": 7297.26,
+    "diferenca": 0.0
   },
   "divergencias": {
-    "nome_diferente": [],
-    "faltando_no_advbox": [
+    "nome_diferente": [
       {
         "valor": 6266.59,
-        "cliente_asaas": "Juridico M."
+        "asaas": "Juridico M.",
+        "advbox": "Mauricio V. D. S.",
+        "advbox_id": 18193918
       }
     ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
-  "pendentes_sem_tese": [
+  "pendentes_sem_tese": [],
+  "revisao_mes": [
     {
-      "valor": 6266.59,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-09",
+      "asaas": 18195.57,
+      "advbox": 17821.32,
+      "diferenca": 374.25
     },
     {
-      "valor": 6266.59,
-      "cliente_asaas": "Juridico M.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-15",
+      "asaas": 3843.85,
+      "advbox": 3832.17,
+      "diferenca": 11.68
     }
   ],
   "correcoes": {
-    "total_realizadas": 1,
-    "detalhes": [
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 248.5
-      }
-    ]
+    "total_realizadas": 0,
+    "detalhes": []
   }
 }
