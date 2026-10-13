@@ -1,0 +1,102 @@
+{
+ "modo": "plano",
+ "campos_lancamento": [
+  "amount",
+  "category",
+  "competence",
+  "cost_center",
+  "credit_bank",
+  "date_due",
+  "date_payment",
+  "debit_bank",
+  "description",
+  "entry_type",
+  "id",
+  "identification",
+  "is_internal",
+  "is_recurrent",
+  "lawsuit_id",
+  "name",
+  "process_number",
+  "protocol_number",
+  "responsible"
+ ],
+ "itens": [
+  {
+   "dia": "2026-09-14",
+   "valor": 14444.24,
+   "fatura_nr": "910186697",
+   "processo_achado": true,
+   "lawsuits_id": 7470600,
+   "tese": "PROMOÇÃO HORIZONTAL - SEDUC",
+   "clientes": [
+    "A L C D M"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-14",
+   "valor": 4339.5,
+   "fatura_nr": "910186691",
+   "processo_achado": true,
+   "lawsuits_id": 7379574,
+   "tese": "RETROATIVOS VERTICAL - SEDUC",
+   "clientes": [
+    "A M M"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-14",
+   "valor": 6435.01,
+   "fatura_nr": "910186681",
+   "processo_achado": true,
+   "lawsuits_id": 7057435,
+   "tese": "DATA BASE",
+   "clientes": [
+    "S C L"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-17",
+   "valor": 11592.79,
+   "fatura_nr": "913015927",
+   "processo_achado": true,
+   "lawsuits_id": 5986292,
+   "tese": "GRATIFICAÇÃO DE CURSO",
+   "clientes": [
+    "D D S P"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-18",
+   "valor": 5522.98,
+   "fatura_nr": "913833033",
+   "processo_achado": true,
+   "lawsuits_id": 12329227,
+   "tese": "SEGURO PRESTAMISTA",
+   "clientes": [
+    "J M S L"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  }
+ ],
+ "execucao": []
+}
