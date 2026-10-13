@@ -1,0 +1,92 @@
+name: Comparar período por cliente e valor (somente leitura, só iniciais)
+on:
+  workflow_dispatch:
+    inputs:
+      inicio: {description: "YYYY-MM-DD", required: true, default: "2026-09-11"}
+      fim: {description: "YYYY-MM-DD", required: true, default: "2026-09-20"}
+permissions:
+  contents: write
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          INI: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+        run: |
+          python3 - <<'PY'
+          import os, re, time, json, unicodedata, datetime as dt, requests
+          from collections import defaultdict
+          ha = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          hb = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          A="https://api.asaas.com/v3"; B="https://app.advbox.com.br/api/v1"
+          norm=lambda s: re.sub(r"\s+"," ",unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode()).strip().upper()
+          ini=lambda s: " ".join(p[0] for p in norm(s).split()) or "-"
+          i0=dt.date.fromisoformat(os.environ["INI"]); i1=dt.date.fromisoformat(os.environ["FIM"])
+          cp, cc = {}, {}
+          def nome(t):
+              pid=t.get("paymentId")
+              if not pid and t.get("anticipationId"):
+                  pid=requests.get(f"{A}/anticipations/{t['anticipationId']}",headers=ha,timeout=30).json().get("payment")
+              if not pid: return None
+              if pid not in cp: cp[pid]=requests.get(f"{A}/payments/{pid}",headers=ha,timeout=30).json().get("customer")
+              c=cp[pid]
+              if c not in cc: cc[c]=requests.get(f"{A}/customers/{c}",headers=ha,timeout=30).json().get("name")
+              return cc[c]
+          asaas=defaultdict(list); d=i0
+          while d<=i1:
+              off=0; seen=set()
+              while True:
+                  j=requests.get(f"{A}/financialTransactions",headers=ha,params={"startDate":d.isoformat(),"finishDate":d.isoformat(),"limit":100,"offset":off},timeout=30).json()
+                  for t in j.get("data",[]):
+                      if t["id"] in seen: continue
+                      seen.add(t["id"])
+                      if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT"):
+                          asaas[d.isoformat()].append((norm(nome(t)), round(float(t["value"]),2), t.get("type")))
+                  if not j.get("hasMore") or not j.get("data"): break
+                  off+=100
+              d+=dt.timedelta(days=1)
+          adv=defaultdict(list); off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2)
+              b=r.json().get("data",[])
+              for t in b:
+                  dp=str(t.get("date_payment") or "")[:10]
+                  if t.get("entry_type")=="income" and i0.isoformat()<=dp<=i1.isoformat() and str(t.get("debit_bank") or "").upper()=="ASAAS":
+                      adv[dp].append((norm(t.get("name")), round(float(t.get("amount",0)),2), t.get("id")))
+              if len(b)<1000: break
+              off+=1000
+          out={"dias":{}, "tot_asaas":0, "tot_advbox":0}
+          for dia in sorted(set(asaas)|set(adv)):
+              a=list(asaas[dia]); v=list(adv[dia]); sa=[]
+              for x in a:
+                  k=next((i for i,y in enumerate(v) if y[0]==x[0] and y[1]==x[1]),None)
+                  if k is None: sa.append(x)
+                  else: v.pop(k)
+              # mesmo nome, valor diferente / valor igual, nome diferente
+              dif=[]
+              for x in list(sa):
+                  k=next((i for i,y in enumerate(v) if y[0]==x[0]),None)
+                  if k is not None:
+                      dif.append({"tipo":"valor diferente","cliente":ini(x[0]),"asaas":x[1],"advbox":v[k][1],"advbox_id":v[k][2]}); sa.remove(x); v.pop(k)
+              out["dias"][dia]={"asaas_total":round(sum(x[1] for x in asaas[dia]),2),"advbox_total":round(sum(x[1] for x in adv[dia]),2),
+                  "valor_diferente":dif,"so_asaas":[{"cliente":ini(x[0]),"valor":x[1],"tipo":x[2]} for x in sa],
+                  "so_advbox":[{"cliente":ini(y[0]),"valor":y[1],"id":y[2]} for y in v]}
+              out["tot_asaas"]=round(out["tot_asaas"]+out["dias"][dia]["asaas_total"],2); out["tot_advbox"]=round(out["tot_advbox"]+out["dias"][dia]["advbox_total"],2)
+          json.dump(out,open("comparar_periodo_cliente.json","w"),ensure_ascii=False,indent=1)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f comparar_periodo_cliente.json; git commit -m "comparar periodo" || true
+          git pull --rebase origin main || true; git push || true
