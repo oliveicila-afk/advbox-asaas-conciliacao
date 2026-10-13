@@ -1,0 +1,50 @@
+name: Sondar API Advbox — tarefas e andamentos (somente leitura, só estrutura)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sondar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Sondar endpoints (sem gravar conteúdo)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          out = {}
+          for ep in ("tasks", "posts", "lawsuits", "movements", "history"):
+              r = requests.get(f"https://app.advbox.com.br/api/v1/{ep}", headers=h, params={"limit": 2, "offset": 0}, timeout=60)
+              info = {"http": r.status_code}
+              try:
+                  j = r.json()
+                  info["chaves_topo"] = list(j.keys()) if isinstance(j, dict) else type(j).__name__
+                  lista = (j.get("data") if isinstance(j, dict) else j) or []
+                  if lista and isinstance(lista, list) and isinstance(lista[0], dict):
+                      info["campos_item"] = list(lista[0].keys())
+                  info["total"] = j.get("totalCount") or j.get("total") if isinstance(j, dict) else None
+              except Exception as e:
+                  info["erro"] = r.text[:150]
+              out[ep] = info
+              print(ep, info)
+          json.dump(out, open("sonda_api_advbox.json", "w"), ensure_ascii=False, indent=1)
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f sonda_api_advbox.json
+          git diff --cached --quiet || git commit -m "Sonda: estrutura da API Advbox (tarefas/andamentos)"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
