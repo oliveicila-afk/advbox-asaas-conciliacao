@@ -6,6 +6,9 @@ on:
         description: "IDs separados por vírgula"
         required: true
         default: "17456672,17456673"
+permissions:
+  contents: write
+
 jobs:
   consultar:
     runs-on: ubuntu-latest
