@@ -1,0 +1,84 @@
+{
+ "tasks": {
+  "http": 401,
+  "chaves_topo": [
+   "error"
+  ],
+  "total": null
+ },
+ "posts": {
+  "http": 200,
+  "chaves_topo": [
+   "offset",
+   "limit",
+   "totalCount",
+   "data",
+   "query"
+  ],
+  "campos_item": [
+   "id",
+   "date",
+   "date_deadline",
+   "task",
+   "reward",
+   "notes",
+   "local",
+   "lawsuits_id",
+   "created_at",
+   "lawsuit",
+   "users"
+  ],
+  "total": 9904
+ },
+ "lawsuits": {
+  "http": 200,
+  "chaves_topo": [
+   "offset",
+   "limit",
+   "totalCount",
+   "data",
+   "query"
+  ],
+  "campos_item": [
+   "id",
+   "process_number",
+   "protocol_number",
+   "folder",
+   "process_date",
+   "fees_expec",
+   "fees_money",
+   "contingency",
+   "type_lawsuit_id",
+   "type",
+   "group_id",
+   "group",
+   "created_at",
+   "status_closure",
+   "exit_production",
+   "exit_execution",
+   "responsible_id",
+   "responsible",
+   "stages_id",
+   "stage",
+   "steps_id",
+   "step",
+   "notes",
+   "customers"
+  ],
+  "total": 8435
+ },
+ "movements": {
+  "http": 401,
+  "chaves_topo": [
+   "error"
+  ],
+  "total": null
+ },
+ "history": {
+  "http": 401,
+  "chaves_topo": [
+   "error"
+  ],
+  "total": null
+ }
+}
