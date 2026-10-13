@@ -1,6 +1,6 @@
 {
  "data": "2026-09-01",
- "dry_run": true,
+ "dry_run": false,
  "encontrados": 2,
  "itens": [
   {
@@ -9,7 +9,10 @@
    "valor": 248.5,
    "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
    "novo_centro_custo": "PROFESSOR/PEDAGOGO-OUTROS",
-   "resultado": "SIMULAÇÃO (nada alterado)"
+   "put_status": 200,
+   "put_resposta": "{\"success\":true,\"lawsuits_id\":\"18166371\"}",
+   "depois_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+   "depois_centro_custo": "PROFESSOR/PEDAGOGO-OUTROS"
   },
   {
    "id": 18166372,
@@ -17,7 +20,10 @@
    "valor": 67,
    "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
    "novo_centro_custo": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
-   "resultado": "SIMULAÇÃO (nada alterado)"
+   "put_status": 200,
+   "put_resposta": "{\"success\":true,\"lawsuits_id\":\"18166372\"}",
+   "depois_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL",
+   "depois_centro_custo": "PROFESSOR/PEDAGOGO-INDICAÇÃO"
   }
  ]
 }
