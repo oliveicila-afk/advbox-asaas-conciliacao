@@ -1,20 +1,29 @@
 [
   {
-    "id": "17456672",
-    "valor": 15421.98,
+    "id": "18152237",
+    "valor": 10602.77,
     "cliente_mask": "",
-    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-PROMOÇÃO VERTICAL",
+    "categoria": "HONORÁRIOS INICIAIS",
     "categoria_id": "",
     "pago": true,
-    "descricao": "PAGAMENTO DE EXITO VIA TED - TJ AMAZONAS - PROCESSO 0120367-38.2024.8.04.1000 - "
+    "descricao": "09/08 - RECEITA PRINCIPAL"
   },
   {
-    "id": "17456673",
-    "valor": 3149.86,
+    "id": "18152430",
+    "valor": 10602.77,
     "cliente_mask": "",
-    "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-DANO A BAGAGEM",
+    "categoria": "HONORÁRIOS INICIAIS",
     "categoria_id": "",
     "pago": true,
-    "descricao": "PAGAMENTO DE EXITO VIA TED - TJ AMAZONAS - PROCESSO 0001172-85.2026.8.04.7500 - "
+    "descricao": "09/08 - RECEITA PRINCIPAL"
+  },
+  {
+    "id": "18152431",
+    "valor": 17558.66,
+    "cliente_mask": "",
+    "categoria": "HONORÁRIOS INICIAIS",
+    "categoria_id": "",
+    "pago": true,
+    "descricao": "09/08 - ESTORNO/CHARGEBACK"
   }
 ]
