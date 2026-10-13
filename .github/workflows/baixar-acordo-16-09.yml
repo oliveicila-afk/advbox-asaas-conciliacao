@@ -1,0 +1,34 @@
+name: Baixar acordo 16/09 (lançamento 17381789 → pago em 16/09 na conta ASAAS)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  b:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests
+          hb = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}", "User-Agent": "Mozilla/5.0", "Accept": "application/json", "Content-Type": "application/json"}
+          u = "https://app.advbox.com.br/api/v1/transactions/17381789"
+          antes = requests.get(u, headers=hb, timeout=30).json()
+          r = requests.put(u, headers=hb, json={"date_payment": "2026-09-16", "debit_account": 193264}, timeout=30)
+          dep = requests.get(u, headers=hb, timeout=30).json()
+          keep = ("id","amount","bank","debit_account","date_due","date_payment","category","cost_center","lawsuits_id")
+          out = {"put_http": r.status_code, "put_resp": r.text[:200],
+                 "antes": {k: antes.get(k) for k in keep}, "depois": {k: dep.get(k) for k in keep}}
+          json.dump(out, open("baixar_acordo_resultado.json","w"), ensure_ascii=False, indent=1, default=str)
+          print(json.dumps(out, ensure_ascii=False, default=str))
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f baixar_acordo_resultado.json; git commit -m "baixar acordo" || true
+          git pull --rebase origin main || true; git push || true
