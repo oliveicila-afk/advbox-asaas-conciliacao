@@ -1,0 +1,27 @@
+{
+  "data": "2026-09-06",
+  "gerado_em": "2026-10-13T05:02:44.313814",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
+  "max_tentativas": 5,
+  "totais_finais": {
+    "asaas": 6000.0,
+    "advbox": 0,
+    "diferenca": 6000.0
+  },
+  "divergencias": {
+    "nome_diferente": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 6000.0,
+        "cliente_asaas": "Lvmx I. E. I. L."
+      }
+    ],
+    "fantasmas_no_advbox": []
+  },
+  "pendentes_sem_tese": [],
+  "correcoes": {
+    "total_realizadas": 0,
+    "detalhes": []
+  }
+}
