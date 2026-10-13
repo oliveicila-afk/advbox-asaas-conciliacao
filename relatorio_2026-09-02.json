@@ -1,42 +1,39 @@
 {
   "data": "2026-09-02",
-  "gerado_em": "2026-10-13T03:57:57.388889",
-  "status": "NAO_CONCILIADO",
-  "tentativas": 5,
+  "gerado_em": "2026-10-13T04:05:51.642976",
+  "status": "CONCILIADO",
+  "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 17164.75,
-    "advbox": 17661.75,
-    "diferenca": 497.0
+    "advbox": 17164.75,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Maria D. C. D. S."
-      },
-      {
-        "valor": 248.5,
-        "cliente_asaas": "Suely D. A. D. L."
-      }
-    ],
-    "fantasmas_no_advbox": [
-      {
-        "valor": 497.0,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152234
-      },
-      {
-        "valor": 497.0,
-        "cliente_advbox": "(sem nome)",
-        "advbox_id": 18152426
-      }
-    ]
+    "faltando_no_advbox": [],
+    "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
   "correcoes": {
-    "total_realizadas": 0,
-    "detalhes": []
+    "total_realizadas": 4,
+    "detalhes": [
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 497.0
+      },
+      {
+        "tipo": "DESMARCAR_PAGAMENTO",
+        "valor": 497.0
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      },
+      {
+        "tipo": "CREATE",
+        "valor": 248.5
+      }
+    ]
   }
 }
