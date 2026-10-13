@@ -1,24 +1,46 @@
 {
- "data": "2026-09-07",
- "dry_run": false,
- "encontrados": 1,
+ "data": "2026-09-08",
+ "dry_run": true,
+ "encontrados": 3,
  "itens": [
   {
-   "id": 10758631,
-   "data": "2026-09-07",
-   "cliente": "Divan H. F. B.",
-   "valor": 397,
+   "id": 18152237,
+   "data": "2026-09-08",
+   "cliente": "(sem nome)",
+   "valor": 10602.77,
    "categoria_atual": "HONORÁRIOS INICIAIS",
-   "metodo": "tese_unica_do_cliente",
-   "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
-   "put_status": 200,
-   "resultado": "ALTERADO"
+   "resultado": "PULADO: cliente com várias teses, sem regra",
+   "leitura": {
+    "motivo": "lançamento sem cliente vinculado"
+   }
+  },
+  {
+   "id": 18152430,
+   "data": "2026-09-08",
+   "cliente": "(sem nome)",
+   "valor": 10602.77,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "resultado": "PULADO: cliente com várias teses, sem regra",
+   "leitura": {
+    "motivo": "lançamento sem cliente vinculado"
+   }
+  },
+  {
+   "id": 18152431,
+   "data": "2026-09-08",
+   "cliente": "(sem nome)",
+   "valor": 17558.66,
+   "categoria_atual": "HONORÁRIOS INICIAIS",
+   "resultado": "PULADO: cliente com várias teses, sem regra",
+   "leitura": {
+    "motivo": "lançamento sem cliente vinculado"
+   }
   }
  ],
  "resumo": {
-  "alterados": 1,
+  "alterados": 0,
   "simulados": 0,
-  "pulados": 0,
+  "pulados": 3,
   "erros": 0
  },
  "analise_somente_leitura": {
