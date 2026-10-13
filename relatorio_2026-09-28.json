@@ -1,94 +1,36 @@
 {
   "data": "2026-09-28",
-  "gerado_em": "2026-10-13T17:31:27.430497",
+  "gerado_em": "2026-10-13T22:34:57.745905",
   "status": "NAO_CONCILIADO",
-  "tentativas": 2,
+  "tentativas": 1,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 22802.95,
-    "advbox": 11559.38,
-    "diferenca": 11243.57
+    "advbox": 22802.95,
+    "diferenca": 0.0
   },
   "divergencias": {
-    "nome_diferente": [
-      {
-        "valor": 9351.31,
-        "asaas": "Caixa E. F.",
-        "advbox": "(sem nome)",
-        "advbox_id": 18015545
-      }
-    ],
-    "faltando_no_advbox": [
-      {
-        "valor": 3608.27,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 1588.73,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 5879.91,
-        "cliente_asaas": "Caixa E. F."
-      },
-      {
-        "valor": 166.66,
-        "cliente_asaas": "Regina N. L. S."
-      }
-    ],
+    "nome_diferente": [],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
-  "pendentes_sem_tese": [
+  "pendentes_sem_tese": [],
+  "revisao_mes": [
     {
-      "valor": 3608.27,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-09",
+      "asaas": 18195.57,
+      "advbox": 17821.32,
+      "diferenca": 374.25
     },
     {
-      "valor": 1588.73,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 5879.91,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 166.66,
-      "cliente_asaas": "Regina N. L. S."
-    },
-    {
-      "valor": 3608.27,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 1588.73,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 5879.91,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 166.66,
-      "cliente_asaas": "Regina N. L. S."
+      "dia": "2026-09-15",
+      "asaas": 3843.85,
+      "advbox": 3832.17,
+      "diferenca": 11.68
     }
   ],
   "correcoes": {
-    "total_realizadas": 2,
-    "detalhes": [
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 76.4
-      }
-    ]
+    "total_realizadas": 0,
+    "detalhes": []
   }
 }
