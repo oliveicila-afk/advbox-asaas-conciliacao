@@ -25,11 +25,11 @@ jobs:
               tid,data=par.strip().split(":")
               u=f"https://app.advbox.com.br/api/v1/transactions/{tid}"
               d=requests.get(u,headers=hb,timeout=30).json()
-              if d.get("entry_type")!="income" or str(d.get("date_due"))[:10]!=data:
-                  res.append({"id":tid,"acao":"pulado (não é receita ou vencimento diferente)"}); continue
+              if d.get("entry_type")!="income" or str(d.get("date_payment") or "")[:10] not in ("2026-10-13",data):
+                  res.append({"id":tid,"acao":"pulado","tipo":d.get("entry_type"),"due":str(d.get("date_due")),"pago":str(d.get("date_payment"))}); continue
               p={"entry_type":"income","users_id":d.get("users_id") or 65747,"debit_account":193264,"categories_id":d.get("categories_id"),
                  "cost_centers_id":d.get("cost_centers_id"),"customers_id":d.get("customers_id"),"lawsuits_id":d.get("lawsuits_id"),
-                 "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":data,"date_payment":data,"description":d.get("description") or ""}
+                 "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],"date_payment":data,"description":d.get("description") or ""}
               p={k:v for k,v in p.items() if v is not None}
               r=requests.put(u,headers=hb,json=p,timeout=30)
               n=requests.get(u,headers=hb,timeout=30).json()
