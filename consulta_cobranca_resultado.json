@@ -1,0 +1,40 @@
+[
+ {
+  "id": "pay_2ymjzm629v3yp9eg",
+  "fatura_nr": "904531355",
+  "cliente_iniciais": "E B D C",
+  "value": 374.25,
+  "netValue": 362.57,
+  "status": "REFUNDED",
+  "billingType": "CREDIT_CARD",
+  "dueDate": "2026-09-08",
+  "originalDueDate": "2026-09-08",
+  "paymentDate": null,
+  "clientPaymentDate": "2026-09-08",
+  "creditDate": "2026-10-13",
+  "estimatedCreditDate": "2026-10-13",
+  "anticipated": true,
+  "anticipable": false,
+  "externalReference": "16044024",
+  "installment": null
+ },
+ {
+  "id": "pay_s2yomd13v4xq4viu",
+  "fatura_nr": "878442693",
+  "cliente_iniciais": "E B D C",
+  "value": 374.25,
+  "netValue": 362.57,
+  "status": "REFUNDED",
+  "billingType": "CREDIT_CARD",
+  "dueDate": "2026-08-08",
+  "originalDueDate": "2026-08-08",
+  "paymentDate": "2026-09-09",
+  "clientPaymentDate": "2026-08-08",
+  "creditDate": "2026-09-09",
+  "estimatedCreditDate": "2026-09-09",
+  "anticipated": true,
+  "anticipable": false,
+  "externalReference": "16044023",
+  "installment": null
+ }
+]
