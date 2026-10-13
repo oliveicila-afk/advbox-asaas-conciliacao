@@ -2,15 +2,9 @@
  "dias": {
   "2026-09-11": {
    "asaas_total": 1998.7,
-   "advbox_total": 1750.2,
+   "advbox_total": 1998.7,
    "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "S V",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    }
-   ],
+   "so_asaas": [],
    "so_advbox": []
   },
   "2026-09-12": {
@@ -61,7 +55,7 @@
   },
   "2026-09-15": {
    "asaas_total": 3820.49,
-   "advbox_total": 3820.49,
+   "advbox_total": 3843.85,
    "valor_diferente": [],
    "so_asaas": [
     {
@@ -75,6 +69,16 @@
      "cliente": "R R V",
      "valor": 2961.99,
      "id": 17775000
+    },
+    {
+     "cliente": "E B D C",
+     "valor": 11.68,
+     "id": 18175646
+    },
+    {
+     "cliente": "E B D C",
+     "valor": 11.68,
+     "id": 18175647
     }
    ]
   },
@@ -162,5 +166,5 @@
   }
  },
  "tot_asaas": 69934.84,
- "tot_advbox": 69686.34
+ "tot_advbox": 69958.2
 }
