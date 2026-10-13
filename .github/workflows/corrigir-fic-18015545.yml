@@ -32,7 +32,7 @@ jobs:
           out={"categoria_id":cat,"clientes_encontrados":len(cl)}
           if len(cl)==1:
               u=f"{B}/transactions/18015545"
-              r=requests.put(u,headers=hb,json={"categories_id":cat,"customers_id":cl[0]["customer_id"],"lawsuits_id":5836169},timeout=30)
+              r=requests.put(u,headers=hb,json={"entry_type":"income","users_id":65747,"debit_account":193264,"categories_id":cat,"cost_centers_id":62649,"customers_id":cl[0]["customer_id"],"lawsuits_id":5836169,"amount":"9351,31","date_due":"2026-09-28","date_payment":"2026-09-28","description":"Repasse Caixa (êxito)"},timeout=30)
               d=requests.get(u,headers=hb,timeout=30).json()
               out.update({"put_http":r.status_code,"put_resp":r.text[:200],"depois":{k:d.get(k) for k in ("category","cost_center","customers_id","lawsuits_id","amount","date_payment")}})
           json.dump(out,open("corrigir_fic_resultado.json","w"),ensure_ascii=False,indent=1,default=str); print(out)
