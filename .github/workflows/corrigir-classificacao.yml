@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       target_date:
-        description: "Data (AAAA-MM-DD)"
+        description: "Data (AAAA-MM-DD) ou TODAS"
         required: true
       dry_run:
         description: "true = só simular"

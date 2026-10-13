@@ -48,15 +48,23 @@ st = get("/settings").json().get("financial", {})
 CAT = {c["category"]: c["id"] for c in st.get("categories", [])}
 CC = {c["cost_center"]: c["id"] for c in st.get("cost_centers", [])}
 
-alvos = [t for t in raw if t.get("entry_type") == "income"
-         and (t.get("date_payment") or "")[:10] == DATA
-         and str(t.get("debit_bank") or "").upper() == "ASAAS"
-         and t.get("category") == "HONORÁRIOS INICIAIS"
-         and t.get("cost_center") == "DESPESAS FINANCEIRAS-GERAL"]
+TODAS = DATA.upper() == "TODAS"
+if TODAS:
+    # revisão geral: receitas só com categoria genérica (sem tese). Troca SÓ a categoria.
+    alvos = [t for t in raw if t.get("entry_type") == "income"
+             and t.get("category") in ("HONORÁRIOS INICIAIS", "HONORÁRIOS CONTRATUAIS")]
+else:
+    alvos = [t for t in raw if t.get("entry_type") == "income"
+             and (t.get("date_payment") or "")[:10] == DATA
+             and str(t.get("debit_bank") or "").upper() == "ASAAS"
+             and t.get("category") == "HONORÁRIOS INICIAIS"
+             and t.get("cost_center") == "DESPESAS FINANCEIRAS-GERAL"]
 
 out = {"data": DATA, "dry_run": DRY, "encontrados": len(alvos), "itens": []}
+MAX_PUTS = int(os.environ.get("MAX_PUTS", "60"))  # limite diário da API: 500 chamadas
+puts = 0
 for t in alvos:
-    item = {"id": t["id"], "cliente": mask(t.get("name")), "valor": t.get("amount")}
+    item = {"id": t["id"], "data": t.get("date_payment") or t.get("date_due"), "cliente": mask(t.get("name")), "valor": t.get("amount"), "categoria_atual": t.get("category")}
     cands = [x for x in raw if x.get("entry_type") == "income"
              and norm(x.get("name")) == norm(t.get("name")) and x["id"] != t["id"]
              and x.get("category") and x["category"] not in GENERICAS and "-" in x["category"]
@@ -66,12 +74,19 @@ for t in alvos:
         out["itens"].append(item); continue
     cands.sort(key=lambda x: x.get("date_payment") or x.get("date_due") or "", reverse=True)
     ref = cands[0]
-    item["nova_categoria"] = ref["category"]; item["novo_centro_custo"] = ref["cost_center"]
+    item["nova_categoria"] = ref["category"]
+    if not TODAS:
+        item["novo_centro_custo"] = ref["cost_center"]
     if DRY:
         item["resultado"] = "SIMULAÇÃO (nada alterado)"
     else:
-        body = {"entry_type": "income", "categories_id": CAT.get(ref["category"]),
-                "cost_centers_id": CC.get(ref["cost_center"])}
+        if puts >= MAX_PUTS:
+            item["resultado"] = "PULADO (limite de alterações desta execução)"
+            out["itens"].append(item); continue
+        body = {"entry_type": "income", "categories_id": CAT.get(ref["category"])}
+        if not TODAS:
+            body["cost_centers_id"] = CC.get(ref["cost_center"])
+        puts += 1
         r = requests.put(f"{BASE}/transactions/{t['id']}", headers=H, json=body, timeout=30)
         time.sleep(2.2)
         item["put_status"] = r.status_code
@@ -83,5 +98,7 @@ for t in alvos:
         item["depois_centro_custo"] = d.get("cost_center")
     out["itens"].append(item)
 
+out["resumo"] = {"com_precedente": sum(1 for i in out["itens"] if "nova_categoria" in i),
+                 "sem_precedente": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("SEM_PRECEDENTE"))}
 json.dump(out, open("correcao_classificacao.json", "w"), indent=1, ensure_ascii=False)
-print(json.dumps(out, indent=1, ensure_ascii=False))
+print(json.dumps(out["resumo"]), "de", out["encontrados"])
