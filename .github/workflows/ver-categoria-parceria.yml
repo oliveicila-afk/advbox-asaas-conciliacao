@@ -1,0 +1,38 @@
+name: Ver categorias de parceria (somente leitura)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  v:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          st=requests.get(f"{B}/settings",headers=hb,timeout=60).json(); time.sleep(2.2)
+          cats=[c["category"] for c in st["financial"]["categories"] if "PARCER" in c["category"].upper()]
+          out={"categorias":cats,"centros":[c["cost_center"] for c in st["financial"]["cost_centers"] if "PARCER" in c["cost_center"].upper()],"recentes":[]}
+          off=0
+          while True:
+              r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[])
+              out["recentes"]+=[{"id":t["id"],"valor":t.get("amount"),"cat":t.get("category"),"centro":t.get("cost_center"),"pago":str(t.get("date_payment") or "")[:10],"tem_cliente":bool(t.get("name")),"tem_processo":bool(t.get("lawsuit_id"))} for t in b if t.get("entry_type")=="income" and "PARCER" in str(t.get("category")).upper()]
+              if len(b)<1000: break
+              off+=1000
+          out["recentes"]=sorted(out["recentes"],key=lambda x:x["pago"],reverse=True)[:8]
+          json.dump(out,open("parceria.json","w"),ensure_ascii=False,indent=1); print(out)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f parceria.json; git commit -m "parceria" || true
+          git pull --rebase origin main || true; git push || true
