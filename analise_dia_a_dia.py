@@ -152,9 +152,7 @@ def _so_alnum(n):
 def categoria_promocao_horizontal(headers_advbox):
     """Única categoria de Promoção Horizontal que não é de êxito (regra 67/497/597)."""
     st = carregar_settings_advbox(headers_advbox)
-    cats = [(n, i) for n, i in st["cat"].items()
-            if "PROMOÇÃO HORIZONTAL" in n.upper() and "ÊXITO" not in n.upper() and "EXITO" not in n.upper()
-            and "RETROATIVO" not in n.upper()]
+    cats = [(n, i) for n, i in st["cat"].items() if _sem_acento(n).endswith("INICIAIS-PROMOCAO HORIZONTAL")]
     return cats[0] if len(cats) == 1 else None
 
 CAT_CONSULTORIA_ANTIGA = "HONORÁRIOS CONSULTORIAS"
