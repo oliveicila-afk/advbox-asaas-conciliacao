@@ -1,0 +1,94 @@
+name: Auditar Asaas — período por tipo (somente leitura, sem nomes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      inicio:
+        description: "Data inicial YYYY-MM-DD"
+        required: true
+        default: "2026-09-09"
+      fim:
+        description: "Data final YYYY-MM-DD"
+        required: true
+        default: "2026-09-10"
+      valor:
+        description: "Valor para destacar (ex: 374.25). Opcional."
+        required: false
+        default: "374.25"
+
+permissions:
+  contents: write
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Consultar Asaas por dia e tipo
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          INICIO: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+          VALOR: ${{ github.event.inputs.valor }}
+        run: |
+          python3 - <<'PY'
+          import os, json, datetime as dt, requests
+          from collections import defaultdict
+
+          h = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          base = "https://api.asaas.com/v3"
+          ini = dt.date.fromisoformat(os.environ["INICIO"])
+          fim = dt.date.fromisoformat(os.environ["FIM"])
+          alvo = round(float(os.environ.get("VALOR") or 0), 2)
+
+          saida = {"inicio": str(ini), "fim": str(fim), "dias": {}}
+          dia = ini
+          while dia <= fim:
+              ds = dia.isoformat()
+              txs, offset, vistos = [], 0, set()
+              while True:
+                  r = requests.get(f"{base}/financialTransactions", headers=h,
+                                   params={"startDate": ds, "finishDate": ds, "limit": 100, "offset": offset}, timeout=30)
+                  j = r.json()
+                  for t in j.get("data", []):
+                      if t.get("id") not in vistos:
+                          vistos.add(t.get("id")); txs.append(t)
+                  if not j.get("hasMore") or not j.get("data"):
+                      break
+                  offset += 100
+              por_tipo = defaultdict(lambda: [0, 0.0])
+              for t in txs:
+                  tp = t.get("type")
+                  por_tipo[tp][0] += 1
+                  por_tipo[tp][1] = round(por_tipo[tp][1] + float(t.get("value", 0)), 2)
+              destaque = [{"id": t.get("id"), "type": t.get("type"), "value": t.get("value"),
+                           "date": t.get("date"), "paymentId": t.get("paymentId")}
+                          for t in txs if alvo and round(abs(float(t.get("value", 0))), 2) == alvo]
+              estornos = [{"id": t.get("id"), "type": t.get("type"), "value": t.get("value"),
+                           "paymentId": t.get("paymentId")}
+                          for t in txs if any(k in str(t.get("type")) for k in ("REVERSAL", "REFUND", "CHARGEBACK"))]
+              saida["dias"][ds] = {
+                  "total_linhas": len(txs),
+                  "por_tipo": {k: {"qtd": v[0], "soma": v[1]} for k, v in por_tipo.items()},
+                  "destaque_valor": destaque,
+                  "estornos_devolucoes": estornos,
+              }
+              print(ds, "linhas:", len(txs))
+              dia += dt.timedelta(days=1)
+
+          with open("auditoria_asaas_periodo.json", "w") as f:
+              json.dump(saida, f, ensure_ascii=False, indent=1)
+          PY
+
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f auditoria_asaas_periodo.json
+          git diff --cached --quiet || git commit -m "Auditoria Asaas ${{ github.event.inputs.inicio }} a ${{ github.event.inputs.fim }}"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"
