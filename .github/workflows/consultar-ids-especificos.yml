@@ -47,8 +47,13 @@ jobs:
                   "descricao": desc[:80] if desc else ""
               })
               print(f"ID {tid}: R${val} | {mask} | CAT: {cat} (id={cat_id}) | pago={bool(paid)}")
-          with open("consulta_ids_resultado.json","w") as f:
+          import datetime
+          ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+          fname = f"consulta_ids_{ts}.json"
+          with open(fname,"w") as f:
               json.dump(resultado, f, ensure_ascii=False, indent=2)
+          # symlink para nome fixo
+          import shutil; shutil.copy(fname, "consulta_ids_resultado.json")
           PYEOF
 
       - name: Commit resultado
@@ -58,6 +63,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f consulta_ids_resultado.json
+          git add -f consulta_ids_*.json || true
           git diff --cached --quiet || git commit -m "resultado: consulta IDs específicos Advbox"
           git push || echo "Push failed"
