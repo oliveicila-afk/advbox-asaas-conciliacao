@@ -77,6 +77,24 @@ def delete_advbox_transaction(tx_id: str, headers_advbox: dict) -> bool:
         return False
 
 
+def unpay_advbox_transaction(tx_id, headers_advbox: dict) -> bool:
+    """Desmarca o pagamento (volta para "não pago") em vez de apagar. Reversível.
+    API Advbox: PUT /transactions/{id} com {"date_payment": null}."""
+    try:
+        resp = requests.put(
+            f"https://app.advbox.com.br/api/v1/transactions/{tx_id}",
+            headers={**headers_advbox, "Content-Type": "application/json"},
+            json={"date_payment": None},
+            timeout=30
+        )
+        success = resp.status_code in [200, 204]
+        log_msg(f"  DESMARCAR PAGAMENTO {tx_id}: {resp.status_code} - {'✓' if success else '❌'}", True)
+        return success
+    except Exception as e:
+        log_msg(f"  ❌ Erro ao desmarcar pagamento {tx_id}: {e}", True)
+        return False
+
+
 def create_advbox_transaction(asaas_tx: dict, headers_advbox: dict) -> bool:
     try:
         description = asaas_tx.get("description", "Pagamento Asaas")
@@ -413,13 +431,13 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
 
     # Correções
     if unmatched_advbox and not DRY_RUN:
-        log_msg(f"\n[CORRIGINDO] Removendo {len(unmatched_advbox)} fantasma(s)...", True)
+        log_msg(f"\n[CORRIGINDO] Desmarcando pagamento de {len(unmatched_advbox)} lançamento(s) que não batem (não apaga)...", True)
         for tx in unmatched_advbox:
             tx_id = tx.get("id", "")
-            valor = float(str(tx.get("value", tx.get("amount", 0))).replace(",", "."))
+            valor = val_adv(tx)
             if tx_id:
-                if delete_advbox_transaction(tx_id, headers_advbox):
-                    all_corrections.append(("DELETE", valor))
+                if unpay_advbox_transaction(tx_id, headers_advbox):
+                    all_corrections.append(("DESMARCAR_PAGAMENTO", valor))
 
     if unmatched_asaas and not DRY_RUN:
         log_msg(f"\n[CORRIGINDO] Criando {len(unmatched_asaas)} faltante(s)...", True)
