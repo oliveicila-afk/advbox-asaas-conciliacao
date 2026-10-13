@@ -49,61 +49,100 @@ CAT = {c["category"]: c["id"] for c in st.get("categories", [])}
 CC = {c["cost_center"]: c["id"] for c in st.get("cost_centers", [])}
 
 TODAS = DATA.upper() == "TODAS"
+GEN2 = ("HONORÁRIOS INICIAIS", "HONORÁRIOS CONTRATUAIS")
+CORTE = "2026-09-01"
+VALORES_PROMO = {67.0, 497.0, 597.0}   # regra definida pela Priscila -> Promoção Horizontal
+CAT_PROMO = "HONORÁRIOS CONTRATUAIS INICIAIS-PROMOÇÃO HORIZONTAL"
 if TODAS:
-    # revisão geral: receitas só com categoria genérica (sem tese). Troca SÓ a categoria.
-    alvos = [t for t in raw if t.get("entry_type") == "income"
-             and t.get("category") in ("HONORÁRIOS INICIAIS", "HONORÁRIOS CONTRATUAIS")]
+    alvos = [t for t in raw if t.get("entry_type") == "income" and t.get("category") in GEN2]
 else:
+    # conciliação do dia: receitas da conta ASAAS pagas na data, só com categoria genérica
     alvos = [t for t in raw if t.get("entry_type") == "income"
              and (t.get("date_payment") or "")[:10] == DATA
              and str(t.get("debit_bank") or "").upper() == "ASAAS"
-             and t.get("category") == "HONORÁRIOS INICIAIS"
-             and t.get("cost_center") == "DESPESAS FINANCEIRAS-GERAL"]
+             and t.get("category") in GEN2]
+
+def tese_unica_do_cliente(t):
+    cands = [x for x in raw if x.get("entry_type") == "income"
+             and norm(x.get("name")) == norm(t.get("name")) and x["id"] != t["id"]
+             and x.get("category") and x["category"] not in GENERICAS and "-" in x["category"]
+             and x.get("cost_center")]
+    teses = {x["category"] for x in cands}
+    if not cands:
+        return None, 0
+    cands.sort(key=lambda x: x.get("date_payment") or x.get("date_due") or "", reverse=True)
+    return (cands[0] if len(teses) == 1 else None), len(teses)
+
+# --- ANÁLISE SOMENTE LEITURA dos lançamentos anteriores ao corte (sem nomes de clientes)
+def analise_leitura():
+    ant = [t for t in alvos if (t.get("date_payment") or t.get("date_due") or "9999")[:10] < CORTE] if TODAS else \
+          [t for t in raw if t.get("entry_type") == "income" and t.get("category") in GEN2
+           and (t.get("date_payment") or t.get("date_due") or "9999")[:10] < CORTE]
+    # tabela valor -> tese (só lançamentos que JÁ têm tese)
+    por_valor = {}
+    for x in raw:
+        if x.get("entry_type") == "income" and x.get("category") and x["category"] not in GENERICAS and "-" in x["category"]:
+            v = round(float(x.get("amount") or 0), 2)
+            por_valor.setdefault(v, {}).setdefault(x["category"], 0)
+            por_valor[v][x["category"]] += 1
+    dominante = {}
+    for v, d in por_valor.items():
+        n = sum(d.values()); top = max(d, key=d.get)
+        if n >= 10 and d[top] / n >= 0.9:
+            dominante[v] = top
+    res = {"unica": 0, "regra_promocao": 0, "valor_dominante": 0, "ambiguo_sem_regra": 0, "sem_nada": 0}
+    for t in ant:
+        ref, qt = tese_unica_do_cliente(t)
+        v = round(float(t.get("amount") or 0), 2)
+        if ref: res["unica"] += 1
+        elif v in VALORES_PROMO: res["regra_promocao"] += 1
+        elif v in dominante: res["valor_dominante"] += 1
+        elif qt > 1: res["ambiguo_sem_regra"] += 1
+        else: res["sem_nada"] += 1
+    tabela = sorted(((v, sum(d.values()), max(d, key=d.get), round(max(d.values()) / sum(d.values()), 2))
+                     for v, d in por_valor.items() if sum(d.values()) >= 15), key=lambda r: -r[1])[:25]
+    return {"genericos_antes_de_" + CORTE: len(ant), "como_resolver": res,
+            "valores_mais_comuns(valor, qtd, tese_dominante, parcela)": tabela}
 
 out = {"data": DATA, "dry_run": DRY, "encontrados": len(alvos), "itens": []}
 MAX_PUTS = int(os.environ.get("MAX_PUTS", "60"))  # limite diário da API: 500 chamadas
 puts = 0
 for t in alvos:
-    item = {"id": t["id"], "data": t.get("date_payment") or t.get("date_due"), "cliente": mask(t.get("name")), "valor": t.get("amount"), "categoria_atual": t.get("category")}
-    cands = [x for x in raw if x.get("entry_type") == "income"
-             and norm(x.get("name")) == norm(t.get("name")) and x["id"] != t["id"]
-             and x.get("category") and x["category"] not in GENERICAS and "-" in x["category"]
-             and x.get("cost_center")]
-    if not cands:
-        item["resultado"] = "SEM_PRECEDENTE (informar a tese)"
+    item = {"id": t["id"], "data": t.get("date_payment") or t.get("date_due"), "cliente": mask(t.get("name")),
+            "valor": t.get("amount"), "categoria_atual": t.get("category")}
+    ref, qt = tese_unica_do_cliente(t)
+    v = round(float(t.get("amount") or 0), 2)
+    nova = None
+    if ref:
+        nova, item["metodo"] = ref["category"], "tese_unica_do_cliente"
+    elif v in VALORES_PROMO:
+        nova, item["metodo"] = CAT_PROMO, "regra_valor_promocao_horizontal"
+    else:
+        item["resultado"] = ("PULADO: cliente com várias teses, sem regra" if qt > 1
+                             else "PULADO: sem tese anterior e sem regra")
         out["itens"].append(item); continue
-    cands.sort(key=lambda x: x.get("date_payment") or x.get("date_due") or "", reverse=True)
-    ref = cands[0]
-    teses = {x["category"] for x in cands}
-    item["tese_unica"] = len(teses) == 1
-    item["qtd_teses_do_cliente"] = len(teses)
-    item["nova_categoria"] = ref["category"]
-    if not TODAS:
-        item["novo_centro_custo"] = ref["cost_center"]
+    if nova == t.get("category") or not CAT.get(nova):
+        item["resultado"] = "PULADO: categoria não encontrada"
+        out["itens"].append(item); continue
+    item["nova_categoria"] = nova
     if DRY:
         item["resultado"] = "SIMULAÇÃO (nada alterado)"
     else:
         if puts >= MAX_PUTS:
             item["resultado"] = "PULADO (limite de alterações desta execução)"
             out["itens"].append(item); continue
-        body = {"entry_type": "income", "categories_id": CAT.get(ref["category"])}
-        if not TODAS:
-            body["cost_centers_id"] = CC.get(ref["cost_center"])
         puts += 1
-        r = requests.put(f"{BASE}/transactions/{t['id']}", headers=H, json=body, timeout=30)
+        r = requests.put(f"{BASE}/transactions/{t['id']}", headers=H,
+                         json={"entry_type": "income", "categories_id": CAT[nova]}, timeout=30)
         time.sleep(2.2)
         item["put_status"] = r.status_code
-        item["put_resposta"] = r.text[:300]
-        g = get(f"/transactions/{t['id']}")
-        d = g.json() if g.status_code == 200 else {}
-        d = d.get("data", d) if isinstance(d, dict) else {}
-        item["depois_categoria"] = d.get("category")
-        item["depois_centro_custo"] = d.get("cost_center")
+        item["resultado"] = "ALTERADO" if r.status_code == 200 else "ERRO: " + r.text[:200]
     out["itens"].append(item)
 
-out["resumo"] = {"com_precedente": sum(1 for i in out["itens"] if "nova_categoria" in i),
-                 "sem_precedente": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("SEM_PRECEDENTE")),
-                 "com_tese_unica_segura": sum(1 for i in out["itens"] if i.get("tese_unica") is True),
-                 "com_varias_teses_duvidoso": sum(1 for i in out["itens"] if i.get("tese_unica") is False)}
+out["resumo"] = {"alterados": sum(1 for i in out["itens"] if i.get("resultado") == "ALTERADO"),
+                 "simulados": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("SIMULA")),
+                 "pulados": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("PULADO")),
+                 "erros": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("ERRO"))}
+out["analise_somente_leitura"] = analise_leitura()
 json.dump(out, open("correcao_classificacao.json", "w"), indent=1, ensure_ascii=False)
 print(json.dumps(out["resumo"]), "de", out["encontrados"])
