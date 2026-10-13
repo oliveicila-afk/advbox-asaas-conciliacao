@@ -1,0 +1,52 @@
+name: Desmarcar pagamento — fantasmas Advbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "IDs separados por vírgula (ex: 18152237,18152430,18152431)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  unpay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests -q
+      - name: Desmarcar pagamentos
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - <<'PY'
+          import os, requests, json
+          h = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+               "User-Agent": "Mozilla/5.0", "Accept": "application/json",
+               "Content-Type": "application/json"}
+          ids = [i.strip() for i in os.environ["IDS"].split(",") if i.strip()]
+          resultados = []
+          for tx_id in ids:
+              url = f"https://app.advbox.com.br/api/v1/transactions/{tx_id}"
+              r = requests.put(url, headers=h, json={"date_payment": ""}, timeout=30)
+              ok = r.status_code in [200, 204]
+              res = {"id": tx_id, "status": r.status_code, "ok": ok, "body": r.text[:300]}
+              resultados.append(res)
+              print(f"  {'✅' if ok else '❌'} unpay {tx_id}: HTTP {r.status_code}")
+          with open("unpay_resultado.json", "w") as f:
+              json.dump(resultados, f, indent=2, ensure_ascii=False)
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f unpay_resultado.json
+          git commit -m "unpay fantasmas ${{ github.event.inputs.ids }}" || exit 0
+          git pull --rebase origin main || true
+          git push
