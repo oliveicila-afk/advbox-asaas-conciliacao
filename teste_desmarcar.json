@@ -1,4 +1,5 @@
 {
-  "status": 422,
-  "body": "{\"message\":\"The given data was invalid.\",\"errors\":{\"date_payment\":[\"The date payment is invalid\",\"The payment cannot be in the future\"]}}"
+  "payload": "{\"date_payment\": \"\"}",
+  "status": 200,
+  "body": "{\"success\":true,\"lawsuits_id\":\"18152233\"}"
 }
