@@ -7,6 +7,10 @@ on:
         description: "Data para análise (formato: YYYY-MM-DD, ex: 2026-09-01)"
         required: true
         default: "2026-09-01"
+      dry_run:
+        description: "Modo teste: não altera o Advbox (true/false)"
+        required: false
+        default: "false"
 
 permissions:
   contents: write
@@ -31,6 +35,7 @@ jobs:
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           TARGET_DATE: ${{ github.event.inputs.data }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python3 analise_dia_a_dia.py
 
       - name: Upload do relatório
