@@ -1,0 +1,103 @@
+name: Consultar transações Asaas de um dia
+on:
+  workflow_dispatch:
+    inputs:
+      data:
+        description: "Data YYYY-MM-DD"
+        required: true
+        default: "2026-09-06"
+
+permissions:
+  contents: write
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Consultar Asaas
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          DATA: ${{ github.event.inputs.data }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, requests, json, datetime
+
+          token = os.environ["ASAAS_TOKEN"]
+          data = os.environ["DATA"]
+          headers = {"access_token": token, "Accept": "application/json"}
+          base = "https://api.asaas.com/v3"
+
+          _cache_pag = {}
+          _cache_cli = {}
+
+          def get_nome(tx):
+              pid = tx.get("paymentId")
+              if not pid and tx.get("anticipationId"):
+                  a = requests.get(f"{base}/anticipations/{tx['anticipationId']}", headers=headers, timeout=30).json()
+                  pid = a.get("payment")
+              if not pid:
+                  return None, None
+              if pid not in _cache_pag:
+                  _cache_pag[pid] = requests.get(f"{base}/payments/{pid}", headers=headers, timeout=30).json().get("customer")
+              cid = _cache_pag[pid]
+              if not cid:
+                  return None, None
+              if cid not in _cache_cli:
+                  _cache_cli[cid] = requests.get(f"{base}/customers/{cid}", headers=headers, timeout=30).json()
+              c = _cache_cli[cid] or {}
+              return c.get("name"), c.get("cpfCnpj","")
+
+          r = requests.get(f"{base}/financialTransactions",
+              headers=headers,
+              params={"startDate": data, "endDate": data,
+                      "transactionType": "PAYMENT_RECEIVED,RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+                      "limit": 100},
+              timeout=30)
+          txs = r.json().get("data", [])
+          print(f"Total: {len(txs)} transações em {data}")
+
+          resultado = []
+          for tx in txs:
+              nome, cpfcnpj = get_nome(tx)
+              v = float(tx.get("value", 0))
+              tipo = tx.get("type","")
+              desc = tx.get("description","")
+              # CPF ou CNPJ — mascarar CPF, mostrar CNPJ completo (empresas)
+              doc_mask = ""
+              if cpfcnpj:
+                  d = cpfcnpj.replace(".","").replace("-","").replace("/","")
+                  if len(d) == 11:  # CPF
+                      doc_mask = f"***.***.{d[6:9]}-{d[9:]}"
+                  else:  # CNPJ
+                      doc_mask = cpfcnpj
+              resultado.append({
+                  "valor": v,
+                  "nome_completo": nome or "",
+                  "doc": doc_mask,
+                  "tipo": tipo,
+                  "descricao": desc[:100] if desc else ""
+              })
+              print(f"  R${v:.2f} | {nome} | doc={doc_mask} | {tipo}")
+
+          import datetime as dt
+          ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+          fname = f"consulta_asaas_{data}_{ts}.json"
+          with open(fname, "w") as f:
+              json.dump(resultado, f, ensure_ascii=False, indent=2)
+          import shutil; shutil.copy(fname, "consulta_asaas_resultado.json")
+          PYEOF
+
+      - name: Commit resultado
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f consulta_asaas_*.json
+          git diff --cached --quiet || git commit -m "resultado: consulta Asaas ${{ github.event.inputs.data }}"
+          git push || echo "Push failed"
