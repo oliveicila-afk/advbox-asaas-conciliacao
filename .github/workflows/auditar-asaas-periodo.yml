@@ -64,9 +64,21 @@ jobs:
                   tp = t.get("type")
                   por_tipo[tp][0] += 1
                   por_tipo[tp][1] = round(por_tipo[tp][1] + float(t.get("value", 0)), 2)
-              destaque = [{"id": t.get("id"), "type": t.get("type"), "value": t.get("value"),
-                           "date": t.get("date"), "paymentId": t.get("paymentId")}
-                          for t in txs if alvo and round(abs(float(t.get("value", 0))), 2) == alvo]
+              def detalhe(t):
+                  d = {k: v for k, v in t.items() if k not in ("description", "balance")}
+                  for k in ("anticipationId", "installmentId"):
+                      if t.get(k):
+                          try:
+                              path = "anticipations" if k == "anticipationId" else "installments"
+                              a = requests.get(f"{base}/{path}/{t[k]}", headers=h, timeout=30).json()
+                              d["_" + k] = {x: a.get(x) for x in ("id", "payment", "installment", "value",
+                                            "totalValue", "netValue", "fee", "status", "anticipationDate",
+                                            "dueDate", "requestDate") if x in a}
+                          except Exception as e:
+                              d["_" + k] = str(type(e).__name__)
+                  return d
+              destaque = [detalhe(t) for t in txs
+                          if alvo and round(abs(float(t.get("value", 0))), 2) == alvo]
               estornos = [{"id": t.get("id"), "type": t.get("type"), "value": t.get("value"),
                            "paymentId": t.get("paymentId")}
                           for t in txs if any(k in str(t.get("type")) for k in ("REVERSAL", "REFUND", "CHARGEBACK"))]
