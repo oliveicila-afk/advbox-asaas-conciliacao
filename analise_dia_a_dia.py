@@ -459,6 +459,25 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
 
     log_msg(f"\n[MATCHING] Identificando divergências...", True)
 
+    # Passo 0: excluir transações de investimento do Asaas — já lançadas na conta de investimentos do Advbox
+    # Exemplos: "Lvmx I. E. I. L.", fundos de investimento, FIDC, etc.
+    NOMES_INVESTIMENTO = ("LVMX", "FII ", "FIDC", "FUNDO DE INVESTIMENTO", "FUNDO IMOBILIARIO",
+                          "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT")
+    investimentos_excluidos = []
+    asaas_filtrado = []
+    for a_tx in asaas_transactions:
+        n_asaas_up = (a_tx.get("_nome") or "").upper()
+        eh_investimento = any(inv in n_asaas_up for inv in NOMES_INVESTIMENTO)
+        if eh_investimento:
+            v = round(float(a_tx.get("value", 0)), 2)
+            log_msg(f"  ⚙️  Investimento excluído: {mascara_nome(a_tx.get('_nome'))} R${v} — já lançado na conta de investimentos", True)
+            investimentos_excluidos.append(a_tx)
+        else:
+            asaas_filtrado.append(a_tx)
+    if investimentos_excluidos:
+        log_msg(f"  → {len(investimentos_excluidos)} transação(ões) de investimento excluídas da conciliação", True)
+    asaas_transactions = asaas_filtrado
+
     def val_adv(tx):
         return round(float(str(tx.get("value", tx.get("amount", 0))).replace(",", ".")), 2)
 
