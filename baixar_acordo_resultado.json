@@ -1,0 +1,26 @@
+{
+ "put_http": 200,
+ "put_resp": "{\"success\":true,\"lawsuits_id\":\"17381789\"}",
+ "antes": {
+  "id": 17381789,
+  "amount": 11000,
+  "bank": "CONTADORIA",
+  "debit_account": 238196,
+  "date_due": "2026-09-22",
+  "date_payment": null,
+  "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+  "cost_center": "PROFESSOR/PEDAGOGO-PROSPECÇÃO ATIVA",
+  "lawsuits_id": 16085012
+ },
+ "depois": {
+  "id": 17381789,
+  "amount": 11000,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "date_due": "2026-09-22",
+  "date_payment": "2026-09-16",
+  "category": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA",
+  "cost_center": "PROFESSOR/PEDAGOGO-PROSPECÇÃO ATIVA",
+  "lawsuits_id": 16085012
+ }
+}
