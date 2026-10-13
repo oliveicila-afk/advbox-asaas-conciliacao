@@ -74,6 +74,9 @@ for t in alvos:
         out["itens"].append(item); continue
     cands.sort(key=lambda x: x.get("date_payment") or x.get("date_due") or "", reverse=True)
     ref = cands[0]
+    teses = {x["category"] for x in cands}
+    item["tese_unica"] = len(teses) == 1
+    item["qtd_teses_do_cliente"] = len(teses)
     item["nova_categoria"] = ref["category"]
     if not TODAS:
         item["novo_centro_custo"] = ref["cost_center"]
@@ -99,6 +102,8 @@ for t in alvos:
     out["itens"].append(item)
 
 out["resumo"] = {"com_precedente": sum(1 for i in out["itens"] if "nova_categoria" in i),
-                 "sem_precedente": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("SEM_PRECEDENTE"))}
+                 "sem_precedente": sum(1 for i in out["itens"] if str(i.get("resultado","")).startswith("SEM_PRECEDENTE")),
+                 "com_tese_unica_segura": sum(1 for i in out["itens"] if i.get("tese_unica") is True),
+                 "com_varias_teses_duvidoso": sum(1 for i in out["itens"] if i.get("tese_unica") is False)}
 json.dump(out, open("correcao_classificacao.json", "w"), indent=1, ensure_ascii=False)
 print(json.dumps(out["resumo"]), "de", out["encontrados"])
