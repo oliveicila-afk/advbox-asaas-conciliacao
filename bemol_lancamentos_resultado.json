@@ -1,0 +1,32 @@
+{
+  "data_referencia": "2026-09-08",
+  "total_criado": 8240.98,
+  "esperado": 8240.98,
+  "conciliado": true,
+  "lancamentos": [
+    {
+      "description": "Bemol — Ricardo Barros de Araújo | Fechamento 08/09/2026",
+      "bruto": 4000.0,
+      "liquido": 3760.0,
+      "status_http": 200,
+      "ok": true,
+      "body": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18166951}"
+    },
+    {
+      "description": "Bemol — Maria Hozana da Silva Matisui | Fechamento 08/09/2026",
+      "bruto": 4240.0,
+      "liquido": 3985.6,
+      "status_http": 200,
+      "ok": true,
+      "body": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18166952}"
+    },
+    {
+      "description": "Bemol — Flávia Pinheiro de Barros | Fechamento 08/09/2026",
+      "bruto": 527.0,
+      "liquido": 495.38,
+      "status_http": 200,
+      "ok": true,
+      "body": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18166953}"
+    }
+  ]
+}
