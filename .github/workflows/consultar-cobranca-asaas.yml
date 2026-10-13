@@ -34,7 +34,10 @@ jobs:
           for pid in [i.strip() for i in os.environ["IDS"].split(",") if i.strip()]:
               p = requests.get(f"https://api.asaas.com/v3/payments/{pid}", headers=h, timeout=30).json()
               c = requests.get(f"https://api.asaas.com/v3/customers/{p.get('customer')}", headers=h, timeout=30).json() if p.get("customer") else {}
-              out.append({"id": pid,
+              rf = requests.get(f"https://api.asaas.com/v3/payments/{pid}/refunds", headers=h, timeout=30).json()
+              refunds = [{k: r.get(k) for k in ("status", "value", "dateCreated", "refundDate", "endToEndIdentifier") if k in r}
+                         for r in (rf.get("data") or [])] if isinstance(rf, dict) else str(rf)[:200]
+              out.append({"id": pid, "estornos": refunds,
                           "fatura_nr": p.get("invoiceNumber"),
                           "cliente_iniciais": ini(c.get("name")),
                           "value": p.get("value"), "netValue": p.get("netValue"),
