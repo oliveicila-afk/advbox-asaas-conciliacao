@@ -13,12 +13,23 @@
    "paymentId": "pay_uyncz3y0ro9eyode",
    "fatura_nr": "910186697",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "635222",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 7470600,
+     "tipo": "PROMOÇÃO HORIZONTAL - SEDUC",
+     "grupo": "SERVIDOR PÚBLICO",
+     "clientes": [
+      "A L C D M"
+     ],
+     "status_closure": "2025-07-16 22:57:24"
     }
    ]
   },
@@ -28,12 +39,23 @@
    "paymentId": "pay_0z9lqlmz6j0m6hjn",
    "fatura_nr": "910186691",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "995732",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 7379574,
+     "tipo": "RETROATIVOS VERTICAL - SEDUC",
+     "grupo": "SERVIDOR PÚBLICO",
+     "clientes": [
+      "A M M"
+     ],
+     "status_closure": "2025-08-03 22:53:26"
     }
    ]
   },
@@ -43,12 +65,23 @@
    "paymentId": "pay_igezmnkq6ni6nrdr",
    "fatura_nr": "910186681",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248041000",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "790042",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 7057435,
+     "tipo": "DATA BASE",
+     "grupo": "SERVIDOR PÚBLICO",
+     "clientes": [
+      "S C L"
+     ],
+     "status_closure": "2025-01-31 17:47:58"
     }
    ]
   },
@@ -59,7 +92,7 @@
    "fatura_nr": "912135477",
    "billingType": "TRANSFER",
    "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. | ",
-   "n_cnjs": 0,
+   "tamanhos_numeros": [],
    "processos": []
   },
   {
@@ -69,7 +102,7 @@
    "fatura_nr": "912135470",
    "billingType": "TRANSFER",
    "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. | ",
-   "n_cnjs": 0,
+   "tamanhos_numeros": [],
    "processos": []
   },
   {
@@ -78,12 +111,23 @@
    "paymentId": "pay_o1jgx8katxpvafyq",
    "fatura_nr": "913208704",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0228040001",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "110912",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 2367775,
+     "tipo": "ANULAÇÃO DE QUESTÃO E/OU DISCURSIVA",
+     "grupo": "CONCURSO PÚBLICO - GERAL",
+     "clientes": [
+      "J A D S"
+     ],
+     "status_closure": "2022-11-11 20:02:41"
     }
    ]
   },
@@ -93,12 +137,23 @@
    "paymentId": "pay_4rez4orx4zo9t7ye",
    "fatura_nr": "913015927",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0248040001",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "512112",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 5986292,
+     "tipo": "GRATIFICAÇÃO DE CURSO",
+     "grupo": "SERVIDOR PÚBLICO",
+     "clientes": [
+      "D D S P"
+     ],
+     "status_closure": "2024-06-25 15:26:13"
     }
    ]
   },
@@ -108,12 +163,23 @@
    "paymentId": "pay_0jrnyjliwjy8sbiu",
    "fatura_nr": "912940771",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ DISTRITO FEDERAL | [CNJ]0248070001",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ DISTRITO FEDERAL | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "017042",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 6275278,
+     "tipo": "PM/PA - EXAME MÉDICO",
+     "grupo": "CONCURSO PÚBLICO - GERAL",
+     "clientes": [
+      "E B C"
+     ],
+     "status_closure": "2024-07-30 13:23:49"
     }
    ]
   },
@@ -123,12 +189,23 @@
    "paymentId": "pay_3n5zexpp31v4vr7n",
    "fatura_nr": "913833033",
    "billingType": "TRANSFER",
-   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | [CNJ]0268041000",
-   "n_cnjs": 1,
+   "descricao_mascarada": "Cobrança gerada automaticamente a partir de TED recebido. Nome do tribunal: TJ AMAZONAS | ##############################",
+   "tamanhos_numeros": [
+    30
+   ],
    "processos": [
     {
-     "cnj_final": "006202",
-     "lawsuits_id": null
+     "janela": [
+      10,
+      30
+     ],
+     "lawsuits_id": 12329227,
+     "tipo": "SEGURO PRESTAMISTA",
+     "grupo": "CONSUMIDOR",
+     "clientes": [
+      "J M S L"
+     ],
+     "status_closure": "2026-02-11 17:22:49"
     }
    ]
   }
