@@ -34,7 +34,11 @@ COST_CENTER_ASAAS_PADRAO = 60814
 
 # Transações de investimento: excluídas da conciliação (já lançadas na conta de investimentos do Advbox)
 NOMES_INVESTIMENTO = ("LVMX", "FII ", "FIDC", "FUNDO DE INVESTIMENTO", "FUNDO IMOBILIARIO",
-                      "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT")
+                      "FI MULTIMERCADO", "FI RENDA FIXA", "INVESTIMENTOS", "ASSET MANAGEMENT",
+                      "BMP SOCIEDADE", "SOCIEDADE DE CREDITO DIRETO", "SCD SA")
+
+# CNPJs de entidades financeiras/investimento que devem ser excluídas da conciliação
+CNPJS_INVESTIMENTO = ("34337707000100",)  # BMP Sociedade de Crédito Direto S.A.
 
 # LOGGING EM ARQUIVO
 LOG_FILE = f"debug_{TARGET_DATE}.log"
@@ -469,7 +473,9 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     asaas_filtrado = []
     for a_tx in asaas_transactions:
         n_asaas_up = (a_tx.get("_nome") or "").upper()
-        eh_investimento = any(inv in n_asaas_up for inv in NOMES_INVESTIMENTO)
+        cpf_raw = (a_tx.get("_cpf") or "").replace(".","").replace("-","").replace("/","")
+        eh_investimento = (any(inv in n_asaas_up for inv in NOMES_INVESTIMENTO)
+                           or cpf_raw in CNPJS_INVESTIMENTO)
         if eh_investimento:
             v = round(float(a_tx.get("value", 0)), 2)
             log_msg(f"  ⚙️  Investimento excluído: {mascara_nome(a_tx.get('_nome'))} R${v} — já lançado na conta de investimentos", True)
@@ -583,7 +589,8 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     # Aplicar mesmo filtro de investimento na dupla checagem
     asaas_transactions_check = [
         tx for tx in asaas_transactions_check
-        if not any(inv in (tx.get("_nome") or "").upper() for inv in NOMES_INVESTIMENTO)
+        if not (any(inv in (tx.get("_nome") or "").upper() for inv in NOMES_INVESTIMENTO)
+                or (tx.get("_cpf") or "").replace(".","").replace("-","").replace("/","") in CNPJS_INVESTIMENTO)
     ]
     total_asaas_final = sum(float(tx.get("value", 0)) for tx in asaas_transactions_check)
     total_advbox_final = sum(
