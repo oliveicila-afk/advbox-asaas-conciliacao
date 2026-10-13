@@ -1,5 +1,5 @@
 {
- "modo": "executar",
+ "modo": "plano",
  "campos_lancamento": [
   "amount",
   "category",
@@ -23,171 +23,159 @@
  ],
  "itens": [
   {
-   "dia": "2026-09-14",
-   "valor": 14444.24,
-   "fatura_nr": "910186697",
+   "dia": "2026-09-23",
+   "valor": 27928.22,
+   "fatura_nr": "917999221",
    "processo_achado": true,
-   "lawsuits_id": 7470600,
-   "tese": "PROMOÇÃO HORIZONTAL - SEDUC",
+   "lawsuits_id": 7000508,
+   "tese": "PC/AM - ESCALONAMENTO",
    "clientes": [
-    "A L C D M"
+    "E F M"
    ],
    "customers_ids": [
     null
    ],
-   "modelos": [
-    {
-     "id": 17774989,
-     "valor": 4960.43,
-     "categories_id": 70060,
-     "cost_centers_id": 61966,
-     "customers_id": 7960193,
-     "lawsuits_id": 7470600,
-     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO HORIZONTAL"
-    }
-   ]
+   "modelos": []
   },
   {
-   "dia": "2026-09-14",
-   "valor": 4339.5,
-   "fatura_nr": "910186691",
+   "dia": "2026-09-23",
+   "valor": 5698.07,
+   "fatura_nr": "917765122",
    "processo_achado": true,
-   "lawsuits_id": 7379574,
-   "tese": "RETROATIVOS VERTICAL - SEDUC",
+   "lawsuits_id": 13114809,
+   "tese": "JUROS ABUSIVO",
    "clientes": [
-    "A M M"
+    "M R D O P"
    ],
    "customers_ids": [
     null
    ],
-   "modelos": [
-    {
-     "id": 17774990,
-     "valor": 1554.36,
-     "categories_id": 70061,
-     "cost_centers_id": 61966,
-     "customers_id": 7618213,
-     "lawsuits_id": 7379574,
-     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVO DE PROMOÇÃO VERTICAL"
-    }
-   ]
+   "modelos": []
   },
   {
-   "dia": "2026-09-14",
-   "valor": 6435.01,
-   "fatura_nr": "910186681",
+   "dia": "2026-09-23",
+   "valor": 11071.05,
+   "fatura_nr": "917745927",
    "processo_achado": true,
-   "lawsuits_id": 7057435,
-   "tese": "DATA BASE",
-   "clientes": [
-    "S C L"
-   ],
-   "customers_ids": [
-    null
-   ],
-   "modelos": [
-    {
-     "id": 17774992,
-     "valor": 2325.26,
-     "categories_id": 70064,
-     "cost_centers_id": 62601,
-     "customers_id": 6486785,
-     "lawsuits_id": 7057435,
-     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO"
-    }
-   ]
-  },
-  {
-   "dia": "2026-09-17",
-   "valor": 11592.79,
-   "fatura_nr": "913015927",
-   "processo_achado": true,
-   "lawsuits_id": 5986292,
+   "lawsuits_id": 5173864,
    "tese": "GRATIFICAÇÃO DE CURSO",
    "clientes": [
-    "D D S P"
+    "C D S C"
    ],
    "customers_ids": [
     null
    ],
-   "modelos": [
-    {
-     "id": 17774994,
-     "valor": 3557.33,
-     "categories_id": 70064,
-     "cost_centers_id": 62601,
-     "customers_id": 6611826,
-     "lawsuits_id": 5986292,
-     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-RETROATIVOS GRATIFICAÇÃO DE CURSO"
-    }
-   ]
+   "modelos": []
   },
   {
-   "dia": "2026-09-18",
-   "valor": 5522.98,
-   "fatura_nr": "913833033",
+   "dia": "2026-09-28",
+   "valor": 3608.27,
+   "fatura_nr": "921805178",
    "processo_achado": true,
-   "lawsuits_id": 12329227,
+   "lawsuits_id": 2348305,
+   "tese": "ANULAÇÃO DE QUESTÃO E/OU DISCURSIVA",
+   "clientes": [
+    "H L P C"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-28",
+   "valor": 1588.73,
+   "fatura_nr": "921757078",
+   "processo_achado": true,
+   "lawsuits_id": 7843581,
+   "tese": "RMC",
+   "clientes": [
+    "V L V D O"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-28",
+   "valor": 5879.91,
+   "fatura_nr": "921598759",
+   "processo_achado": true,
+   "lawsuits_id": 15740961,
    "tese": "SEGURO PRESTAMISTA",
    "clientes": [
-    "J M S L"
+    "R M D S C H"
    ],
    "customers_ids": [
     null
    ],
-   "modelos": [
-    {
-     "id": 17774998,
-     "valor": 1049.61,
-     "categories_id": 70066,
-     "cost_centers_id": 61967,
-     "customers_id": 11915145,
-     "lawsuits_id": 12329227,
-     "categoria": "HONORÁRIOS CONTRATUAIS DE ÊXITO-SEGURO PRESTAMISTA"
-    }
-   ]
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-28",
+   "valor": 9351.31,
+   "fatura_nr": "921499853",
+   "processo_achado": true,
+   "lawsuits_id": 5836169,
+   "tese": "FIC",
+   "clientes": [
+    "D P D F",
+    "E D A",
+    "F G V"
+   ],
+   "customers_ids": [
+    null,
+    null,
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-29",
+   "valor": 17105.45,
+   "fatura_nr": "922824827",
+   "processo_achado": true,
+   "lawsuits_id": 14766140,
+   "tese": "SEGURO PRESTAMISTA",
+   "clientes": [
+    "R B D A"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-30",
+   "valor": 2712.71,
+   "fatura_nr": "923785705",
+   "processo_achado": true,
+   "lawsuits_id": 7721868,
+   "tese": "PROMOÇÃO HORIZONTAL - SEDUC",
+   "clientes": [
+    "F B F"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
+  },
+  {
+   "dia": "2026-09-30",
+   "valor": 6260.31,
+   "fatura_nr": "923741689",
+   "processo_achado": true,
+   "lawsuits_id": 12757688,
+   "tese": "JUROS ABUSIVO",
+   "clientes": [
+    "F G R"
+   ],
+   "customers_ids": [
+    null
+   ],
+   "modelos": []
   }
  ],
- "execucao": [
-  {
-   "valor": 14444.24,
-   "criado": true,
-   "http": 200,
-   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171184}",
-   "desmarcado_modelo_id": 17774989,
-   "desmarcado_http": 200
-  },
-  {
-   "valor": 4339.5,
-   "criado": true,
-   "http": 200,
-   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171186}",
-   "desmarcado_modelo_id": 17774990,
-   "desmarcado_http": 200
-  },
-  {
-   "valor": 6435.01,
-   "criado": true,
-   "http": 200,
-   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171189}",
-   "desmarcado_modelo_id": 17774992,
-   "desmarcado_http": 200
-  },
-  {
-   "valor": 11592.79,
-   "criado": true,
-   "http": 200,
-   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171190}",
-   "desmarcado_modelo_id": 17774994,
-   "desmarcado_http": 200
-  },
-  {
-   "valor": 5522.98,
-   "criado": true,
-   "http": 200,
-   "resp": "{\"success\":true,\"type\":\"transaction\",\"transactions_id\":18171192}",
-   "desmarcado_modelo_id": 17774998,
-   "desmarcado_http": 200
-  }
- ]
+ "execucao": []
 }
