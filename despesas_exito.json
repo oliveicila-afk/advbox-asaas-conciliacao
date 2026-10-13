@@ -1,0 +1,42 @@
+{
+ "17775009": {
+  "entry_type": "expense",
+  "amount": 9483.81,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "category": "ÊXITO DO CLIENTE",
+  "date_payment": "2026-09-14"
+ },
+ "17774991": {
+  "entry_type": "expense",
+  "amount": 2785.14,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "category": "ÊXITO DO CLIENTE-RETROATIVO DE PROMOÇÃO VERTICAL",
+  "date_payment": "2026-09-14"
+ },
+ "17774993": {
+  "entry_type": "expense",
+  "amount": 4109.75,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "category": "ÊXITO DO CLIENTE-RETROATIVOS GRATIFICAÇÃO DE CURSO",
+  "date_payment": "2026-09-14"
+ },
+ "17774995": {
+  "entry_type": "expense",
+  "amount": 8035.46,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "category": "ÊXITO DO CLIENTE-RETROATIVOS GRATIFICAÇÃO DE CURSO",
+  "date_payment": "2026-09-17"
+ },
+ "17774999": {
+  "entry_type": "expense",
+  "amount": 4353.05,
+  "bank": "ASAAS",
+  "debit_account": 193264,
+  "category": "ÊXITO DO CLIENTE-SEGURO PRESTAMISTA",
+  "date_payment": "2026-09-18"
+ }
+}
