@@ -1,6 +1,6 @@
 {
  "data": "2026-09-07",
- "dry_run": true,
+ "dry_run": false,
  "encontrados": 1,
  "itens": [
   {
@@ -11,12 +11,13 @@
    "categoria_atual": "HONORÁRIOS INICIAIS",
    "metodo": "tese_unica_do_cliente",
    "nova_categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-CONCURSO",
-   "resultado": "SIMULAÇÃO (nada alterado)"
+   "put_status": 200,
+   "resultado": "ALTERADO"
   }
  ],
  "resumo": {
-  "alterados": 0,
-  "simulados": 1,
+  "alterados": 1,
+  "simulados": 0,
   "pulados": 0,
   "erros": 0
  },
