@@ -1,0 +1,35 @@
+[
+ {
+  "id": 16871790,
+  "valor": 248.5,
+  "pago": "2026-10-05",
+  "venc": "2026-08-11",
+  "banco": "ASAAS",
+  "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+  "competencia": "08/2026",
+  "criado_em": "2026-08-11 15:35:44",
+  "atualizado_em": null
+ },
+ {
+  "id": 16871791,
+  "valor": 248.5,
+  "pago": "2026-10-13",
+  "venc": "2026-09-11",
+  "banco": "ASAAS",
+  "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+  "competencia": "08/2026",
+  "criado_em": "2026-08-11 15:35:44",
+  "atualizado_em": null
+ },
+ {
+  "id": 18166371,
+  "valor": 248.5,
+  "pago": "2026-09-01",
+  "venc": "2026-09-01",
+  "banco": "ASAAS",
+  "categoria": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+  "competencia": "09/2026",
+  "criado_em": "2026-10-12 22:44:59",
+  "atualizado_em": null
+ }
+]
