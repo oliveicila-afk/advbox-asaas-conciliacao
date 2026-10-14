@@ -1,0 +1,25 @@
+{
+  "mes": "2026-09",
+  "pares_cancelados": [
+    {
+      "fatura_nr": "878442693",
+      "cliente": "ELISABETH BRITTO DA COSTA",
+      "valor": 374.25,
+      "data_recebimento": "2026-09-09",
+      "data_estorno": "2026-09-15",
+      "tinha_antecipacao": true,
+      "desc_reversal": "Estorno - fatura nr. 878442693 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "fatura_nr": "921662799",
+      "cliente": "JEIRLA SOARES DOS SANTOS",
+      "valor": 1000.0,
+      "data_recebimento": "2026-09-28",
+      "data_estorno": "2026-09-30",
+      "tinha_antecipacao": false,
+      "desc_reversal": "Estorno - fatura nr. 921662799 Jeirla Soares dos Santos"
+    }
+  ],
+  "soma_cancelada_payment_received": 1374.25,
+  "total_reversals": 2
+}
