@@ -1,0 +1,38 @@
+name: Ler tarefa da Bemol (criptografado)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          h={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          posts=[]; off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get("https://app.advbox.com.br/api/v1/posts",headers=h,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2)
+              b=r.json().get("data",[]); posts+=b
+              if len(b)<1000: break
+              off+=1000
+          sel=[p for p in posts if any(k in json.dumps(p,ensure_ascii=False).upper() for k in ("BEMOL","MATISUI","HOZANA"))
+               and str(p.get("date") or p.get("created_at") or "")[:7] in ("2026-08","2026-09","2026-10")]
+          json.dump(sel,open("tarefa_bemol.json","w"),ensure_ascii=False,indent=1)
+          print(len(posts),len(sel))
+          PY
+          openssl cms -encrypt -binary -aes-256-cbc -in tarefa_bemol.json -out tarefa_bemol.enc -outform DER .github/relatorio-publico.pem
+          rm tarefa_bemol.json
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add tarefa_bemol.enc; git commit -qm "tarefa bemol (criptografado)" || true; git pull -q --rebase; git push -q
