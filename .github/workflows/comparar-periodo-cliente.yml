@@ -55,26 +55,27 @@ jobs:
                   rec=next((t for t in txs if t.get("type")=="PAYMENT_RECEIVED" and nr(t)==nr(r) and t["id"] not in c and round(float(t.get("value",0)),2)==v),None)
                   if rec is None: continue
                   c.add(rec["id"])
-                  an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r)),None)
+                  an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r) and str(t.get("date"))<=str(r.get("date"))),None)
                   if an is not None: c.add(an["id"])
               return c
-          asaas=defaultdict(list); d=i0
-          while d<=i1:
-              off=0; dia_tx=[]
+          asaas=defaultdict(list); d=i0; todas=[]
+          while d<=i1+dt.timedelta(days=20):
+              off=0
               while True:
                   j=requests.get(f"{A}/financialTransactions",headers=ha,params={"startDate":d.isoformat(),"finishDate":d.isoformat(),"limit":100,"offset":off},timeout=30).json()
-                  dia_tx+=j.get("data",[])
+                  todas+=j.get("data",[])
                   if not j.get("hasMore") or not j.get("data"): break
                   off+=100
-              _c=cancelados(dia_tx); seen=set()
-              for t in dia_tx:
-                  if t["id"] in seen or t["id"] in _c: continue
-                  seen.add(t["id"])
-                  if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"):
-                      _n=norm(nome(t))
-                      if any(k in _n for k in ("LVMX","FIDC","FUNDO DE INVESTIMENTO","FI MULTIMERCADO","FI RENDA FIXA","ASSET MANAGEMENT")): continue
-                      asaas[d.isoformat()].append((_n, round(float(t["value"]),2), t.get("type")))
               d+=dt.timedelta(days=1)
+          _c=cancelados(todas); seen=set()
+          for t in todas:
+              dia=str(t.get("date"))[:10]
+              if t["id"] in seen or t["id"] in _c or not (i0.isoformat()<=dia<=i1.isoformat()): continue
+              seen.add(t["id"])
+              if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"):
+                  _n=norm(nome(t))
+                  if any(k in _n for k in ("LVMX","FIDC","FUNDO DE INVESTIMENTO","FI MULTIMERCADO","FI RENDA FIXA","ASSET MANAGEMENT")): continue
+                  asaas[dia].append((_n, round(float(t["value"]),2), t.get("type")))
           adv=defaultdict(list); off=0
           while True:
               for _ in range(6):

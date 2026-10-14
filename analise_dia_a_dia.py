@@ -228,7 +228,7 @@ def ids_cancelados_por_estorno(txs):
         cancel.add(rec["id"])
         ant = next((t for t in txs if t.get("type") == "RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in cancel
                     and round(float(t.get("value", 0)), 2) == v and _cli(t) == _cli(r)
-                    and str(t.get("date")) == str(r.get("date"))), None)
+                    and str(t.get("date")) <= str(r.get("date"))), None)
         if ant is not None:
             cancel.add(ant["id"])
     return cancel
@@ -1192,30 +1192,37 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
 
 def revisao_do_mes(headers_asaas, headers_advbox):
     """REVISÃO antes de dar a conciliação como feita: do dia 1 do mês até o dia anterior ao alvo,
-    soma da receita do Asaas (sem investimento) x soma do Advbox (conta ASAAS, por data de pagamento), dia a dia."""
+    soma da receita do Asaas (sem investimento) x soma do Advbox (conta ASAAS, por data de pagamento), dia a dia.
+    Cobrança paga e estornada (em qualquer dia do período) fica zero a zero."""
     from datetime import date, timedelta
     alvo = date.fromisoformat(TARGET_DATE)
-    d = alvo.replace(day=1)
-    dias_div = []
-    while d < alvo:
-        iso = d.isoformat()
-        off, vistos, tot_a, dia_tx = 0, set(), 0.0, []
+    ini = alvo.replace(day=1)
+    # estornos podem acontecer dias depois do recebimento: lê até o próprio dia alvo
+    tx_mes, d = [], ini
+    while d <= alvo:
+        off = 0
         while True:
             j = requests.get("https://api.asaas.com/v3/financialTransactions", headers=headers_asaas,
-                             params={"startDate": iso, "finishDate": iso, "limit": 100, "offset": off}, timeout=30).json()
-            dia_tx += j.get("data", [])
+                             params={"startDate": d.isoformat(), "finishDate": d.isoformat(), "limit": 100, "offset": off}, timeout=30).json()
+            tx_mes += j.get("data", [])
             if not j.get("hasMore") or not j.get("data"):
                 break
             off += 100
-        _canc = ids_cancelados_por_estorno(dia_tx)  # cobrança paga e estornada = zero a zero
-        for t in dia_tx:
-            if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES or t["id"] in _canc:
-                continue
-            vistos.add(t["id"])
-            nome = (asaas_nome(t, headers_asaas) or "").upper()
-            if any(k in nome for k in NOMES_INVESTIMENTO):
-                continue
-            tot_a += float(t.get("value", 0))
+        d += timedelta(days=1)
+    _canc = ids_cancelados_por_estorno(tx_mes)
+    por_dia = {}
+    for t in tx_mes:
+        if t["id"] in _canc or t.get("type") not in ASAAS_INCOME_TYPES:
+            continue
+        nome = (asaas_nome(t, headers_asaas) or "").upper()
+        if any(k in nome for k in NOMES_INVESTIMENTO):
+            continue
+        por_dia[str(t.get("date"))[:10]] = por_dia.get(str(t.get("date"))[:10], 0.0) + float(t.get("value", 0))
+    dias_div = []
+    d = ini
+    while d < alvo:
+        iso = d.isoformat()
+        tot_a = por_dia.get(iso, 0.0)
         tot_b = sum(float(str(t.get("amount", 0)).replace(",", ".")) for t in _ADVBOX_RAW
                     if t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
                     and str(t.get("date_payment") or "")[:10] == iso)
