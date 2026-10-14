@@ -74,7 +74,7 @@ jobs:
               elif "CONCURSO" in t or "ITEM B" in t or "ANULACAO DE QUESTAO" in t: alvo="CONCURSO-TRAFEGO PAGO"
               elif "PEDAGOGO" in t or "FERIAS" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
               elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
-              elif "DEMANDA CIVIL" in t: alvo="CONSUMIDOR-OUTROS"
+              elif "DEMANDA CIVIL" in t: alvo="OUTROS-TRÁFEGO PAGO"
               elif "PLANEJAMENTO PREVIDENCIARIO" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
               elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
               else: return None

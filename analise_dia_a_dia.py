@@ -265,7 +265,7 @@ def origem_do_cliente(customers_id, headers_advbox):
 def centro_custo_por_tese(tipo, categoria, headers_advbox):
     """Regras do escritório (combinadas na conversa) para centro de custo pela TESE, quando a origem não resolve:
     concurso / item B / anulação de questão -> CONCURSO-TRÁFEGO PAGO; pedagogo e terço de férias -> PROFESSOR/PEDAGOGO-TRÁFEGO PAGO;
-    defesa PAD (servidor) -> SERVIDOR PUBLICO-TRÁFEGO PAGO; parceria -> PARCERIAS; demanda civil -> CONSUMIDOR-OUTROS;
+    defesa PAD (servidor) -> SERVIDOR PUBLICO-TRÁFEGO PAGO; parceria -> PARCERIAS; demanda civil -> OUTROS-TRÁFEGO PAGO;
     retroativo de promoção (vertical/horizontal), abono permanência e revisão de aposentadoria -> PROFESSOR/PEDAGOGO-TRÁFEGO PAGO;
     planejamento previdenciário -> SERVIDOR PUBLICO-TRÁFEGO PAGO."""
     t = _sem_acento((tipo or "") + " " + ((categoria or "").split("-", 1)[1] if "-" in (categoria or "") else ""))
@@ -278,7 +278,7 @@ def centro_custo_por_tese(tipo, categoria, headers_advbox):
     elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t:
         alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
     elif "DEMANDA CIVIL" in t:
-        alvo = "CONSUMIDOR-OUTROS"
+        alvo = "OUTROS-TRÁFEGO PAGO"
     elif "PLANEJAMENTO PREVIDENCIARIO" in t:
         alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
     elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t:
