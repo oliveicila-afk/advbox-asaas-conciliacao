@@ -1,0 +1,60 @@
+{
+ "2026-10-13": {
+  "por_tipo": {
+   "PAYMENT_RECEIVED": {
+    "qtd": 17,
+    "soma": 19834.94
+   },
+   "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+    "qtd": 7,
+    "soma": 1372.62
+   },
+   "RECEIVABLE_ANTICIPATION_DEBIT": {
+    "qtd": 14,
+    "soma": -2533.7
+   }
+  },
+  "recebidos_com_baixa_de_antecipacao": 14,
+  "recebidos_sem_baixa": 3,
+  "soma_recebidos_sem_baixa": 17301.24,
+  "valores_sem_baixa": [
+   500.0,
+   2500.0,
+   14301.24
+  ]
+ },
+ "2026-10-12": {
+  "por_tipo": {},
+  "recebidos_com_baixa_de_antecipacao": 0,
+  "recebidos_sem_baixa": 0,
+  "soma_recebidos_sem_baixa": 0.0,
+  "valores_sem_baixa": []
+ },
+ "2026-09-14": {
+  "por_tipo": {
+   "PAYMENT_RECEIVED": {
+    "qtd": 10,
+    "soma": 26745.24
+   },
+   "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+    "qtd": 2,
+    "soma": 416.42
+   },
+   "RECEIVABLE_ANTICIPATION_DEBIT": {
+    "qtd": 4,
+    "soma": -713.99
+   }
+  },
+  "recebidos_com_baixa_de_antecipacao": 4,
+  "recebidos_sem_baixa": 6,
+  "soma_recebidos_sem_baixa": 26031.25,
+  "valores_sem_baixa": [
+   67.0,
+   248.5,
+   497.0,
+   4339.5,
+   6435.01,
+   14444.24
+  ]
+ }
+}
