@@ -1,0 +1,149 @@
+{
+  "elisabeth": [
+    {
+      "data": "2026-09-09",
+      "tipo": "RECEIVABLE_ANTICIPATION_FEE",
+      "valor": -5.14,
+      "desc": "Taxa de antecipação - fatura nr. 904531355 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-09",
+      "tipo": "PAYMENT_FEE",
+      "valor": -11.68,
+      "desc": "Taxa de cartão - fatura nr. 904531355 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-09",
+      "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT",
+      "valor": 374.25,
+      "desc": "Antecipação - fatura nr. 904531355 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-09",
+      "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+      "valor": -374.25,
+      "desc": "Baixa da antecipação - fatura nr. 878442693 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-09",
+      "tipo": "PAYMENT_RECEIVED",
+      "valor": 374.25,
+      "desc": "Cobrança recebida - fatura nr. 878442693 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-15",
+      "tipo": "RECEIVABLE_ANTICIPATION_DEBIT",
+      "valor": -374.25,
+      "desc": "Baixa da antecipação - fatura nr. 904531355 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-15",
+      "tipo": "PAYMENT_FEE_REVERSAL",
+      "valor": 11.68,
+      "desc": "Estorno da taxa de cartão - fatura nr. 904531355 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-15",
+      "tipo": "PAYMENT_FEE_REVERSAL",
+      "valor": 11.68,
+      "desc": "Estorno da taxa de cartão - fatura nr. 878442693 ELISABETH BRITTO DA COSTA"
+    },
+    {
+      "data": "2026-09-15",
+      "tipo": "PAYMENT_REVERSAL",
+      "valor": -374.25,
+      "desc": "Estorno - fatura nr. 878442693 ELISABETH BRITTO DA COSTA"
+    }
+  ],
+  "desbloqueio": [
+    {
+      "object": "financialTransaction",
+      "id": "ftn_002100741265",
+      "value": 1000.0,
+      "balance": 16896.22,
+      "type": "DEBIT_REVERSAL",
+      "date": "2026-09-29",
+      "description": "Desbloqueio de saldo referente a notificação de infração",
+      "paymentId": null,
+      "externalReference": null,
+      "splitId": null,
+      "transferId": null,
+      "anticipationId": null,
+      "billId": null,
+      "invoiceId": null,
+      "paymentDunningId": null,
+      "creditBureauReportId": null
+    }
+  ],
+  "saldo_liquido_elisabeth": -367.71,
+  "tipos_setembro": {
+    "INSTANT_TEXT_MESSAGE_FEE": {
+      "qtd": 114,
+      "soma": -62.7
+    },
+    "PAYMENT_FEE": {
+      "qtd": 205,
+      "soma": -923.24
+    },
+    "PAYMENT_RECEIVED": {
+      "qtd": 214,
+      "soma": 300788.11
+    },
+    "RECEIVABLE_ANTICIPATION_FEE": {
+      "qtd": 98,
+      "soma": -288.91
+    },
+    "RECEIVABLE_ANTICIPATION_GROSS_CREDIT": {
+      "qtd": 98,
+      "soma": 22157.46
+    },
+    "INVOICE_FEE": {
+      "qtd": 71,
+      "soma": -34.79
+    },
+    "RECEIVABLE_ANTICIPATION_DEBIT": {
+      "qtd": 77,
+      "soma": -20380.41
+    },
+    "TRANSFER": {
+      "qtd": 40,
+      "soma": -298130.09
+    },
+    "PIX_TRANSACTION_DEBIT_REFUND": {
+      "qtd": 2,
+      "soma": 28692.01
+    },
+    "BILL_PAYMENT": {
+      "qtd": 2,
+      "soma": -806.98
+    },
+    "PAYMENT_FEE_REVERSAL": {
+      "qtd": 3,
+      "soma": 31.32
+    },
+    "PAYMENT_REVERSAL": {
+      "qtd": 2,
+      "soma": -1374.25
+    },
+    "ASAAS_CARD_TRANSACTION_WITHDRAWAL_FEE": {
+      "qtd": 2,
+      "soma": -17.2
+    },
+    "ASAAS_CARD_TRANSACTION": {
+      "qtd": 2,
+      "soma": -1500.0
+    },
+    "DEBIT": {
+      "qtd": 1,
+      "soma": -1000.0
+    },
+    "DEBIT_REVERSAL": {
+      "qtd": 1,
+      "soma": 1000.0
+    },
+    "TRANSFER_FEE": {
+      "qtd": 4,
+      "soma": -8.0
+    }
+  }
+}
