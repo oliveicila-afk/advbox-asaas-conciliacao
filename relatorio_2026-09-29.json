@@ -1,78 +1,34 @@
 {
   "data": "2026-09-29",
-  "gerado_em": "2026-10-13T17:37:10.895025",
+  "gerado_em": "2026-10-14T20:13:51.655170",
   "status": "NAO_CONCILIADO",
   "tentativas": 2,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 26115.08,
-    "advbox": 9009.63,
-    "diferenca": 17105.45
+    "advbox": 26115.08,
+    "diferenca": 0.0
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [
-      {
-        "valor": 17105.45,
-        "cliente_asaas": "Caixa E. F."
-      }
-    ],
+    "faltando_no_advbox": [],
     "fantasmas_no_advbox": []
   },
-  "pendentes_sem_tese": [
+  "pendentes_sem_tese": [],
+  "revisao_mes": [
     {
-      "valor": 17105.45,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
-    },
-    {
-      "valor": 17105.45,
-      "cliente_asaas": "Caixa E. F.",
-      "motivo": "pagador CNPJ sem processo"
+      "dia": "2026-09-28",
+      "asaas": 22802.95,
+      "advbox": 21802.95,
+      "diferenca": 1000.0
     }
   ],
   "correcoes": {
-    "total_realizadas": 10,
+    "total_realizadas": 1,
     "detalhes": [
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 997.33
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 248.5
-      },
-      {
-        "tipo": "DESMARCAR_PAGAMENTO",
-        "valor": 500.0
-      },
       {
         "tipo": "CREATE",
         "valor": 7.96
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 1129.7
-      },
-      {
-        "tipo": "CREATE",
-        "valor": 67.0
       }
     ]
   }
