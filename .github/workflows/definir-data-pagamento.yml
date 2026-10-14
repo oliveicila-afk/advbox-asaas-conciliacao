@@ -31,7 +31,7 @@ jobs:
               p={k:v for k,v in p.items() if v is not None}
               r=requests.put(f"{B}/transactions/{tid}",headers={**hb,"Content-Type":"application/json"},json=p,timeout=60); time.sleep(2.2)
               chk=requests.get(f"{B}/transactions/{tid}",headers=hb,timeout=60).json(); time.sleep(2.2); chk=chk.get("data",chk)
-              out.append({"id":tid,"http":r.status_code,"date_payment_depois":str(chk.get("date_payment") or "")[:10]})
+              out.append({"id":tid,"http":r.status_code,"resp":(r.text[:200] if r.status_code not in (200,204) else ""),"cat_atual":d.get("category"),"cc_atual":d.get("cost_center"),"date_payment_depois":str(chk.get("date_payment") or "")[:10]})
           json.dump(out,open("definir_data_pagamento.json","w"),indent=1); print(out)
           PY
       - run: |
