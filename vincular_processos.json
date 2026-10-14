@@ -1,0 +1,12 @@
+{
+ "modo": "plano",
+ "alvos": 185,
+ "vinculados": 132,
+ "pendentes": 53,
+ "motivos": {
+  "cliente com 0 ou vários processos sem tese correspondente": 50,
+  "cliente sem processo": 2,
+  "sem cliente": 1
+ },
+ "erros": []
+}
