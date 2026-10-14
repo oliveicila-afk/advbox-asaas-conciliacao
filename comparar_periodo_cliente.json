@@ -47,72 +47,7 @@
    "asaas_total": 2613.67,
    "advbox_total": 2613.67,
    "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 250.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    }
-   ],
-   "so_advbox": [
-    {
-     "cliente": "J D N M",
-     "valor": 67.0,
-     "id": 15393372
-    },
-    {
-     "cliente": "P D S C",
-     "valor": 250.0,
-     "id": 15396689
-    },
-    {
-     "cliente": "G L D A",
-     "valor": 67.0,
-     "id": 15401131
-    },
-    {
-     "cliente": "H D R S A",
-     "valor": 248.5,
-     "id": 18166934
-    },
-    {
-     "cliente": "J M D S",
-     "valor": 248.5,
-     "id": 18166935
-    }
-   ]
-  },
-  "2026-09-06": {
-   "asaas_total": 6000.0,
-   "advbox_total": 0,
-   "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "-",
-     "valor": 6000.0,
-     "tipo": "PAYMENT_RECEIVED"
-    }
-   ],
+   "so_asaas": [],
    "so_advbox": []
   },
   "2026-09-07": {
@@ -259,9 +194,19 @@
      "cliente": "C E F",
      "valor": 2961.99,
      "tipo": "PAYMENT_RECEIVED"
+    },
+    {
+     "cliente": "-",
+     "valor": 248.5,
+     "tipo": "PAYMENT_RECEIVED"
     }
    ],
    "so_advbox": [
+    {
+     "cliente": "M S V C",
+     "valor": 248.5,
+     "id": 16214110
+    },
     {
      "cliente": "R R V",
      "valor": 2961.99,
@@ -275,21 +220,51 @@
    "valor_diferente": [],
    "so_asaas": [
     {
-     "cliente": "C E F",
+     "cliente": "-",
+     "valor": 497.0,
+     "tipo": "PAYMENT_RECEIVED"
+    },
+    {
+     "cliente": "-",
      "valor": 3019.82,
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "C E F",
+     "cliente": "-",
      "valor": 7980.18,
      "tipo": "PAYMENT_RECEIVED"
+    },
+    {
+     "cliente": "-",
+     "valor": 289.17,
+     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
+    },
+    {
+     "cliente": "-",
+     "valor": 248.5,
+     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
     }
    ],
    "so_advbox": [
     {
+     "cliente": "B D S S",
+     "valor": 289.17,
+     "id": 13590119
+    },
+    {
      "cliente": "F D S M",
      "valor": 11000.0,
      "id": 17381789
+    },
+    {
+     "cliente": "O B D C",
+     "valor": 248.5,
+     "id": 17641747
+    },
+    {
+     "cliente": "M C B C",
+     "valor": 497.0,
+     "id": 17661473
     }
    ]
   },
@@ -299,9 +274,24 @@
    "valor_diferente": [],
    "so_asaas": [
     {
-     "cliente": "C E F",
+     "cliente": "-",
+     "valor": 248.5,
+     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
+    },
+    {
+     "cliente": "-",
      "valor": 2541.36,
      "tipo": "PAYMENT_RECEIVED"
+    },
+    {
+     "cliente": "-",
+     "valor": 102.03,
+     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
+    },
+    {
+     "cliente": "-",
+     "valor": 166.67,
+     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
     },
     {
      "cliente": "-",
@@ -346,6 +336,16 @@
      "id": 16934090
     },
     {
+     "cliente": "J M P",
+     "valor": 166.67,
+     "id": 16947801
+    },
+    {
+     "cliente": "E S C",
+     "valor": 102.03,
+     "id": 16951918
+    },
+    {
      "cliente": "R T F N",
      "valor": 248.5,
      "id": 17650518
@@ -354,6 +354,11 @@
      "cliente": "V R S M",
      "valor": 248.5,
      "id": 17665717
+    },
+    {
+     "cliente": "A F N",
+     "valor": 248.5,
+     "id": 17684721
     },
     {
      "cliente": "J A D S",
@@ -388,23 +393,8 @@
      "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
     },
     {
-     "cliente": "-",
-     "valor": 499.25,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
+     "cliente": "C E F",
      "valor": 5522.98,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 166.67,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
      "tipo": "PAYMENT_RECEIVED"
     }
    ],
@@ -415,24 +405,9 @@
      "id": 13070104
     },
     {
-     "cliente": "J C D S",
-     "valor": 248.5,
-     "id": 16320506
-    },
-    {
-     "cliente": "J M P",
-     "valor": 166.67,
-     "id": 16947800
-    },
-    {
      "cliente": "J R D O",
      "valor": 250.0,
      "id": 17020932
-    },
-    {
-     "cliente": "O B M B",
-     "valor": 499.25,
-     "id": 17673477
     },
     {
      "cliente": "J M S L",
@@ -445,30 +420,8 @@
    "asaas_total": 2111.43,
    "advbox_total": 2111.43,
    "valor_diferente": [],
-   "so_asaas": [
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 250.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    }
-   ],
-   "so_advbox": [
-    {
-     "cliente": "E A F D S",
-     "valor": 250.0,
-     "id": 17726438
-    },
-    {
-     "cliente": "L A D O J",
-     "valor": 67.0,
-     "id": 18181524
-    }
-   ]
+   "so_asaas": [],
+   "so_advbox": []
   },
   "2026-09-22": {
    "asaas_total": 7297.26,
@@ -625,99 +578,9 @@
      "cliente": "C E F",
      "valor": 17105.45,
      "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 129.9,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 284.89,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 1129.7,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
     }
    ],
    "so_advbox": [
-    {
-     "cliente": "N C D C",
-     "valor": 129.9,
-     "id": 14632322
-    },
-    {
-     "cliente": "M R T",
-     "valor": 248.5,
-     "id": 16525920
-    },
-    {
-     "cliente": "A D S F",
-     "valor": 284.89,
-     "id": 16694933
-    },
-    {
-     "cliente": "E D A E",
-     "valor": 248.5,
-     "id": 17121238
-    },
-    {
-     "cliente": "A C C P",
-     "valor": 248.5,
-     "id": 17227316
-    },
-    {
-     "cliente": "F M D L J",
-     "valor": 248.5,
-     "id": 17274709
-    },
-    {
-     "cliente": "M L S",
-     "valor": 248.5,
-     "id": 17291467
-    },
-    {
-     "cliente": "R S D S",
-     "valor": 1129.7,
-     "id": 18182609
-    },
-    {
-     "cliente": "J R P",
-     "valor": 67.0,
-     "id": 18182610
-    },
     {
      "cliente": "R B D A",
      "valor": 17105.45,
@@ -730,16 +593,6 @@
    "advbox_total": 32569.96,
    "valor_diferente": [],
    "so_asaas": [
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
     {
      "cliente": "-",
      "valor": 248.5,
@@ -831,143 +684,23 @@
      "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
     },
     {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 134.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 250.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 140.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 259.8,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
-     "valor": 446.02,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
+     "cliente": "C E F",
      "valor": 6260.31,
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "-",
-     "valor": 497.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 141.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
+     "cliente": "J M",
      "valor": 8000.0,
      "tipo": "PAYMENT_RECEIVED"
     },
     {
-     "cliente": "-",
-     "valor": 500.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
+     "cliente": "T D J G K",
      "valor": 248.5,
      "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
     },
     {
-     "cliente": "-",
-     "valor": 73.81,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 500.0,
-     "tipo": "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"
-    },
-    {
-     "cliente": "-",
+     "cliente": "J M",
      "valor": 5245.43,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 68.36,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 500.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 333.33,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 83.33,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 248.5,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 67.0,
-     "tipo": "PAYMENT_RECEIVED"
-    },
-    {
-     "cliente": "-",
-     "valor": 997.33,
      "tipo": "PAYMENT_RECEIVED"
     }
    ],
@@ -978,89 +711,14 @@
      "id": 11523221
     },
     {
-     "cliente": "F T D A M",
-     "valor": 67.0,
-     "id": 12405929
-    },
-    {
-     "cliente": "J V M M",
-     "valor": 446.02,
-     "id": 14551880
-    },
-    {
-     "cliente": "C R D A",
-     "valor": 259.8,
-     "id": 14652161
-    },
-    {
-     "cliente": "J M D S",
-     "valor": 140.0,
-     "id": 15306955
-    },
-    {
-     "cliente": "H M M D S",
-     "valor": 997.33,
-     "id": 15528449
-    },
-    {
-     "cliente": "O D A S",
-     "valor": 250.0,
-     "id": 15844301
-    },
-    {
-     "cliente": "S S D F",
-     "valor": 134.0,
-     "id": 15853150
-    },
-    {
-     "cliente": "V L C",
-     "valor": 141.0,
-     "id": 16327676
-    },
-    {
-     "cliente": "C S S D S",
-     "valor": 248.5,
-     "id": 16533622
-    },
-    {
-     "cliente": "A R S D S",
-     "valor": 83.33,
-     "id": 16561440
-    },
-    {
-     "cliente": "Z D S M D N",
-     "valor": 67.0,
-     "id": 16612150
-    },
-    {
      "cliente": "C D S B",
      "valor": 400.0,
      "id": 16906599
     },
     {
-     "cliente": "M Y M D M",
-     "valor": 500.0,
-     "id": 16910568
-    },
-    {
      "cliente": "C M F",
      "valor": 248.5,
      "id": 17184391
-    },
-    {
-     "cliente": "S D E M F",
-     "valor": 333.33,
-     "id": 17246415
-    },
-    {
-     "cliente": "A P D A",
-     "valor": 248.5,
-     "id": 17251657
-    },
-    {
-     "cliente": "M L S",
-     "valor": 248.5,
-     "id": 17291466
     },
     {
      "cliente": "D D S R",
@@ -1071,11 +729,6 @@
      "cliente": "J G",
      "valor": 248.5,
      "id": 17316611
-    },
-    {
-     "cliente": "A A D S F",
-     "valor": 500.0,
-     "id": 17318748
     },
     {
      "cliente": "S D A D L",
@@ -1103,11 +756,6 @@
      "id": 17560049
     },
     {
-     "cliente": "M L F D P",
-     "valor": 497.0,
-     "id": 17685869
-    },
-    {
      "cliente": "M A R S",
      "valor": 248.5,
      "id": 17812780
@@ -1121,16 +769,6 @@
      "cliente": "I L S",
      "valor": 497.0,
      "id": 17910084
-    },
-    {
-     "cliente": "F D S A",
-     "valor": 248.5,
-     "id": 17930984
-    },
-    {
-     "cliente": "J A D S",
-     "valor": 67.0,
-     "id": 18182906
     },
     {
      "cliente": "T D P B R",
@@ -1158,41 +796,6 @@
      "id": 18182914
     },
     {
-     "cliente": "J A S D S",
-     "valor": 67.0,
-     "id": 18182929
-    },
-    {
-     "cliente": "J D D C G",
-     "valor": 67.0,
-     "id": 18182933
-    },
-    {
-     "cliente": "N L N D C",
-     "valor": 73.81,
-     "id": 18182937
-    },
-    {
-     "cliente": "V D S Q M",
-     "valor": 500.0,
-     "id": 18182939
-    },
-    {
-     "cliente": "D S B",
-     "valor": 68.36,
-     "id": 18182941
-    },
-    {
-     "cliente": "L D N",
-     "valor": 67.0,
-     "id": 18182942
-    },
-    {
-     "cliente": "K R B D S",
-     "valor": 67.0,
-     "id": 18182994
-    },
-    {
      "cliente": "F B F",
      "valor": 2712.71,
      "id": 18193195
@@ -1215,6 +818,6 @@
    ]
   }
  },
- "tot_asaas": 322976.89,
+ "tot_asaas": 316976.89,
  "tot_advbox": 316583.0
 }
