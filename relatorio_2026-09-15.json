@@ -1,27 +1,28 @@
 {
   "data": "2026-09-15",
-  "gerado_em": "2026-10-13T14:49:38.241389",
-  "status": "CONCILIADO",
-  "tentativas": 2,
+  "gerado_em": "2026-10-14T20:02:21.437314",
+  "status": "NAO_CONCILIADO",
+  "tentativas": 5,
   "max_tentativas": 5,
   "totais_finais": {
     "asaas": 3843.85,
-    "advbox": 3843.85,
-    "diferenca": 0.0
+    "advbox": 3832.17,
+    "diferenca": 11.68
   },
   "divergencias": {
     "nome_diferente": [],
-    "faltando_no_advbox": [],
+    "faltando_no_advbox": [
+      {
+        "valor": 11.68,
+        "cliente_asaas": "Elisabeth B. D. C."
+      }
+    ],
     "fantasmas_no_advbox": []
   },
   "pendentes_sem_tese": [],
+  "revisao_mes": [],
   "correcoes": {
-    "total_realizadas": 1,
-    "detalhes": [
-      {
-        "tipo": "CREATE",
-        "valor": 11.68
-      }
-    ]
+    "total_realizadas": 0,
+    "detalhes": []
   }
 }
