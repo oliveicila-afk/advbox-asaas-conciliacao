@@ -52,10 +52,10 @@ jobs:
               for r in txs:
                   if r.get("type")!="PAYMENT_REVERSAL": continue
                   v=round(abs(float(r.get("value",0))),2)
-                  rec=next((t for t in txs if t.get("type")=="PAYMENT_RECEIVED" and nr(t)==nr(r) and t["id"] not in c and round(float(t.get("value",0)),2)==v),None)
+                  rec=next((t for t in txs if t.get("type")=="PAYMENT_RECEIVED" and nr(t)==nr(r) and t["id"] not in c and round(float(t.get("value",0)),2)==v and str(t.get("date"))[:7]==str(r.get("date"))[:7]),None)
                   if rec is None: continue
                   c.add(rec["id"])
-                  an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r) and str(t.get("date"))<=str(r.get("date"))),None)
+                  an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r) and str(t.get("date"))<=str(r.get("date")) and str(t.get("date"))[:7]==str(r.get("date"))[:7]),None)
                   if an is not None: c.add(an["id"])
               return c
           asaas=defaultdict(list); d=i0; todas=[]

@@ -206,7 +206,8 @@ def categoria_iniciais_da_tese(tipo, headers_advbox):
 
 
 def ids_cancelados_por_estorno(txs):
-    """Regra combinada: cobrança paga e depois ESTORNADA fica zero a zero (não é receita).
+    """Regra combinada: cobrança paga e depois ESTORNADA NO MESMO MÊS fica zero a zero (não é receita).
+    Paga em um mês e estornada em outro: a receita fica no mês do recebimento e o estorno é saída do outro mês (não mexe na receita).
     Para cada PAYMENT_REVERSAL (valor negativo, 'fatura nr. N'), cancela a entrada PAYMENT_RECEIVED da mesma fatura e,
     se houver, a antecipação (RECEIVABLE_ANTICIPATION_GROSS_CREDIT) do mesmo valor e mesmo cliente no mesmo dia."""
     import re as _re
@@ -222,13 +223,14 @@ def ids_cancelados_por_estorno(txs):
         v = round(abs(float(r.get("value", 0))), 2)
         nr = _nr(r)
         rec = next((t for t in txs if t.get("type") == "PAYMENT_RECEIVED" and _nr(t) == nr and t["id"] not in cancel
-                    and round(float(t.get("value", 0)), 2) == v), None)
+                    and round(float(t.get("value", 0)), 2) == v
+                    and str(t.get("date"))[:7] == str(r.get("date"))[:7]), None)  # só se pago e estornado no MESMO mês
         if rec is None:
             continue
         cancel.add(rec["id"])
         ant = next((t for t in txs if t.get("type") == "RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in cancel
                     and round(float(t.get("value", 0)), 2) == v and _cli(t) == _cli(r)
-                    and str(t.get("date")) <= str(r.get("date"))), None)
+                    and str(t.get("date")) <= str(r.get("date")) and str(t.get("date"))[:7] == str(r.get("date"))[:7]), None)
         if ant is not None:
             cancel.add(ant["id"])
     return cancel
