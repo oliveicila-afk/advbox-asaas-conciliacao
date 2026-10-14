@@ -1,0 +1,96 @@
+{
+ "estornos_asaas": [
+  {
+   "dia": "2026-09-15",
+   "valor": -374.25,
+   "cli": "E B D C"
+  },
+  {
+   "dia": "2026-09-30",
+   "valor": -1000.0,
+   "cli": "J S D S"
+  }
+ ],
+ "advbox": [
+  {
+   "id": 15552619,
+   "valor": 166.42,
+   "cli": "A C A",
+   "due": "2026-09-12",
+   "pago": "2026-10-14",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 15552620,
+   "valor": 166.42,
+   "cli": "A C A",
+   "due": "2026-10-12",
+   "pago": "2026-10-12",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 16587557,
+   "valor": 1000.0,
+   "cli": "V L D S",
+   "due": "2026-09-30",
+   "pago": "2026-10-07",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 16587558,
+   "valor": 1000.0,
+   "cli": "V L D S",
+   "due": "2026-10-30",
+   "pago": "",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 16943792,
+   "valor": 374.25,
+   "cli": "E B D C",
+   "due": "2026-09-09",
+   "pago": "2026-09-09",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 17381488,
+   "valor": 1000.0,
+   "cli": "E D S C C",
+   "due": "2026-09-02",
+   "pago": "2026-09-02",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 17805644,
+   "valor": 374.25,
+   "cli": "E B D C",
+   "due": "2026-09-09",
+   "pago": "",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 17856290,
+   "valor": 1000.0,
+   "cli": "J S D S",
+   "due": "2026-09-28",
+   "pago": "2026-09-28",
+   "banco": "ASAAS"
+  },
+  {
+   "id": 18175527,
+   "valor": 1000.0,
+   "cli": "-",
+   "due": "2026-09-30",
+   "pago": "",
+   "banco": "INVESTIMENTOS"
+  },
+  {
+   "id": 18175528,
+   "valor": 1000.0,
+   "cli": "-",
+   "due": "2026-10-30",
+   "pago": "",
+   "banco": "INVESTIMENTOS"
+  }
+ ]
+}
