@@ -1,0 +1,42 @@
+name: Achar lançamentos por valor (somente leitura, iniciais)
+on:
+  workflow_dispatch:
+    inputs:
+      valores: {description: "valores separados por vírgula", required: true, default: "3760,3985.6,495.38"}
+permissions:
+  contents: write
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          VALORES: ${{ github.event.inputs.valores }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          ini=lambda s:" ".join(p[0] for p in unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode().upper().split()) or "-"
+          alvo={round(float(v),2) for v in os.environ["VALORES"].split(",")}
+          trs=[]; off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); b=r.json().get("data",[]); trs+=b
+              if len(b)<1000: break
+              off+=1000
+          out=[{"id":t["id"],"cli":ini(t.get("name")),"valor":t.get("amount"),"tipo":t.get("entry_type"),"due":str(t.get("date_due"))[:10],"pago":str(t.get("date_payment") or "")[:10],"banco":t.get("debit_bank"),"cat":t.get("category"),"cc":t.get("cost_center"),"lawsuit":t.get("lawsuit_id"),"desc":(t.get("description") or "")[:40]} for t in trs if round(float(t.get("amount",0)),2) in alvo]
+          json.dump(out,open("achar_valores_bemol.json","w"),ensure_ascii=False,indent=1)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f achar_valores_bemol.json; git commit -m "achar valores" || true
+          git pull --rebase origin main || true; git push || true
