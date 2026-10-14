@@ -1,0 +1,19 @@
+{
+ "periodo": [
+  "2026-09-01",
+  "2026-09-30"
+ ],
+ "receitas_asaas_pagas": 297,
+ "com_algum_problema": 186,
+ "por_problema": {
+  "sem processo": 186,
+  "categoria genérica/inválida": 3,
+  "sem cliente": 3
+ },
+ "sem_processo_por_tipo": {
+  "iniciais/outras": 156,
+  "consultoria": 17,
+  "êxito": 13
+ },
+ "problemas_sem_contar_processo": 3
+}
