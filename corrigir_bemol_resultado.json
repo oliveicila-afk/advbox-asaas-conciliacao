@@ -1,0 +1,41 @@
+[
+ {
+  "id": 17516064,
+  "http": 200,
+  "resp": ""
+ },
+ {
+  "id": 18166951,
+  "http": 200,
+  "resp": ""
+ },
+ {
+  "id": 18166953,
+  "http": 200,
+  "resp": ""
+ },
+ {
+  "conferir": 17516064,
+  "cat": "HONORÁRIOS CONTRATUAIS INICIAIS-CONSULTORIA",
+  "cc": "PROFESSOR/PEDAGOGO-CROSSELL",
+  "cliente_id": 8770997,
+  "proc": null,
+  "pago": "2026-09-08"
+ },
+ {
+  "conferir": 18166951,
+  "cat": "HONORÁRIOS INICIAIS",
+  "cc": "DESPESAS FINANCEIRAS-GERAL",
+  "cliente_id": null,
+  "proc": null,
+  "pago": ""
+ },
+ {
+  "conferir": 18166953,
+  "cat": "HONORÁRIOS CONTRATUAIS INICIAIS-RETROATIVO DE PROMOÇÃO HORIZONTAL",
+  "cc": "PROFESSOR/PEDAGOGO-INDICAÇÃO",
+  "cliente_id": 18375335,
+  "proc": 17964246,
+  "pago": "2026-09-08"
+ }
+]
