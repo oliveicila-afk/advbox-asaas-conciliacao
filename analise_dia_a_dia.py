@@ -204,6 +204,35 @@ def categoria_iniciais_da_tese(tipo, headers_advbox):
     return ex[0] if len(ex) == 1 else None
 
 
+
+def ids_cancelados_por_estorno(txs):
+    """Regra combinada: cobrança paga e depois ESTORNADA fica zero a zero (não é receita).
+    Para cada PAYMENT_REVERSAL (valor negativo, 'fatura nr. N'), cancela a entrada PAYMENT_RECEIVED da mesma fatura e,
+    se houver, a antecipação (RECEIVABLE_ANTICIPATION_GROSS_CREDIT) do mesmo valor e mesmo cliente no mesmo dia."""
+    import re as _re
+    def _nr(t):
+        m = _re.search(r"fatura nr\.\s*(\d+)", str(t.get("description") or ""))
+        return m.group(1) if m else None
+    def _cli(t):
+        return _re.sub(r"^.*fatura nr\.\s*\d+\s*", "", str(t.get("description") or "")).strip().upper()
+    cancel = set()
+    for r in txs:
+        if r.get("type") != "PAYMENT_REVERSAL":
+            continue
+        v = round(abs(float(r.get("value", 0))), 2)
+        nr = _nr(r)
+        rec = next((t for t in txs if t.get("type") == "PAYMENT_RECEIVED" and _nr(t) == nr and t["id"] not in cancel
+                    and round(float(t.get("value", 0)), 2) == v), None)
+        if rec is None:
+            continue
+        cancel.add(rec["id"])
+        ant = next((t for t in txs if t.get("type") == "RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in cancel
+                    and round(float(t.get("value", 0)), 2) == v and _cli(t) == _cli(r)
+                    and str(t.get("date")) == str(r.get("date"))), None)
+        if ant is not None:
+            cancel.add(ant["id"])
+    return cancel
+
 def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
     """Define a data de pagamento de um lançamento que JÁ existe. A API exige o payload completo
     (entry_type, conta ASAAS, categoria, centro de custo, cliente, processo). Se a categoria gravada
@@ -637,7 +666,12 @@ def fetch_asaas_transactions():
     from collections import Counter
     log_msg(f"[ASAAS] Bruto: {len(all_raw)} | tipos: {dict(Counter(t.get('type') for t in all_raw))}", True)
     vistos = set()
+    _cancelados = ids_cancelados_por_estorno(all_raw)
+    if _cancelados:
+        log_msg(f"[ASAAS] {len(_cancelados)} entrada(s) canceladas por estorno (cobrança paga e estornada = zero a zero)", True)
     for t in all_raw:
+        if t.get("id") in _cancelados:
+            continue
         if t.get("type") in ASAAS_INCOME_TYPES and t.get("id") not in vistos:
             vistos.add(t.get("id"))
             t["_nome"] = asaas_nome(t, headers_asaas)
@@ -1169,8 +1203,9 @@ def revisao_do_mes(headers_asaas, headers_advbox):
         while True:
             j = requests.get("https://api.asaas.com/v3/financialTransactions", headers=headers_asaas,
                              params={"startDate": iso, "finishDate": iso, "limit": 100, "offset": off}, timeout=30).json()
+            _canc = ids_cancelados_por_estorno(j.get("data", []))
             for t in j.get("data", []):
-                if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES:
+                if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES or t["id"] in _canc:
                     continue
                 vistos.add(t["id"])
                 nome = (asaas_nome(t, headers_asaas) or "").upper()
