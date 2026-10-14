@@ -23,6 +23,7 @@ TARGET_DATE  = os.environ.get("TARGET_DATE", "2026-09-01").strip()
 TIMEZONE = os.environ.get("TIMEZONE", "America/Manaus")
 
 ASAAS_INCOME_TYPES = ["PAYMENT_RECEIVED", "RECEIVABLE_ANTICIPATION_GROSS_CREDIT", "PAYMENT_FEE_REVERSAL"]
+ASAAS_DEBIT_REVERSAL_TYPE = "DEBIT_REVERSAL"  # Desbloqueio de saldo — sem cliente identificável no ASAAS
 DRY_RUN = os.environ.get("DRY_RUN", "false").lower() in ["true", "1", "yes"]
 
 MAX_RECONCILIATION_ATTEMPTS = 5
@@ -566,6 +567,49 @@ def lancar_receita_exito_caixa(plano, headers_advbox):
         unpay_advbox_transaction(fee_tx.get("id"), headers_advbox)
     return ok
 
+def lancar_desbloqueio_saldo(asaas_tx: dict, headers_advbox: dict) -> bool:
+    """Lança no Advbox um DEBIT_REVERSAL (desbloqueio de saldo) como receita sem cliente e sem processo.
+    Categoria: 'DESBLOQUEIO DE SALDO ASAAS' | Centro de custo: 'ASAAS — SEM IDENTIFICAÇÃO'
+    O ASAAS não informa o cliente nesse tipo de transação e o suporte não responde."""
+    try:
+        st = carregar_settings_advbox(headers_advbox)
+        cat_id = st["cat"].get("DESBLOQUEIO DE SALDO ASAAS")
+        cc_id = st["cc"].get("ASAAS — SEM IDENTIFICAÇÃO")
+        if not cat_id:
+            log_msg(f"  ⚠️  Categoria 'DESBLOQUEIO DE SALDO ASAAS' não encontrada no Advbox — lançamento não criado", True)
+            return False
+        if not cc_id:
+            log_msg(f"  ⚠️  Centro de custo 'ASAAS — SEM IDENTIFICAÇÃO' não encontrado no Advbox — lançamento não criado", True)
+            return False
+        valor = float(asaas_tx.get("value", 0))
+        payload = {
+            "users_id": 65747,
+            "entry_type": "income",
+            "debit_account": 193264,
+            "categories_id": cat_id,
+            "cost_centers_id": cc_id,
+            "amount": f"{valor:.2f}".replace(".", ","),
+            "date_due": TARGET_DATE,
+            "date_payment": TARGET_DATE,
+            "description": f"Desbloqueio de saldo ASAAS — cliente não identificado pelo ASAAS (id: {asaas_tx.get('id', '')})",
+        }
+        if DRY_RUN:
+            log_msg(f"  [DRY_RUN] Desbloqueio de saldo R$ {valor:.2f} — NÃO criado (dry run)", True)
+            return True
+        resp = requests.post(
+            "https://app.advbox.com.br/api/v1/transactions",
+            headers={**headers_advbox, "Content-Type": "application/json"},
+            json=payload,
+            timeout=30
+        )
+        ok = resp.status_code in (200, 201)
+        log_msg(f"  CREATE desbloqueio de saldo R$ {valor:.2f}: {resp.status_code} - {'✓' if ok else '❌ ' + resp.text[:300]}", True)
+        return ok
+    except Exception as e:
+        log_msg(f"  ❌ Erro ao lançar desbloqueio de saldo: {e}", True)
+        return False
+
+
 def buscar_cliente_advbox(asaas_tx: dict, headers_advbox: dict):
     """Acha o cliente no Advbox pelo CPF/CNPJ (preferido) ou pelo nome exato."""
     try:
@@ -714,13 +758,19 @@ def asaas_nome(tx, headers):
 # ---------------------------------------------------------------------------
 # FUNÇÕES DE LEITURA COM LOGGING MASSIVO
 # ---------------------------------------------------------------------------
-def fetch_asaas_transactions():
+def fetch_asaas_transactions(headers_advbox: dict = None):
     """Busca Asaas com logging COMPLETO"""
     transactions = []
     headers_asaas = {
         "access_token": ASAAS_TOKEN,
         "Accept": "application/json"
     }
+    if headers_advbox is None:
+        headers_advbox = {
+            "Authorization": f"Bearer {ADVBOX_TOKEN}",
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "application/json"
+        }
 
     log_msg(f"\n[ASAAS] Iniciando fetch", True)
 
@@ -754,10 +804,23 @@ def fetch_asaas_transactions():
     _cancelados = ids_cancelados_por_estorno(all_raw)
     if _cancelados:
         log_msg(f"[ASAAS] {len(_cancelados)} entrada(s) canceladas por estorno (cobrança paga e estornada = zero a zero)", True)
+    # Separa DEBIT_REVERSAL (desbloqueio de saldo) para lançamento automático sem cliente
+    debit_reversals = [t for t in all_raw if t.get("type") == ASAAS_DEBIT_REVERSAL_TYPE and t.get("id") not in vistos]
+    if debit_reversals:
+        log_msg(f"[ASAAS] {len(debit_reversals)} DEBIT_REVERSAL(s) encontrado(s) — desbloqueio de saldo (serão lançados sem cliente)", True)
+        for t in debit_reversals:
+            vistos.add(t.get("id"))
+            v = float(t.get("value", 0))
+            ok = lancar_desbloqueio_saldo(t, headers_advbox)
+            log_msg(f"  {'✓' if ok else '❌'} Desbloqueio R$ {v:.2f} | id: {t.get('id')} | data: {t.get('date','')[:10]}", True)
+
     for t in all_raw:
-        if t.get("id") in _cancelados:
+        if t.get("id") in vistos:
             continue
-        if t.get("type") in ASAAS_INCOME_TYPES and t.get("id") not in vistos:
+        if t.get("id") in _cancelados:
+            vistos.add(t.get("id"))
+            continue
+        if t.get("type") in ASAAS_INCOME_TYPES:
             vistos.add(t.get("id"))
             t["_nome"] = asaas_nome(t, headers_asaas)
             transactions.append(t)
@@ -925,7 +988,7 @@ while attempt < MAX_RECONCILIATION_ATTEMPTS and not reconciliation_complete:
     log_msg(f"\n{'='*100}\nTENTATIVA {attempt}/{MAX_RECONCILIATION_ATTEMPTS}\n{'='*100}", True)
 
     log_msg(f"\n[LEITURA 1] Buscando transações...", True)
-    asaas_transactions = fetch_asaas_transactions()
+    asaas_transactions = fetch_asaas_transactions(headers_advbox)
     advbox_transactions = fetch_advbox_transactions()
 
     total_asaas = sum(float(tx.get("value", 0)) for tx in asaas_transactions)
