@@ -262,11 +262,43 @@ def origem_do_cliente(customers_id, headers_advbox):
     except Exception:
         return ""
 
+def centro_custo_por_tese(tipo, categoria, headers_advbox):
+    """Regras do escritório (combinadas na conversa) para centro de custo pela TESE, quando a origem não resolve:
+    concurso / item B / anulação de questão -> CONCURSO-TRÁFEGO PAGO; pedagogo e terço de férias -> PROFESSOR/PEDAGOGO-TRÁFEGO PAGO;
+    defesa PAD (servidor) -> SERVIDOR PUBLICO-TRÁFEGO PAGO; parceria -> PARCERIAS; demanda civil -> CONSUMIDOR-OUTROS;
+    retroativo de promoção (vertical/horizontal), abono permanência e revisão de aposentadoria -> PROFESSOR/PEDAGOGO-TRÁFEGO PAGO;
+    planejamento previdenciário -> SERVIDOR PUBLICO-TRÁFEGO PAGO."""
+    t = _sem_acento((tipo or "") + " " + ((categoria or "").split("-", 1)[1] if "-" in (categoria or "") else ""))
+    if "PARCERIA" in t:
+        alvo = "PARCERIAS"
+    elif "CONCURSO" in t or "ITEM B" in t or "ANULACAO DE QUESTAO" in t:
+        alvo = "CONCURSO-TRAFEGO PAGO"
+    elif "PEDAGOGO" in t or "FERIAS" in t:
+        alvo = "PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+    elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t:
+        alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
+    elif "DEMANDA CIVIL" in t:
+        alvo = "CONSUMIDOR-OUTROS"
+    elif "PLANEJAMENTO PREVIDENCIARIO" in t:
+        alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
+    elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t:
+        alvo = "PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+    else:
+        return None
+    st = carregar_settings_advbox(headers_advbox)
+    ach = [(n, i) for n, i in st["cc"].items() if _sem_acento(n) == alvo]
+    return ach[0] if len(ach) == 1 else None
+
+
 def centro_custo_por_origem(origem, grupo, tipo, headers_advbox):
     """Centro de custo = <PROFISSÃO/ÁREA>-<CANAL>.
     CANAL vem da ORIGEM do cliente (menu Pessoas); ÁREA vem da profissão escrita na origem ou, se não houver,
     do grupo/tese do processo. O nome precisa existir no Advbox; se não existir ou for ambíguo, devolve None (fica pendente)."""
     o, g, t = _sem_acento(origem), _sem_acento(grupo), _sem_acento(tipo)
+    if o == "ESCRITORIO":
+        st0 = carregar_settings_advbox(headers_advbox)
+        ach0 = [(n, i) for n, i in st0["cc"].items() if _sem_acento(n) == "ESCRITORIO-INDICACAO"]
+        return ach0[0] if len(ach0) == 1 else None
     if "TRAFEGO" in o or "ANUNCIO" in o or "FACEBOOK" in o or "GOOGLE" in o:
         canal = "TRAFEGO PAGO"
     elif "INDICACAO" in o:
@@ -345,7 +377,7 @@ def classificacao_por_processo_e_origem(customers_id, headers_advbox):
         for c in l.get("customers") or []:
             if isinstance(c, dict) and c.get("customer_id") == customers_id:
                 origem = c.get("origin") or ""
-    cc = centro_custo_por_origem(origem, grupo, tipo, headers_advbox)
+    cc = centro_custo_por_origem(origem, grupo, tipo, headers_advbox) or centro_custo_por_tese(tipo, cat[0], headers_advbox)
     if not cc:
         return None
     return {"categories_id": cat[1], "cost_centers_id": cc[1], "categoria": cat[0],

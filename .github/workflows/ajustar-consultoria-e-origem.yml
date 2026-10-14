@@ -68,6 +68,18 @@ jobs:
               ach=[(n,i) for n,i in CC.items() if sa(n)==f"{area}-{canal}"]
               return (ach[0],None) if len(ach)==1 else (None,f"centro {area}-{canal} não existe")
 
+          def centro_por_tese(tipo,categoria):
+              t=sa(str(tipo or "")+" "+(str(categoria or "").split("-",1)[1] if "-" in str(categoria or "") else ""))
+              if "PARCERIA" in t: alvo="PARCERIAS"
+              elif "CONCURSO" in t or "ITEM B" in t or "ANULACAO DE QUESTAO" in t: alvo="CONCURSO-TRAFEGO PAGO"
+              elif "PEDAGOGO" in t or "FERIAS" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+              elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
+              elif "DEMANDA CIVIL" in t: alvo="CONSUMIDOR-OUTROS"
+              elif "PLANEJAMENTO PREVIDENCIARIO" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
+              elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+              else: return None
+              ach=[(n,i) for n,i in CC.items() if sa(n)==alvo]
+              return ach[0] if len(ach)==1 else None
           trs=paginar("transactions")
           lawsuits={l["id"]:l for l in paginar("lawsuits")}
           print("lançamentos:",len(trs),"| processos:",len(lawsuits))
@@ -99,6 +111,10 @@ jobs:
                       l=lawsuits.get(d.get("lawsuits_id")) or {}
                       tipo=nome_(l.get("type")); grupo=nome_(l.get("group"))
                       novo_cc,motivo=centro_por_origem(org,grupo,tipo)
+                      if not novo_cc and sa(org)=="ESCRITORIO":
+                          ach=[(n,i) for n,i in CC.items() if sa(n)=="ESCRITORIO-INDICACAO"]; novo_cc=ach[0] if len(ach)==1 else None
+                      if not novo_cc:
+                          novo_cc=centro_por_tese(tipo,t.get("category")); motivo=None if novo_cc else motivo
                       if novo_cc: cc_final=novo_cc[0]
                   if not novo_cc:
                       pendente.append({"id":tid,"nome":nome or t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"origem":org,"motivo":motivo}); 
