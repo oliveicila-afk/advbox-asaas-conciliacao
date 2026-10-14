@@ -1,1 +1,13 @@
-[]
+[
+ {
+  "tipo": "PAYMENT_RECEIVED",
+  "pagador": "B S D C D S",
+  "tem_numero_longo": false,
+  "processo_achado": false,
+  "processo": null,
+  "billing": "PIX",
+  "tem_descricao": true,
+  "desc_tamanho": 69,
+  "ext_ref": false
+ }
+]
