@@ -1,0 +1,48 @@
+[
+ {
+  "cat": [
+   [
+    "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
+    79551
+   ]
+  ],
+  "cc": [
+   [
+    "SERVIDOR PUBLICO-INDICAÇÃO",
+    70464
+   ]
+  ]
+ },
+ {
+  "id": 11932606,
+  "http": 200,
+  "resp": "",
+  "cat": "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
+  "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+  "pago": "2026-06-01"
+ },
+ {
+  "id": 11932607,
+  "http": 200,
+  "resp": "",
+  "cat": "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
+  "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+  "pago": "2026-07-17"
+ },
+ {
+  "id": 11932608,
+  "http": 200,
+  "resp": "",
+  "cat": "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
+  "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+  "pago": "2026-08-05"
+ },
+ {
+  "id": 11932610,
+  "http": 200,
+  "resp": "",
+  "cat": "HONORÁRIOS CONTRATUAIS DE EXITO-ISENÇÃO DE IMPOSTO DE RENDA",
+  "cc": "SERVIDOR PUBLICO-INDICAÇÃO",
+  "pago": "2026-10-09"
+ }
+]
