@@ -57,6 +57,16 @@ jobs:
                   c.add(rec["id"])
                   an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r) and str(t.get("date"))<=str(r.get("date")) and str(t.get("date"))[:7]==str(r.get("date"))[:7]),None)
                   if an is not None: c.add(an["id"])
+              # liquidação de cobrança JÁ ANTECIPADA: o PAYMENT_RECEIVED vem acompanhado da "baixa da antecipação" (débito, mesma fatura e valor).
+              # O dinheiro entrou na antecipação; a liquidação não é recebimento novo.
+              deb={}
+              for t in txs:
+                  if t.get("type")=="RECEIVABLE_ANTICIPATION_DEBIT":
+                      deb.setdefault((nr(t),str(t.get("date"))[:10]),[]).append(round(abs(float(t.get("value",0))),2))
+              for t in txs:
+                  if t.get("type")=="PAYMENT_RECEIVED" and t["id"] not in c:
+                      l=deb.get((nr(t),str(t.get("date"))[:10]),[]); v=round(float(t.get("value",0)),2)
+                      if v in l: l.remove(v); c.add(t["id"])
               return c
           asaas=defaultdict(list); d=i0; todas=[]
           while d<=i1+dt.timedelta(days=20):
