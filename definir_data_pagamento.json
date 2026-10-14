@@ -1,10 +1,10 @@
 [
  {
   "id": "11524079",
-  "http": 422,
-  "resp": "{\"message\":\"The given data was invalid.\",\"errors\":{\"categories_id\":[\"The category field is invalid\"]}}",
+  "http": 200,
+  "resp": "",
   "cat_atual": "HONOR\u00c1RIOS CONTRATUAIS",
   "cc_atual": "GERAL",
-  "date_payment_depois": "2026-10-13"
+  "date_payment_depois": ""
  }
 ]
