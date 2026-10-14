@@ -1,0 +1,64 @@
+name: Criar centro de custo ASAAS — SEM IDENTIFICAÇÃO
+
+on:
+  workflow_dispatch:
+
+jobs:
+  criar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests
+
+          token = os.environ["ADVBOX_TOKEN"].strip()
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "User-Agent": "Mozilla/5.0"
+          }
+          base = "https://app.advbox.com.br/api/v1"
+
+          NOME_CENTRO = "ASAAS — SEM IDENTIFICAÇÃO"
+
+          # 1. Buscar centros existentes para não duplicar
+          r = requests.get(f"{base}/settings", headers=headers, timeout=30)
+          if r.status_code != 200:
+              print(f"ERRO ao buscar settings: {r.status_code} - {r.text[:300]}")
+              exit(1)
+
+          financial = r.json().get("financial", {})
+          centros = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
+
+          print(f"\n=== Centros de custo existentes ({len(centros)}) ===")
+          for n in sorted(centros):
+              print(f"  {n} (id={centros[n]})")
+
+          # 2. Verificar se já existe
+          if NOME_CENTRO in centros:
+              print(f"\n✅ Centro de custo '{NOME_CENTRO}' já existe (id={centros[NOME_CENTRO]})")
+          else:
+              # Criar centro de custo
+              payload = {"cost_center": NOME_CENTRO}
+              r2 = requests.post(f"{base}/settings/cost-centers", headers=headers, json=payload, timeout=30)
+              if r2.status_code in (200, 201):
+                  novo_id = r2.json().get("id") or r2.json()
+                  print(f"\n✅ Centro de custo '{NOME_CENTRO}' criado com sucesso! id={novo_id}")
+              else:
+                  print(f"\n❌ ERRO ao criar centro de custo: {r2.status_code} - {r2.text[:500]}")
+                  # Tentar endpoint alternativo
+                  print(f"\n   Tentando endpoint alternativo...")
+                  r3 = requests.post(f"{base}/settings/costcenters", headers=headers, json=payload, timeout=30)
+                  if r3.status_code in (200, 201):
+                      novo_id = r3.json().get("id") or r3.json()
+                      print(f"\n✅ Centro de custo '{NOME_CENTRO}' criado com sucesso (endpoint alt)! id={novo_id}")
+                  else:
+                      print(f"\n❌ ERRO no endpoint alternativo também: {r3.status_code} - {r3.text[:500]}")
+          PY
