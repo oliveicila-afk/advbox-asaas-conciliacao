@@ -22,12 +22,17 @@ jobs:
           hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
           B="https://app.advbox.com.br/api/v1"; out=[]
           for it in os.environ["ITENS"].split(","):
-              tid,_,data=it.strip().partition(":")
+              tid,_,resto=it.strip().partition(":")
+              data,_,nova_cat=resto.partition(":")
               d=requests.get(f"{B}/transactions/{tid}",headers=hb,timeout=60).json(); time.sleep(2.2); d=d.get("data",d)
               p={"entry_type":d.get("entry_type") or "income","users_id":d.get("users_id") or 65747,"debit_account":193264,
                  "categories_id":d.get("categories_id"),"cost_centers_id":d.get("cost_centers_id"),"customers_id":d.get("customers_id"),
                  "lawsuits_id":d.get("lawsuits_id"),"amount":f"{float(d['amount']):.2f}".replace(".",","),
                  "date_due":str(d.get("date_due"))[:10],"date_payment":data.strip(),"description":d.get("description") or ""}
+              if nova_cat.strip():
+                  f=requests.get(f"{B}/settings",headers=hb,timeout=60).json().get("financial",{}); time.sleep(2.2)
+                  ach=[c["id"] for c in f["categories"] if c["category"]==nova_cat.strip()]
+                  if len(ach)==1: p["categories_id"]=ach[0]
               p={k:v for k,v in p.items() if v is not None}
               r=requests.put(f"{B}/transactions/{tid}",headers={**hb,"Content-Type":"application/json"},json=p,timeout=60); time.sleep(2.2)
               chk=requests.get(f"{B}/transactions/{tid}",headers=hb,timeout=60).json(); time.sleep(2.2); chk=chk.get("data",chk)
