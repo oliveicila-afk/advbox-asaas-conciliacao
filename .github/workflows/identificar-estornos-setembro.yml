@@ -1,0 +1,128 @@
+name: Identificar estornos de cobrança - Setembro 2026
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  identificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests, re
+          from collections import defaultdict
+
+          ha = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          A = "https://api.asaas.com/v3"
+
+          # Busca todos os dias de setembro
+          all_sep = []
+          for dia in range(1, 31):
+              target_date = f"2026-09-{dia:02d}"
+              off = 0
+              while True:
+                  r = requests.get(f"{A}/financialTransactions",
+                                   headers=ha,
+                                   params={"startDate": target_date, "finishDate": target_date, "limit": 100, "offset": off},
+                                   timeout=30)
+                  data = r.json().get("data", [])
+                  all_sep.extend(data)
+                  if not r.json().get("hasMore") or not data:
+                      break
+                  off += 100
+
+          print(f"Total transações setembro: {len(all_sep)}")
+
+          def _nr(t):
+              m = re.search(r"fatura nr\.\s*(\d+)", str(t.get("description") or ""))
+              return m.group(1) if m else None
+
+          def _cli(t):
+              return re.sub(r"^.*fatura nr\.\s*\d+\s*", "", str(t.get("description") or "")).strip().upper()
+
+          # Identificar pares PAYMENT_REVERSAL + PAYMENT_RECEIVED cancelados no mesmo mês
+          reversals = [t for t in all_sep if t.get("type") == "PAYMENT_REVERSAL"]
+          received = [t for t in all_sep if t.get("type") == "PAYMENT_RECEIVED"]
+          antecipacoes = [t for t in all_sep if t.get("type") == "RECEIVABLE_ANTICIPATION_GROSS_CREDIT"]
+
+          print(f"\nPAYMENT_REVERSAL em setembro: {len(reversals)}")
+          print(f"PAYMENT_RECEIVED em setembro: {len(received)}")
+          print(f"ANTECIPAÇÕES em setembro: {len(antecipacoes)}")
+
+          cancel = []  # lista de pares cancelados
+          cancel_ids = set()
+          soma_cancelada = 0.0
+
+          for r in reversals:
+              v = round(abs(float(r.get("value", 0))), 2)
+              nr = _nr(r)
+              cli = _cli(r)
+              mes_r = str(r.get("date"))[:7]
+
+              # Busca PAYMENT_RECEIVED correspondente (mesmo nr fatura, mesmo valor, mesmo mês)
+              rec = next((t for t in received
+                          if _nr(t) == nr
+                          and round(float(t.get("value", 0)), 2) == v
+                          and str(t.get("date"))[:7] == mes_r
+                          and t["id"] not in cancel_ids), None)
+
+              if rec is None:
+                  print(f"\n⚠️  REVERSAL sem par: fatura {nr} | {cli} | R$ {v:.2f} | {r.get('date')}")
+                  continue
+
+              cancel_ids.add(rec["id"])
+              soma_cancelada += v
+
+              # Busca antecipação correspondente (mesmo valor, mesmo cliente, mesmo mês, antes do estorno)
+              ant = next((t for t in antecipacoes
+                          if round(float(t.get("value", 0)), 2) == v
+                          and _cli(t) == cli
+                          and str(t.get("date")) <= str(r.get("date"))
+                          and str(t.get("date"))[:7] == mes_r
+                          and t["id"] not in cancel_ids), None)
+              if ant:
+                  cancel_ids.add(ant["id"])
+
+              cancel.append({
+                  "fatura_nr": nr,
+                  "cliente": cli,
+                  "valor": v,
+                  "data_recebimento": str(rec.get("date"))[:10],
+                  "data_estorno": str(r.get("date"))[:10],
+                  "tinha_antecipacao": ant is not None,
+                  "desc_reversal": (r.get("description") or "")[:120]
+              })
+
+          print(f"\n=== PARES CANCELADOS EM SETEMBRO ({len(cancel)}) ===")
+          soma = 0.0
+          for p in cancel:
+              soma += p["valor"]
+              ant_flag = " + antecipação cancelada" if p["tinha_antecipacao"] else ""
+              print(f"  Fatura {p['fatura_nr']} | {p['cliente'][:40]} | R$ {p['valor']:.2f} | recebido {p['data_recebimento']} | estornado {p['data_estorno']}{ant_flag}")
+
+          print(f"\nSoma total cancelada (PAYMENT_RECEIVED): R$ {soma:.2f}")
+          print(f"\nEsses valores aparecem no extrato ASAAS mas são removidos pelo código.")
+          print(f"Diferença esperada por estornos: R$ 342,93")
+
+          resultado = {
+              "mes": "2026-09",
+              "pares_cancelados": cancel,
+              "soma_cancelada_payment_received": round(soma, 2),
+              "total_reversals": len(reversals)
+          }
+          json.dump(resultado, open("estornos_setembro.json", "w"), ensure_ascii=False, indent=2)
+          print("\nResultado salvo em estornos_setembro.json")
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f estornos_setembro.json; git commit -m "identificar estornos setembro" || true
+          git pull --rebase origin main || true; git push || true
