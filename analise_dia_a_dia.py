@@ -233,6 +233,89 @@ def ids_cancelados_por_estorno(txs):
             cancel.add(ant["id"])
     return cancel
 
+
+_POSTS = []
+
+def carregar_posts(headers_advbox):
+    """Todas as tarefas (/posts) do Advbox, 1 vez só. As tarefas sinalizam se o valor é ENTRADA (iniciais), ÊXITO ou SUCUMBENCIAL."""
+    if _POSTS:
+        return _POSTS
+    off = 0
+    while True:
+        r = None
+        for _ in range(6):
+            r = requests.get("https://app.advbox.com.br/api/v1/posts", headers=headers_advbox,
+                             params={"limit": 1000, "offset": off}, timeout=90)
+            if r.status_code != 429:
+                break
+            time.sleep(30)
+        time.sleep(2.2)
+        if r is None or r.status_code != 200:
+            break
+        b = r.json().get("data", [])
+        _POSTS.extend(b)
+        if len(b) < 1000:
+            break
+        off += 1000
+    return _POSTS
+
+def _tipo_pelo_texto(txt):
+    t = _sem_acento(txt)
+    if "SUCUMB" in t:
+        return "SUCUMBENCIAIS"
+    if "EXITO" in t:
+        return "EXITO"
+    if "ENTRADA" in t or "HONORARIOS INICIAIS" in t or "INICIAIS" in t:
+        return "INICIAIS"
+    return None
+
+def tipo_honorario_pelo_historico(lawsuits_id, valor, headers_advbox):
+    """Regra do escritório: quando a categoria não é identificada de primeira, olhar o HISTÓRICO do Advbox:
+    1) lançamentos já categorizados do mesmo processo (iniciais / êxito / sucumbenciais);
+    2) tarefas do processo, onde se sinaliza se é entrada, êxito ou sucumbencial (preferindo a tarefa que cita o valor).
+    Devolve 'INICIAIS', 'EXITO', 'SUCUMBENCIAIS' ou None (sem evidência)."""
+    if not lawsuits_id:
+        return None
+    achados = []
+    for t in _ADVBOX_RAW:
+        if t.get("lawsuit_id") == lawsuits_id and t.get("entry_type") == "income":
+            tp = _tipo_pelo_texto(t.get("category") or "")
+            if tp:
+                achados.append(tp)
+    if len(set(achados)) == 1:
+        return achados[0]
+    vs = f"{float(valor):.2f}".replace(".", ",")
+    por_valor, gerais = [], []
+    for p in carregar_posts(headers_advbox):
+        if p.get("lawsuits_id") != lawsuits_id:
+            continue
+        txt = f"{p.get('task') or ''} {p.get('notes') or ''}"
+        tp = _tipo_pelo_texto(txt)
+        if not tp:
+            continue
+        (por_valor if vs in txt else gerais).append(tp)
+    for grupo in (por_valor, gerais):
+        if len(set(grupo)) == 1:
+            return grupo[0]
+    return None
+
+def categoria_pelo_historico(lawsuits_id, valor, tipo_tese, headers_advbox):
+    """Categoria final = <tipo do honorário pelo histórico>-<tese>. Sem evidência no histórico: iniciais (regra antiga)."""
+    tp = tipo_honorario_pelo_historico(lawsuits_id, valor, headers_advbox) or "INICIAIS"
+    if tp == "INICIAIS":
+        return categoria_iniciais_da_tese(tipo_tese, headers_advbox)
+    if tp == "EXITO":
+        return categoria_exito_da_tese(tipo_tese, headers_advbox)
+    st = carregar_settings_advbox(headers_advbox)
+    pref = "HONORARIOS CONTRATUAIS SUCUMBENCIAIS-"
+    t = _sem_acento(tipo_tese)
+    cand = [(n, i) for n, i in st["cat"].items() if _sem_acento(n).startswith(pref) and _sem_acento(n)[len(pref):] and _sem_acento(n)[len(pref):] in t]
+    if not cand:
+        return None
+    m = max(len(_sem_acento(n)) for n, _ in cand)
+    cand = [(n, i) for n, i in cand if len(_sem_acento(n)) == m]
+    return cand[0] if len(cand) == 1 else None
+
 def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
     """Define a data de pagamento de um lançamento que JÁ existe. A API exige o payload completo
     (entry_type, conta ASAAS, categoria, centro de custo, cliente, processo). Se a categoria gravada
@@ -252,7 +335,7 @@ def pagar_lancamento_existente(tx_id, data_pag, valor, headers_advbox):
         lw_ = next((l for l in indice_processos(headers_advbox).values() if l.get("id") == d.get("lawsuits_id")), None)
         tipo_ = (lw_ or {}).get("type")
         tipo_ = tipo_.get("name") if isinstance(tipo_, dict) else tipo_
-        ci = categoria_iniciais_da_tese(tipo_, headers_advbox)
+        ci = categoria_pelo_historico(d.get("lawsuits_id"), valor, tipo_, headers_advbox)
         if ci:
             log_msg(f"  categoria genérica -> '{ci[0]}'", True)
             p["categories_id"] = ci[1]
