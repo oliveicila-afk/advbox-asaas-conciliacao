@@ -1,0 +1,21 @@
+{
+ "processos_do_cliente": [
+  {
+   "id": 16053909,
+   "tipo": "PROMO\u00c7\u00c3O VERTICAL E HORIZONTAL - GRUPO DE APOIO - AUXILIAR DE SERVI\u00c7OS GERAIS - SEDUC/AM"
+  },
+  {
+   "id": 16180350,
+   "tipo": "TARIFA BANC\u00c1RIA"
+  },
+  {
+   "id": 17916053,
+   "tipo": "PAD | PROCESSO ADMINISTRATIVO DISCIPLINAR"
+  }
+ ],
+ "pad_encontrados": [
+  17916053
+ ],
+ "http": 200,
+ "resp": "{\"success\":true,\"lawsuits_id\":\"18166952\"}"
+}
