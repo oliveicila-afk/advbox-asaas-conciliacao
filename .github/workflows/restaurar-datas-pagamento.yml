@@ -1,0 +1,115 @@
+name: Restaurar datas de pagamento trocadas para 13/10 (dry-run ou executar)
+on:
+  workflow_dispatch:
+    inputs:
+      modo: {description: "plano ou executar", required: true, default: "plano"}
+      data_errada: {description: "data de pagamento errada", required: true, default: "2026-10-13"}
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          MODO: ${{ github.event.inputs.modo }}
+          ERRADA: ${{ github.event.inputs.data_errada }}
+        run: |
+          python3 - <<'PY'
+          import os, re, json, time, unicodedata, datetime as dt, requests
+          from collections import defaultdict, Counter
+          ha={"access_token":os.environ["ASAAS_TOKEN"].strip(),"Accept":"application/json"}
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          A="https://api.asaas.com/v3"; B="https://app.advbox.com.br/api/v1"
+          ERRADA=os.environ["ERRADA"]; EXEC=os.environ["MODO"]=="executar"
+          norm=lambda s:re.sub(r"\s+"," ",unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode().upper()).strip()
+          # Advbox
+          adv=[]; off=0
+          while True:
+              r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[]); adv+=b
+              if len(b)<1000: break
+              off+=1000
+          adv=[t for t in adv if t.get("entry_type")=="income" and str(t.get("debit_bank") or "").upper()=="ASAAS"]
+          erradas=[t for t in adv if str(t.get("date_payment") or "")[:10]==ERRADA]
+          adv_cnt=Counter()
+          for t in adv:
+              dp=str(t.get("date_payment") or "")[:10]
+              if dp and dp!=ERRADA: adv_cnt[(dp,norm(t.get("name")),round(float(str(t.get("amount")).replace(",",".")),2))]+=1
+          # Asaas
+          cp={}; cc={}
+          def nome(t):
+              pid=t.get("paymentId")
+              if not pid and t.get("anticipationId"):
+                  pid=requests.get(f"{A}/anticipations/{t['anticipationId']}",headers=ha,timeout=30).json().get("payment")
+              if not pid: return ""
+              if pid not in cp: cp[pid]=requests.get(f"{A}/payments/{pid}",headers=ha,timeout=30).json().get("customer")
+              c=cp[pid]
+              if not c: return ""
+              if c not in cc: cc[c]=requests.get(f"{A}/customers/{c}",headers=ha,timeout=30).json().get("name")
+              return cc[c]
+          def cancelados(txs):
+              nr=lambda t:(re.search(r"fatura nr\.\s*(\d+)",str(t.get("description") or "")) or [None,None])[1]
+              cli=lambda t:re.sub(r"^.*fatura nr\.\s*\d+\s*","",str(t.get("description") or "")).strip().upper()
+              c=set()
+              for r in txs:
+                  if r.get("type")!="PAYMENT_REVERSAL": continue
+                  v=round(abs(float(r.get("value",0))),2)
+                  rec=next((t for t in txs if t.get("type")=="PAYMENT_RECEIVED" and nr(t)==nr(r) and t["id"] not in c and round(float(t.get("value",0)),2)==v),None)
+                  if rec is None: continue
+                  c.add(rec["id"])
+                  an=next((t for t in txs if t.get("type")=="RECEIVABLE_ANTICIPATION_GROSS_CREDIT" and t["id"] not in c and round(float(t.get("value",0)),2)==v and cli(t)==cli(r)),None)
+                  if an is not None: c.add(an["id"])
+              return c
+          falta=defaultdict(list)   # (nome,valor) -> [dias com déficit]
+          d=dt.date(2026,9,1); fim=dt.date.fromisoformat(ERRADA)
+          while d<=fim:
+              off=0; tx=[]
+              while True:
+                  j=requests.get(f"{A}/financialTransactions",headers=ha,params={"startDate":d.isoformat(),"finishDate":d.isoformat(),"limit":100,"offset":off},timeout=30).json()
+                  tx+=j.get("data",[])
+                  if not j.get("hasMore") or not j.get("data"): break
+                  off+=100
+              canc=cancelados(tx); ac=Counter()
+              for t in tx:
+                  if t["id"] in canc or t.get("type") not in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"): continue
+                  try: n=norm(nome(t))
+                  except Exception: n=""
+                  ac[(norm(n),round(float(t["value"]),2))]+=1
+              for (n,v),q in ac.items():
+                  deficit=q-adv_cnt.get((d.isoformat(),n,v),0)
+                  for _ in range(max(0,deficit)): falta[(n,v)].append(d.isoformat())
+              d+=dt.timedelta(days=1)
+          plano=[]; sem=[]
+          for t in erradas:
+              k=(norm(t.get("name")),round(float(str(t.get("amount")).replace(",",".")),2))
+              dias=falta.get(k) or []
+              due=str(t.get("date_due"))[:10]
+              if dias:
+                  dias.sort(key=lambda x:abs((dt.date.fromisoformat(x)-dt.date.fromisoformat(due)).days))
+                  plano.append({"id":t["id"],"valor":k[1],"due":due,"novo_pagamento":dias.pop(0)})
+              else: sem.append({"id":t["id"],"valor":k[1],"due":due})
+          feitos=[]
+          if EXEC:
+              for pl in plano:
+                  if pl["novo_pagamento"]==ERRADA: continue
+                  dd=requests.get(f"{B}/transactions/{pl['id']}",headers=hb,timeout=60).json(); time.sleep(2.2); dd=dd.get("data",dd)
+                  p={"entry_type":dd.get("entry_type") or "income","users_id":dd.get("users_id") or 65747,"debit_account":193264,
+                     "categories_id":dd.get("categories_id"),"cost_centers_id":dd.get("cost_centers_id"),"customers_id":dd.get("customers_id"),
+                     "lawsuits_id":dd.get("lawsuits_id"),"amount":f"{float(dd['amount']):.2f}".replace(".",","),
+                     "date_due":str(dd.get("date_due"))[:10],"date_payment":pl["novo_pagamento"],"description":dd.get("description") or ""}
+                  p={k:v for k,v in p.items() if v is not None}
+                  r=requests.put(f"{B}/transactions/{pl['id']}",headers={**hb,"Content-Type":"application/json"},json=p,timeout=60); time.sleep(2.2)
+                  feitos.append({"id":pl["id"],"http":r.status_code,"resp":r.text[:120] if r.status_code not in (200,204) else ""})
+          out={"modo":"executar" if EXEC else "plano","com_data_errada":len(erradas),"plano":plano,"sem_correspondencia_no_asaas":sem,"feitos":feitos}
+          json.dump(out,open("restaurar_datas.json","w"),ensure_ascii=False,indent=1)
+          print(len(erradas),len(plano),len(sem),len(feitos))
+          PY
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add restaurar_datas.json; git commit -qm "restaurar datas" || true; git pull -q --rebase; git push -q
