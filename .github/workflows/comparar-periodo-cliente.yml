@@ -60,19 +60,20 @@ jobs:
               return c
           asaas=defaultdict(list); d=i0
           while d<=i1:
-              off=0; seen=set()
+              off=0; dia_tx=[]
               while True:
                   j=requests.get(f"{A}/financialTransactions",headers=ha,params={"startDate":d.isoformat(),"finishDate":d.isoformat(),"limit":100,"offset":off},timeout=30).json()
-                  _c=cancelados(j.get("data",[]))
-                  for t in j.get("data",[]):
-                      if t["id"] in seen or t["id"] in _c: continue
-                      seen.add(t["id"])
-                      if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"):
-                          _n=norm(nome(t))
-                          if any(k in _n for k in ("LVMX","FIDC","FUNDO DE INVESTIMENTO","FI MULTIMERCADO","FI RENDA FIXA","ASSET MANAGEMENT")): continue
-                          asaas[d.isoformat()].append((_n, round(float(t["value"]),2), t.get("type")))
+                  dia_tx+=j.get("data",[])
                   if not j.get("hasMore") or not j.get("data"): break
                   off+=100
+              _c=cancelados(dia_tx); seen=set()
+              for t in dia_tx:
+                  if t["id"] in seen or t["id"] in _c: continue
+                  seen.add(t["id"])
+                  if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT","PAYMENT_FEE_REVERSAL"):
+                      _n=norm(nome(t))
+                      if any(k in _n for k in ("LVMX","FIDC","FUNDO DE INVESTIMENTO","FI MULTIMERCADO","FI RENDA FIXA","ASSET MANAGEMENT")): continue
+                      asaas[d.isoformat()].append((_n, round(float(t["value"]),2), t.get("type")))
               d+=dt.timedelta(days=1)
           adv=defaultdict(list); off=0
           while True:

@@ -1199,22 +1199,23 @@ def revisao_do_mes(headers_asaas, headers_advbox):
     dias_div = []
     while d < alvo:
         iso = d.isoformat()
-        off, vistos, tot_a = 0, set(), 0.0
+        off, vistos, tot_a, dia_tx = 0, set(), 0.0, []
         while True:
             j = requests.get("https://api.asaas.com/v3/financialTransactions", headers=headers_asaas,
                              params={"startDate": iso, "finishDate": iso, "limit": 100, "offset": off}, timeout=30).json()
-            _canc = ids_cancelados_por_estorno(j.get("data", []))
-            for t in j.get("data", []):
-                if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES or t["id"] in _canc:
-                    continue
-                vistos.add(t["id"])
-                nome = (asaas_nome(t, headers_asaas) or "").upper()
-                if any(k in nome for k in NOMES_INVESTIMENTO):
-                    continue
-                tot_a += float(t.get("value", 0))
+            dia_tx += j.get("data", [])
             if not j.get("hasMore") or not j.get("data"):
                 break
             off += 100
+        _canc = ids_cancelados_por_estorno(dia_tx)  # cobrança paga e estornada = zero a zero
+        for t in dia_tx:
+            if t["id"] in vistos or t.get("type") not in ASAAS_INCOME_TYPES or t["id"] in _canc:
+                continue
+            vistos.add(t["id"])
+            nome = (asaas_nome(t, headers_asaas) or "").upper()
+            if any(k in nome for k in NOMES_INVESTIMENTO):
+                continue
+            tot_a += float(t.get("value", 0))
         tot_b = sum(float(str(t.get("amount", 0)).replace(",", ".")) for t in _ADVBOX_RAW
                     if t.get("entry_type") == "income" and str(t.get("debit_bank") or "").upper() == "ASAAS"
                     and str(t.get("date_payment") or "")[:10] == iso)
