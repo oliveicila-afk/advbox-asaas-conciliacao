@@ -278,7 +278,7 @@ def centro_custo_por_tese(tipo, categoria, headers_advbox):
     elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t:
         alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
     elif "DEMANDA CIVIL" in t:
-        alvo = "OUTROS-TRÁFEGO PAGO"
+        alvo = "OUTROS-TRAFEGO PAGO"
     elif "PLANEJAMENTO PREVIDENCIARIO" in t:
         alvo = "SERVIDOR PUBLICO-TRAFEGO PAGO"
     elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t:
