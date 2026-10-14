@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       valores: {description: "valores separados por vírgula", required: true, default: "3760,3985.6,495.38"}
+      nomes: {description: "nomes (parte) separados por ;", required: false, default: "MARIA HOZANA DA SILVA;FLAVIA PINHEIRO DE BARROS;RICARDO BARROS DE ARAUJO"}
 permissions:
   contents: write
 jobs:
@@ -16,6 +17,7 @@ jobs:
       - env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           VALORES: ${{ github.event.inputs.valores }}
+          NOMES: ${{ github.event.inputs.nomes }}
         run: |
           python3 - <<'PY'
           import os, json, time, unicodedata, requests
@@ -33,6 +35,10 @@ jobs:
               if len(b)<1000: break
               off+=1000
           out=[{"id":t["id"],"cli":ini(t.get("name")),"valor":t.get("amount"),"tipo":t.get("entry_type"),"due":str(t.get("date_due"))[:10],"pago":str(t.get("date_payment") or "")[:10],"banco":t.get("debit_bank"),"cat":t.get("category"),"cc":t.get("cost_center"),"lawsuit":t.get("lawsuit_id"),"desc":(t.get("description") or "")[:40]} for t in trs if round(float(t.get("amount",0)),2) in alvo]
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper()
+          nomes=[n.strip() for n in os.environ.get("NOMES","").split(";") if n.strip()]
+          porNome=[{"busca":ini(n),"id":t["id"],"valor":t.get("amount"),"tipo":t.get("entry_type"),"due":str(t.get("date_due"))[:10],"pago":str(t.get("date_payment") or "")[:10],"banco":t.get("debit_bank"),"cat":t.get("category"),"cc":t.get("cost_center"),"lawsuit":t.get("lawsuit_id"),"cust":None} for n in nomes for t in trs if n in sa(t.get("name"))]
+          out={"por_valor":out,"por_nome":porNome}
           json.dump(out,open("achar_valores_bemol.json","w"),ensure_ascii=False,indent=1)
           PY
       - if: always()
