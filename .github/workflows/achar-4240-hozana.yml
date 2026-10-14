@@ -1,0 +1,40 @@
+name: Achar lancamentos de 4.240/4.000 da cliente 16523888 (somente leitura)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"; out=[]; off=0; vistos=set()
+          for chave in ("date_due","date_payment"):
+            off=0
+            while True:
+              r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off,f"{chave}_start":"2026-06-01",f"{chave}_end":"2026-12-31"},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[])
+              for t in b:
+                  if t["id"] in vistos: continue
+                  try: a=round(float(str(t.get("amount")).replace(",",".")),2)
+                  except: continue
+                  if a in (4240.0,4000.0,3985.6):
+                      vistos.add(t["id"])
+                      d=requests.get(f"{B}/transactions/{t['id']}",headers=hb,timeout=60).json(); time.sleep(2.2); d=d.get("data",d)
+                      if d.get("customers_id")==16523888 or t["id"]==18166952:
+                          out.append({"id":t["id"],"valor":a,"entry_type":t.get("entry_type"),"category":t.get("category"),"date_due":t.get("date_due"),"date_payment":t.get("date_payment"),"lawsuits_id":d.get("lawsuits_id")})
+              if len(b)<1000: break
+              off+=1000
+          json.dump(out,open("achar_4240_hozana.json","w"),indent=1); print(out)
+          PY
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add achar_4240_hozana.json; git commit -qm "achar 4240" || true; git pull -q --rebase; git push -q
