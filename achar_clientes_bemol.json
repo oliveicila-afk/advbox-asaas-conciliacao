@@ -1,0 +1,62 @@
+[
+ {
+  "busca": "HOZANA",
+  "cliente": "H R D C",
+  "customer_id": 14479293,
+  "origem": "PARCERIAS",
+  "lawsuit_id": 13826894,
+  "tese": "GRUPO DE APOIO - MERENDEIRA - PROMOÇÃO HORIZONTAL E VERTICAL",
+  "grupo": "SERVIDOR PÚBLICO",
+  "etapa": "EM ESPERA | JULGAMENTO VIRTUAL"
+ },
+ {
+  "busca": "HOZANA",
+  "cliente": "H M D S S",
+  "customer_id": 15717005,
+  "origem": "INDICAÇÃO",
+  "lawsuit_id": 15153626,
+  "tese": "PROMOÇÃO HORIZONTAL - SEDUC",
+  "grupo": "SERVIDOR PÚBLICO",
+  "etapa": "EM ESPERA | RÉPLICA PETICIONAR"
+ },
+ {
+  "busca": "HOZANA",
+  "cliente": "M H D S M",
+  "customer_id": 16523888,
+  "origem": "PARCERIAS",
+  "lawsuit_id": 16053909,
+  "tese": "PROMOÇÃO VERTICAL E HORIZONTAL - GRUPO DE APOIO - AUXILIAR DE SERVIÇOS GERAIS - SEDUC/AM",
+  "grupo": "SERVIDOR PÚBLICO",
+  "etapa": "EM ESPERA | RÉPLICA PETICIONAR"
+ },
+ {
+  "busca": "HOZANA",
+  "cliente": "M H D S M",
+  "customer_id": 16523888,
+  "origem": "PARCERIAS",
+  "lawsuit_id": 16180350,
+  "tese": "TARIFA BANCÁRIA",
+  "grupo": "CONSUMIDOR",
+  "etapa": "EM ESPERA | CONTRARRAZÕES"
+ },
+ {
+  "busca": "HOZANA",
+  "cliente": "M H D S M",
+  "customer_id": 16523888,
+  "origem": "PARCERIAS",
+  "lawsuit_id": 17916053,
+  "tese": "PAD | PROCESSO ADMINISTRATIVO DISCIPLINAR",
+  "grupo": "SERVIDOR PÚBLICO",
+  "etapa": "EM ESPERA | DECISÃO LIMINAR/CITAÇÃO"
+ },
+ {
+  "busca": "FLAVIA",
+  "cliente": "F P D B",
+  "customer_id": 18375335,
+  "origem": "INDICAÇÃO",
+  "lawsuit_id": 17964246,
+  "tese": "RETROATIVO HORIZONTAL - SEDUC/AM",
+  "grupo": "SERVIDOR PÚBLICO",
+  "etapa": "ANÁLISE DO CASO"
+ }
+]
