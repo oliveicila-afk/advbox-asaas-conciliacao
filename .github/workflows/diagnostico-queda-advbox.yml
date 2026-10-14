@@ -1,0 +1,32 @@
+name: Diagnostico queda Advbox 09-11 setembro (somente leitura, sem nomes)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"; out=[]; off=0
+          while True:
+              r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[])
+              for t in b:
+                  if t.get("entry_type")=="income" and "2026-09-09"<=str(t.get("date_due"))[:10]<="2026-09-14":
+                      out.append({k:t.get(k) for k in ("id","amount","category","cost_center","debit_bank","date_due","date_payment","updated_at","created_at")})
+              if len(b)<1000: break
+              off+=1000
+          json.dump(out,open("diag_queda.json","w"),ensure_ascii=False,indent=1); print(len(out))
+          PY
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add diag_queda.json; git commit -qm "diag queda" || true; git pull -q --rebase; git push -q
