@@ -29,7 +29,7 @@ jobs:
           sel=[p for p in posts if (str(p.get("lawsuits_id")) in ("17916053","16053909","16180350")
                or any(k in str(p.get("task") or "").upper() for k in ("FINANCEIRO","FECHAMENTO","BEMOL"))
                or any(k in str(p.get("notes") or "") for k in ("4.240","3.985","4240")))
-               and str(p.get("date") or p.get("created_at") or "")[:7] in ("2026-08","2026-09","2026-10")]
+               and str(p.get("date") or p.get("created_at") or "")[:7] in ("2026-05","2026-06","2026-07","2026-08","2026-09","2026-10")]
           json.dump(sel,open("tarefa_bemol.json","w"),ensure_ascii=False,indent=1)
           print(len(posts),len(sel))
           PY
