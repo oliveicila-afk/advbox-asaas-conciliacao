@@ -1,0 +1,145 @@
+name: Comparar ASAAS x Advbox — Identificar cliente R$ 228,97
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+
+      - name: Instalar dependências
+        run: pip install requests -q
+
+      - name: Buscar transações ASAAS vs Advbox de setembro 2026
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import os
+          import requests
+          import json
+          from datetime import datetime
+
+          advbox_token = os.environ.get("ADVBOX_TOKEN", "").strip()
+          asaas_token = os.environ.get("ASAAS_TOKEN", "").strip()
+
+          if not advbox_token or not asaas_token:
+              print("ERRO: tokens nao configurados!")
+              exit(1)
+
+          headers_advbox = {
+              "Authorization": f"Bearer {advbox_token}",
+              "Content-Type": "application/json"
+          }
+
+          headers_asaas = {
+              "access_token": asaas_token,
+              "Accept": "application/json"
+          }
+
+          print("=" * 80)
+          print("BUSCANDO TRANSACOES DE SETEMBRO 2026")
+          print("=" * 80)
+
+          # 1. BUSCAR DO ASAAS
+          print("\n1. ASAAS - Buscando transacoes...")
+          asaas_txns = []
+          try:
+              r = requests.get(
+                  "https://api.asaas.com/v3/financialTransactions?offset=0&limit=500",
+                  headers=headers_asaas,
+                  timeout=30
+              )
+              if r.status_code == 200:
+                  data = r.json()
+                  asaas_txns = data.get("data", [])
+                  print(f"   OK - {len(asaas_txns)} transacoes obtidas")
+              else:
+                  print(f"   ERRO: {r.status_code} - {r.text[:200]}")
+          except Exception as e:
+              print(f"   ERRO: {str(e)}")
+
+          # 2. BUSCAR DO ADVBOX
+          print("\n2. ADVBOX - Buscando transacoes...")
+          advbox_txns = []
+          try:
+              r = requests.get(
+                  "https://app.advbox.com.br/api/v1/transactions",
+                  headers=headers_advbox,
+                  timeout=30
+              )
+              if r.status_code == 200:
+                  data = r.json()
+                  if isinstance(data, list):
+                      advbox_txns = data
+                  elif isinstance(data, dict) and "results" in data:
+                      advbox_txns = data["results"]
+                  print(f"   OK - {len(advbox_txns)} transacoes obtidas")
+              else:
+                  print(f"   ERRO: {r.status_code} - {r.text[:200]}")
+          except Exception as e:
+              print(f"   ERRO: {str(e)}")
+
+          print("\n" + "=" * 80)
+          print("ANALISANDO TRANSACOES COM VALOR ~248,50 E ~228,97")
+          print("=" * 80)
+
+          # 3. FILTRAR TRANSACOES PROXIMAS A 248,50 e 228,97
+          asaas_248 = []
+          advbox_248 = []
+          advbox_228 = []
+
+          for txn in asaas_txns:
+              val = txn.get("value")
+              if val:
+                  try:
+                      v = float(val) if isinstance(val, (int, float)) else float(str(val).replace(",", "."))
+                      if 248 <= v <= 249:
+                          asaas_248.append(txn)
+                  except:
+                      pass
+
+          for txn in advbox_txns:
+              val = txn.get("value")
+              if val:
+                  try:
+                      v = float(val) if isinstance(val, (int, float)) else float(str(val).replace(",", "."))
+                      if 248 <= v <= 249:
+                          advbox_248.append(txn)
+                      elif 228 <= v <= 229:
+                          advbox_228.append(txn)
+                  except:
+                      pass
+
+          print(f"\nASAAS - Transacoes de R$ 248-249: {len(asaas_248)}")
+          for i, txn in enumerate(asaas_248[:5]):
+              print(f"  {i+1}. {txn.get('value')} - {txn.get('description', txn.get('type', 'N/A'))[:60]}")
+
+          print(f"\nADVBOX - Transacoes de R$ 248-249: {len(advbox_248)}")
+          for i, txn in enumerate(advbox_248[:5]):
+              print(f"  {i+1}. {txn.get('value')} - {txn.get('description', 'N/A')[:60]}")
+
+          print(f"\nADVBOX - Transacoes de R$ 228-229: {len(advbox_228)}")
+          for i, txn in enumerate(advbox_228):
+              desc = txn.get('description', 'N/A')
+              date = txn.get('date', 'N/A')
+              print(f"  {i+1}. {txn.get('value')} - {desc[:60]} (data: {date})")
+              print(f"      ID: {txn.get('id', 'N/A')}")
+
+          print("\n" + "=" * 80)
+          print("RESUMO")
+          print("=" * 80)
+          print(f"\nO valor de R$ 228,97 provavelmente eh uma transacao de R$ 248,50")
+          print("com taxa de R$ 19,53 deduzida (taxa ~7,86%)")
+          print(f"\nEncontradas {len(advbox_228)} transacao(oes) no Advbox com valor ~228-229")
+          if advbox_228:
+              print("\nVERIFIQUE ESSAS TRANSACOES NO ADVBOX:")
+              for txn in advbox_228:
+                  print(f"  - {txn.get('description', 'N/A')} (R$ {txn.get('value')})")
+
+          PYTHON_SCRIPT
