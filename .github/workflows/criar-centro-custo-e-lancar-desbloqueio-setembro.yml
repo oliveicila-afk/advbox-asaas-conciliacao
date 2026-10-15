@@ -1,0 +1,118 @@
+name: Criar centro de custo e lançar desbloqueio setembro
+
+on:
+  workflow_dispatch:
+
+jobs:
+  executar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests, time
+
+          advbox_token = os.environ["ADVBOX_TOKEN"].strip()
+          asaas_token  = os.environ["ASAAS_TOKEN"].strip()
+
+          ha = {"access_token": asaas_token, "Accept": "application/json"}
+          hb = {
+              "Authorization": f"Bearer {advbox_token}",
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "User-Agent": "Mozilla/5.0"
+          }
+          base = "https://app.advbox.com.br/api/v1"
+          NOME_CENTRO    = "ASAAS — SEM IDENTIFICAÇÃO"
+          NOME_CATEGORIA = "DESBLOQUEIO DE SALDO ASAAS"
+
+          # ── 1. Carregar settings ────────────────────────────────────────────
+          r = requests.get(f"{base}/settings", headers=hb, timeout=30)
+          if r.status_code != 200:
+              print(f"ERRO ao buscar settings: {r.status_code} - {r.text[:300]}")
+              exit(1)
+          financial = r.json().get("financial", {})
+          categorias = {c["category"]: c["id"] for c in financial.get("categories", [])}
+          centros    = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
+
+          # ── 2. Criar centro de custo (se não existir) ───────────────────────
+          if NOME_CENTRO in centros:
+              cc_id = centros[NOME_CENTRO]
+              print(f"✅ Centro de custo '{NOME_CENTRO}' já existe (id={cc_id})")
+          else:
+              payload = {"cost_center": NOME_CENTRO}
+              r2 = requests.post(f"{base}/settings/cost-centers", headers=hb, json=payload, timeout=30)
+              if r2.status_code not in (200, 201):
+                  # tenta endpoint alternativo
+                  r2 = requests.post(f"{base}/settings/costcenters", headers=hb, json=payload, timeout=30)
+              if r2.status_code in (200, 201):
+                  cc_id = r2.json().get("id")
+                  print(f"✅ Centro de custo '{NOME_CENTRO}' criado! id={cc_id}")
+              else:
+                  print(f"❌ ERRO ao criar centro de custo: {r2.status_code} - {r2.text[:500]}")
+                  exit(1)
+              time.sleep(1)
+
+          # ── 3. Verificar categoria ──────────────────────────────────────────
+          if NOME_CATEGORIA in categorias:
+              cat_id = categorias[NOME_CATEGORIA]
+              print(f"✅ Categoria '{NOME_CATEGORIA}' já existe (id={cat_id})")
+          else:
+              print(f"❌ Categoria '{NOME_CATEGORIA}' NÃO encontrada — rode o workflow criar-categoria-desbloqueio primeiro")
+              exit(1)
+
+          # ── 4. Buscar DEBIT_REVERSAL em setembro 2026 no ASAAS ─────────────
+          print("\n🔍 Buscando DEBIT_REVERSAL em setembro 2026 no ASAAS...")
+          all_sep = []
+          for dia in range(1, 31):
+              d = f"2026-09-{dia:02d}"
+              off = 0
+              while True:
+                  r3 = requests.get("https://api.asaas.com/v3/financialTransactions",
+                                    headers=ha,
+                                    params={"startDate": d, "finishDate": d, "limit": 100, "offset": off},
+                                    timeout=30)
+                  batch = r3.json().get("data", [])
+                  all_sep.extend(batch)
+                  if not r3.json().get("hasMore") or not batch:
+                      break
+                  off += 100
+
+          debit_reversals = [t for t in all_sep if t.get("type") == "DEBIT_REVERSAL"]
+          print(f"Encontrados: {len(debit_reversals)} DEBIT_REVERSAL(s)")
+
+          if not debit_reversals:
+              print("Nenhum DEBIT_REVERSAL em setembro — nada a lançar.")
+          else:
+              # ── 5. Lançar cada um no Advbox (sem cliente, sem processo) ────
+              for t in debit_reversals:
+                  valor = float(t.get("value", 0))
+                  data  = str(t.get("date", ""))[:10]
+                  tid   = t.get("id", "")
+                  payload = {
+                      "users_id": 65747,
+                      "entry_type": "income",
+                      "debit_account": 193264,
+                      "categories_id": cat_id,
+                      "cost_centers_id": cc_id,
+                      "amount": f"{valor:.2f}".replace(".", ","),
+                      "date_due": data,
+                      "date_payment": data,
+                      "description": f"Desbloqueio de saldo ASAAS — cliente não identificado pelo ASAAS (id: {tid})",
+                  }
+                  r4 = requests.post(f"{base}/transactions",
+                                     headers=hb, json=payload, timeout=30)
+                  ok = r4.status_code in (200, 201)
+                  print(f"  {'✅' if ok else '❌'} Lançamento R$ {valor:.2f} | data {data} | id ASAAS: {tid}")
+                  if not ok:
+                      print(f"     Resposta: {r4.status_code} - {r4.text[:300]}")
+                  time.sleep(1)
+
+          print("\n✅ Concluído.")
+          PY
