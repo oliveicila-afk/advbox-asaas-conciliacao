@@ -39,9 +39,9 @@ jobs:
               exit(1)
           financial = r.json().get("financial", {})
           raw_cats = financial.get("categories", [])
-          if raw_cats:
-              print(f"DEBUG primeiro item de categorias: {json.dumps(raw_cats[0])}")
-          categorias = {c["category"]: c["id"] for c in raw_cats}
+          # Filtrar apenas categorias de receita (entry_type == "income")
+          income_raw = [c for c in raw_cats if c.get("entry_type") == "income"]
+          categorias = {c["category"]: c["id"] for c in income_raw}
           centros    = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
 
           # ── 2. Centro de custo: preferir o específico, fallback para OUTRAS RECEITAS-GERAL ──
@@ -65,14 +65,15 @@ jobs:
           # ── 3. Verificar categoria (fallback para categoria de receita existente) ─
           FALLBACK_CATS = [
               "HONORÁRIOS CONTRATUAIS",
+              "RECEITAS FINANCEIRAS-GERAL",
               "RECEITAS NÃO IDENTIFICADAS",
               "OUTRAS RECEITAS",
+              "HONORÁRIOS CONSULTORIAS",
           ]
 
-          print(f"\n=== Categorias de receita disponíveis ===")
-          income_cats = {n: i for n, i in categorias.items()}
-          for n in sorted(income_cats):
-              print(f"  {n} (id={income_cats[n]})")
+          print(f"\n=== Categorias de receita (income) disponíveis: {len(categorias)} ===")
+          for n in sorted(categorias):
+              print(f"  {n} (id={categorias[n]})")
 
           if NOME_CATEGORIA in categorias:
               cat_id = categorias[NOME_CATEGORIA]
