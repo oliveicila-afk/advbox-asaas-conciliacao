@@ -1,0 +1,47 @@
+name: Identificar transação R$ 228,97 no Advbox
+
+on:
+  workflow_dispatch:
+
+jobs:
+  find-transaction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Buscar transação de R$ 228,97 no Advbox (setembro 2026)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ADVBOX_ACCOUNT_ID: ${{ secrets.ADVBOX_ACCOUNT_ID }}
+        run: |
+          echo "=== Buscando transação de R$ 228,97 no Advbox (setembro 2026) ==="
+
+          # Buscar transações de setembro 2026
+          curl -s -X GET \
+            "https://api.advbox.com.br/api/v1/transactions?start_date=2026-09-01&end_date=2026-09-30" \
+            -H "Authorization: Bearer $ADVBOX_TOKEN" \
+            -H "Account-ID: $ADVBOX_ACCOUNT_ID" \
+            -H "Content-Type: application/json" > transactions.json
+
+          echo "=== Resposta da API ==="
+          cat transactions.json | jq '.'
+
+          echo ""
+          echo "=== Procurando transação com valor R$ 228,97 ==="
+
+          # Procurar a transação com valor 228.97
+          FOUND=$(cat transactions.json | jq '.[] | select(.value == 228.97 or .value == "228.97")')
+
+          if [ -z "$FOUND" ]; then
+            echo "⚠️ Nenhuma transação com exatamente R$ 228,97 encontrada"
+            echo ""
+            echo "=== Verificando valores próximos (228.00 a 229.00) ==="
+            cat transactions.json | jq '.[] | select(.value >= 228 and .value <= 229)'
+          else
+            echo "✅ Transação encontrada:"
+            echo "$FOUND" | jq '.'
+          fi
+
+          echo ""
+          echo "=== Todas as transações de setembro 2026 (resumo) ==="
+          cat transactions.json | jq '.[] | {id, date, value, description, type, category}'
