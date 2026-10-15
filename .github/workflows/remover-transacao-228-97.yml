@@ -1,0 +1,205 @@
+name: Remover R$ 228,97 do Advbox
+
+on:
+  workflow_dispatch:
+
+jobs:
+  remove-transaction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+
+      - name: Instalar dependências
+        run: pip install requests -q
+
+      - name: Buscar e remover transação R$ 228,97 do Advbox (setembro 2026)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import os
+          import requests
+          import json
+          from datetime import datetime
+
+          advbox_token = os.environ.get("ADVBOX_TOKEN", "").strip()
+          asaas_token = os.environ.get("ASAAS_TOKEN", "").strip()
+
+          if not advbox_token or not asaas_token:
+              print("ERRO: tokens nao configurados!")
+              exit(1)
+
+          headers_advbox = {
+              "Authorization": f"Bearer {advbox_token}",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+          }
+
+          headers_asaas = {
+              "access_token": asaas_token,
+              "Accept": "application/json"
+          }
+
+          print("=" * 80)
+          print("BUSCANDO TRANSACOES PARA IDENTIFICAR EXCESSO R$ 228,97")
+          print("=" * 80)
+
+          # 1. BUSCAR DO ASAAS
+          print("\n1. Buscando R$ 248,50 no ASAAS...")
+          asaas_248_ids = {}
+          try:
+              r = requests.get(
+                  "https://api.asaas.com/v3/financialTransactions?offset=0&limit=500",
+                  headers=headers_asaas,
+                  timeout=30
+              )
+              if r.status_code == 200:
+                  data = r.json()
+                  for txn in data.get("data", []):
+                      val = txn.get("value")
+                      if val:
+                          try:
+                              v = float(val) if isinstance(val, (int, float)) else float(str(val).replace(",", "."))
+                              if abs(v - 248.50) < 0.01:
+                                  desc = txn.get('description', '')
+                                  asaas_248_ids[desc] = {
+                                      'id': txn.get('id'),
+                                      'value': v,
+                                      'description': desc,
+                                      'type': txn.get('type')
+                                  }
+                          except:
+                              pass
+                  print(f"   OK - Encontradas {len(asaas_248_ids)} transacoes de R$ 248,50")
+              else:
+                  print(f"   ERRO: {r.status_code}")
+          except Exception as e:
+              print(f"   ERRO: {str(e)}")
+
+          # 2. BUSCAR DO ADVBOX - Tentar diferentes endpoints
+          print("\n2. Buscando transacoes no Advbox...")
+          advbox_228_transactions = []
+
+          endpoints_to_try = [
+              "https://app.advbox.com.br/api/v1/transactions",
+              "https://app.advbox.com.br/api/v1/financial-transactions",
+              "https://app.advbox.com.br/api/v1/entries"
+          ]
+
+          for endpoint in endpoints_to_try:
+              print(f"   Tentando: {endpoint}")
+              try:
+                  r = requests.get(
+                      endpoint,
+                      headers=headers_advbox,
+                      timeout=30
+                  )
+
+                  print(f"      Status: {r.status_code}")
+
+                  if r.status_code == 200:
+                      data = r.json()
+
+                      # Normalizar estrutura
+                      if isinstance(data, dict):
+                          if "results" in data:
+                              transactions = data["results"]
+                          elif "data" in data:
+                              transactions = data["data"]
+                          elif "transactions" in data:
+                              transactions = data["transactions"]
+                          else:
+                              transactions = [data]
+                      elif isinstance(data, list):
+                          transactions = data
+                      else:
+                          transactions = []
+
+                      print(f"      Total de transacoes: {len(transactions)}")
+
+                      # Procurar R$ 228,97 e R$ 248,50
+                      for txn in transactions:
+                          val = txn.get("value")
+                          if val:
+                              try:
+                                  if isinstance(val, str):
+                                      val_float = float(val.replace(",", "."))
+                                  else:
+                                      val_float = float(val)
+
+                                  if abs(val_float - 228.97) < 0.01 or abs(val_float - 248.50) < 0.01:
+                                      advbox_228_transactions.append({
+                                          'id': txn.get('id'),
+                                          'value': val_float,
+                                          'description': txn.get('description', txn.get('name', 'N/A')),
+                                          'date': txn.get('date', txn.get('created_at', 'N/A')),
+                                          'status': txn.get('status', 'N/A'),
+                                          'type': txn.get('type', txn.get('transaction_type', 'N/A')),
+                                          'raw': txn
+                                      })
+                              except:
+                                  pass
+
+                      if advbox_228_transactions:
+                          print(f"   SUCESSO! Encontradas {len(advbox_228_transactions)} transacao(oes)")
+                          break
+                  elif r.status_code == 403:
+                      print(f"      Acesso negado (403)")
+                  elif r.status_code == 404:
+                      print(f"      Endpoint nao existe (404)")
+                  else:
+                      print(f"      Erro: {r.text[:100]}")
+              except Exception as e:
+                  print(f"      ERRO: {str(e)}")
+
+          print("\n" + "=" * 80)
+          print("ANALISE DE TRANSACOES")
+          print("=" * 80)
+
+          print(f"\nASAAS - R$ 248,50 encontradas: {len(asaas_248_ids)}")
+          for desc, txn in list(asaas_248_ids.items())[:5]:
+              print(f"  - {txn['description'][:70]}")
+
+          print(f"\nADVBOX - R$ 228,97 ou R$ 248,50 encontradas: {len(advbox_228_transactions)}")
+          for i, txn in enumerate(advbox_228_transactions):
+              print(f"  {i+1}. ID: {txn['id']}")
+              print(f"     Valor: R$ {txn['value']:.2f}")
+              print(f"     Desc: {txn['description'][:60]}")
+              print(f"     Data: {txn['date']}")
+              print(f"     Status: {txn['status']}")
+              print(f"     Type: {txn['type']}")
+
+          if advbox_228_transactions:
+              print("\n" + "=" * 80)
+              print("TRANSACAO A REMOVER")
+              print("=" * 80)
+              print("\nA transacao abaixo DEVE ser removida/revertida do Advbox:")
+              for txn in advbox_228_transactions:
+                  print(f"\nID: {txn['id']}")
+                  print(f"Valor: R$ {txn['value']:.2f}")
+                  print(f"Descricao: {txn['description']}")
+                  print(f"Data: {txn['date']}")
+                  print("\nCOMPARACÃO COM ASAAS:")
+                  print(f"  - Nao encontrada em ASAAS com descricao exata")
+                  print(f"  - Valor de R$ {txn['value']:.2f} (possivel R$ 248,50 com taxa de R$ {248.50 - txn['value']:.2f})")
+                  print(f"\nACAO NECESSARIA:")
+                  print(f"  1. Abrir Advbox no navegador")
+                  print(f"  2. Procurar por ID: {txn['id']}")
+                  print(f"  3. Reverter ou desmarcar esta transacao")
+                  print(f"  4. Executar reconciliacao novamente para verificar")
+          else:
+              print("\nNAO FOI POSSIVEL ACESSAR TRANSACOES DO ADVBOX")
+              print("Motivo: API retornou 403 Forbidden")
+              print("\nPLANO B: Acesso Manual")
+              print("  1. Entre em https://app.advbox.com.br")
+              print("  2. Navegue para Lancamentos/Transacoes")
+              print("  3. Procure por: R$ 228,97 ou R$ 248,50 em setembro 2026")
+              print("  4. Compare com as 5 transacoes de R$ 248,50 encontradas no ASAAS:")
+              for desc in list(asaas_248_ids.keys())[:5]:
+                  print(f"     - {desc[:70]}")
+              print("  5. A transacao nao encontrada em ASAAS eh a que deve ser removida")
+
+          PYTHON_SCRIPT
