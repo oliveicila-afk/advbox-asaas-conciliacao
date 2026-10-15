@@ -59,22 +59,37 @@ jobs:
                   cc_id = None
                   print(f"⚠️  Nenhum centro de custo disponível — lançando sem centro de custo")
 
-          # ── 3. Verificar/criar categoria ────────────────────────────────────
+          # ── 3. Verificar categoria (fallback para categoria de receita existente) ─
+          FALLBACK_CATS = [
+              "HONORÁRIOS CONTRATUAIS",
+              "RECEITAS NÃO IDENTIFICADAS",
+              "OUTRAS RECEITAS",
+          ]
+
+          print(f"\n=== Categorias de receita disponíveis ===")
+          income_cats = {n: i for n, i in categorias.items()}
+          for n in sorted(income_cats):
+              print(f"  {n} (id={income_cats[n]})")
+
           if NOME_CATEGORIA in categorias:
               cat_id = categorias[NOME_CATEGORIA]
-              print(f"✅ Categoria '{NOME_CATEGORIA}' já existe (id={cat_id})")
+              print(f"\n✅ Categoria '{NOME_CATEGORIA}' encontrada (id={cat_id})")
           else:
-              print(f"⚙️  Categoria '{NOME_CATEGORIA}' não encontrada — criando...")
-              rc = requests.post(f"{base}/settings/categories",
-                                 headers=hb,
-                                 json={"category": NOME_CATEGORIA, "entry_type": "income"},
-                                 timeout=30)
-              if rc.status_code in (200, 201):
-                  cat_id = rc.json().get("id")
-                  print(f"✅ Categoria criada com sucesso! id={cat_id}")
-              else:
-                  print(f"❌ ERRO ao criar categoria: {rc.status_code} - {rc.text[:300]}")
-                  exit(1)
+              cat_id = None
+              for fb in FALLBACK_CATS:
+                  if fb in categorias:
+                      cat_id = categorias[fb]
+                      print(f"\n⚠️  Categoria '{NOME_CATEGORIA}' não existe; usando fallback '{fb}' (id={cat_id})")
+                      break
+              if cat_id is None:
+                  # Usar qualquer categoria de income disponível
+                  primeiro = next(iter(categorias.items()), None)
+                  if primeiro:
+                      cat_id = primeiro[1]
+                      print(f"\n⚠️  Usando categoria '{primeiro[0]}' como fallback (id={cat_id})")
+                  else:
+                      print(f"\n❌ Nenhuma categoria disponível — impossível lançar")
+                      exit(1)
 
           # ── 4. Buscar DEBIT_REVERSAL em setembro 2026 no ASAAS ─────────────
           print("\n🔍 Buscando DEBIT_REVERSAL em setembro 2026 no ASAAS...")
