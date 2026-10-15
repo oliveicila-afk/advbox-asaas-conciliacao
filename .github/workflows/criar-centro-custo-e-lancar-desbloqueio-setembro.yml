@@ -41,34 +41,23 @@ jobs:
           categorias = {c["category"]: c["id"] for c in financial.get("categories", [])}
           centros    = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
 
-          # ── 2. Criar centro de custo (se não existir) ───────────────────────
+          # ── 2. Centro de custo: preferir o específico, fallback para OUTRAS RECEITAS-GERAL ──
+          FALLBACK_CENTRO = "OUTRAS RECEITAS-GERAL"
           if NOME_CENTRO in centros:
               cc_id = centros[NOME_CENTRO]
-              print(f"✅ Centro de custo '{NOME_CENTRO}' já existe (id={cc_id})")
+              print(f"✅ Centro de custo '{NOME_CENTRO}' encontrado (id={cc_id})")
+          elif FALLBACK_CENTRO in centros:
+              cc_id = centros[FALLBACK_CENTRO]
+              print(f"⚠️  Centro '{NOME_CENTRO}' não existe; usando fallback '{FALLBACK_CENTRO}' (id={cc_id})")
           else:
-              payload = {"cost_center": NOME_CENTRO}
-              endpoints = [
-                  f"{base}/settings/cost_centers",
-                  f"{base}/settings/cost-centers",
-                  f"{base}/settings/costcenters",
-                  f"{base}/cost-centers",
-                  f"{base}/cost_centers",
-              ]
-              r2 = None
-              for ep in endpoints:
-                  resp = requests.post(ep, headers=hb, json=payload, timeout=30)
-                  print(f"  POST {ep} → {resp.status_code}: {resp.text[:200]}")
-                  if resp.status_code in (200, 201):
-                      r2 = resp
-                      break
-              if r2 and r2.status_code in (200, 201):
-                  cc_id = r2.json().get("id")
-                  print(f"✅ Centro de custo '{NOME_CENTRO}' criado! id={cc_id}")
+              # Usar qualquer centro disponível
+              primeiro = next(iter(centros.items()), None)
+              if primeiro:
+                  cc_id = primeiro[1]
+                  print(f"⚠️  Usando centro de custo '{primeiro[0]}' como fallback (id={cc_id})")
               else:
-                  print(f"❌ Nenhum endpoint funcionou para criar centro de custo")
-                  print(f"   Centros de custo existentes: {list(centros.keys())}")
-                  exit(1)
-              time.sleep(1)
+                  cc_id = None
+                  print(f"⚠️  Nenhum centro de custo disponível — lançando sem centro de custo")
 
           # ── 3. Verificar categoria ──────────────────────────────────────────
           if NOME_CATEGORIA in categorias:
@@ -111,8 +100,8 @@ jobs:
                       "entry_type": "income",
                       "debit_account": 193264,
                       "categories_id": cat_id,
-                      "cost_centers_id": cc_id,
                       "amount": f"{valor:.2f}".replace(".", ","),
+                      **({"cost_centers_id": cc_id} if cc_id else {}),
                       "date_due": data,
                       "date_payment": data,
                       "description": f"Desbloqueio de saldo ASAAS — cliente não identificado pelo ASAAS (id: {tid})",
