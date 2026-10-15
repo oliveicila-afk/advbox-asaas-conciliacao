@@ -59,13 +59,22 @@ jobs:
                   cc_id = None
                   print(f"⚠️  Nenhum centro de custo disponível — lançando sem centro de custo")
 
-          # ── 3. Verificar categoria ──────────────────────────────────────────
+          # ── 3. Verificar/criar categoria ────────────────────────────────────
           if NOME_CATEGORIA in categorias:
               cat_id = categorias[NOME_CATEGORIA]
               print(f"✅ Categoria '{NOME_CATEGORIA}' já existe (id={cat_id})")
           else:
-              print(f"❌ Categoria '{NOME_CATEGORIA}' NÃO encontrada — rode o workflow criar-categoria-desbloqueio primeiro")
-              exit(1)
+              print(f"⚙️  Categoria '{NOME_CATEGORIA}' não encontrada — criando...")
+              rc = requests.post(f"{base}/settings/categories",
+                                 headers=hb,
+                                 json={"category": NOME_CATEGORIA, "entry_type": "income"},
+                                 timeout=30)
+              if rc.status_code in (200, 201):
+                  cat_id = rc.json().get("id")
+                  print(f"✅ Categoria criada com sucesso! id={cat_id}")
+              else:
+                  print(f"❌ ERRO ao criar categoria: {rc.status_code} - {rc.text[:300]}")
+                  exit(1)
 
           # ── 4. Buscar DEBIT_REVERSAL em setembro 2026 no ASAAS ─────────────
           print("\n🔍 Buscando DEBIT_REVERSAL em setembro 2026 no ASAAS...")
