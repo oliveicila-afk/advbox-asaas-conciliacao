@@ -39,8 +39,17 @@ jobs:
               exit(1)
           financial = r.json().get("financial", {})
           raw_cats = financial.get("categories", [])
-          # Filtrar apenas categorias de receita (entry_type == "income")
-          income_raw = [c for c in raw_cats if c.get("entry_type") == "income"]
+          # Debug: mostrar estrutura de 3 primeiras categorias para entender entry_type
+          for i, c in enumerate(raw_cats[:3]):
+              print(f"DEBUG cat[{i}]: {json.dumps(c)}")
+          # Coletar todos os valores únicos de entry_type para diagnóstico
+          tipos = set(c.get("entry_type", "?") for c in raw_cats)
+          print(f"DEBUG entry_type valores: {tipos}")
+          # Filtrar apenas categorias de receita
+          income_raw = [c for c in raw_cats if str(c.get("entry_type", "")).lower() in ("income", "receita", "1", "r")]
+          if not income_raw:
+              income_raw = raw_cats  # fallback: usar todas se filtro não funcionar
+              print(f"DEBUG filtro income zerou — usando todas as {len(income_raw)} categorias")
           categorias = {c["category"]: c["id"] for c in income_raw}
           centros    = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
 
