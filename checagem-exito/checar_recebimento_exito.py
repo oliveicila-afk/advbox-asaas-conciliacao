@@ -7,7 +7,7 @@ Faz uma única coisa:
   1. Pega os recebimentos do dia na Asaas (TED/pagamento de tribunal, Caixa).
   2. Quando o externalReference traz o número do processo (CNJ), identifica o
      processo no Advbox e o cliente dele.
-  3. Procura na conta da contadoria (lançamentos de receita, banco ASAAS) o
+  3. Procura na conta da contadoria (lançamentos de receita, banco CONTADORIA) o
      lançamento desse processo/cliente, com o mesmo valor e SEM data de pagamento.
   4. Se achar exatamente 1, preenche a data de pagamento com o dia em que o valor entrou.
 
@@ -43,8 +43,8 @@ DRY_RUN = os.environ.get("DRY_RUN", "false").strip().lower() == "true"
 ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
 ASAAS_BASE = "https://api.asaas.com/v3"
 
-# Conta da contadoria no Advbox (mesmo valor usado pela conciliação)
-DEBIT_ACCOUNT_ASAAS = 193264
+# Conta da contadoria no Advbox (nome do banco, igual ao usado no painel da previsão)
+CONTA_CONTADORIA = "CONTADORIA"
 USERS_ID_PADRAO = 65747
 
 # Recebimentos que contam como receita
@@ -145,14 +145,14 @@ def _paginar(path: str, limite: int = 1000, limite_paginas: int = 50) -> list[di
 
 
 def advbox_lancamentos_conta_contadoria() -> list[dict]:
-    """Lançamentos do banco ASAAS (conta da contadoria). A listagem não filtra por
-    data, então paginamos tudo e filtramos aqui."""
+    """Lançamentos da conta CONTADORIA. A listagem não filtra por data nem por
+    conta, então paginamos tudo e filtramos aqui."""
     todos = _paginar("/transactions")
     do_banco = [
         i for i in todos
-        if (i.get("debit_bank") or i.get("bank") or "").upper() == "ASAAS"
+        if (i.get("debit_bank") or i.get("bank") or "").upper() == CONTA_CONTADORIA
     ]
-    log(f"Advbox: {len(todos)} lançamentos no total, {len(do_banco)} da conta ASAAS")
+    log(f"Advbox: {len(todos)} lançamentos no total, {len(do_banco)} da conta CONTADORIA")
     return do_banco
 
 
@@ -172,7 +172,7 @@ def advbox_salvar_data_pagamento(detalhe: dict, data_pagamento: str) -> bool:
     payload = {
         "entry_type": detalhe.get("entry_type") or "income",
         "users_id": detalhe.get("users_id") or USERS_ID_PADRAO,
-        "debit_account": DEBIT_ACCOUNT_ASAAS,
+        "debit_account": detalhe.get("debit_account"),  # mantém a conta que o lançamento já tem
         "categories_id": detalhe.get("categories_id"),
         "cost_centers_id": detalhe.get("cost_centers_id"),
         "customers_id": detalhe.get("customers_id"),
