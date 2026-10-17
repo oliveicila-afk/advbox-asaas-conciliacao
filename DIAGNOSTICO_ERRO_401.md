@@ -44,7 +44,7 @@ RuntimeError: Falha ao consultar Asaas /financialTransactions após 5 tentativas
 ### ⚠️ Credencial Exposta Encontrada
 
 **Arquivo:** `analise_completa.py` (linha 30)  
-**Token exposto:** `$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjNTA3MGI0LWU2NjAtNDYxZS04MTRiLTkwMDdhZWZkNWM4ODo6JGFhY2hfMTIyYzZhY2ItMmFhYi00M2ZiLTgwMmUtZWUyNmQ0MmE4YTg5`  
+**Token exposto:** `<TOKEN_REMOVIDO>`  
 **Status:** ✓ CORRIGIDO - Token removido e código atualizado para usar variáveis de ambiente
 
 **Ação tomada:**
@@ -135,8 +135,8 @@ Antes de considerar o problema resolvido:
 
 **Antes:**
 ```python
-ADVBOX_TOKEN = "FN01fkXyKtolS8GJMdtUiNQJfM6CWtRm7gxe2ZGacA6LGlsDOMMSvTmDo8Vn"
-ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjNTA3MGI0LWU2NjAtNDYxZS04MTRiLTkwMDdhZWZkNWM4ODo6JGFhY2hfMTIyYzZhY2ItMmFhYi00M2ZiLTgwMmUtZWUyNmQ0MmE4YTg5"
+ADVBOX_TOKEN = "<TOKEN_REMOVIDO>"
+ASAAS_TOKEN = "<TOKEN_REMOVIDO>"
 ```
 
 **Depois:**

@@ -19,8 +19,8 @@ O token de acesso da API Asaas armazenado no GitHub Secret `ASAAS_TOKEN` está *
 
 **Antes:** Token hardcoded exposto no repositório (risco de segurança)
 ```python
-ADVBOX_TOKEN = "FN01fkXyKtolS8GJMdtUiNQJfM6CWtRm7gxe2ZGacA6LGlsDOMMSvTmDo8Vn"
-ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjNTA3MGI0LWU2NjAtNDYxZS04MTRiLTkwMDdhZWZkNWM4ODo6JGFhY2hfMTIyYzZhY2ItMmFhYi00M2ZiLTgwMmUtZWUyNmQ0MmE4YTg5"
+ADVBOX_TOKEN = "<TOKEN_REMOVIDO>"
+ASAAS_TOKEN = "<TOKEN_REMOVIDO>"
 ```
 
 **Depois:** Agora usa variáveis de ambiente (seguro)

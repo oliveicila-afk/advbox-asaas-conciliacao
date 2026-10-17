@@ -101,8 +101,8 @@ Workflow FAILED
 
 ```python
 # EXPOSED - Hardcoded credentials in repository
-ADVBOX_TOKEN = "FN01fkXyKtolS8GJMdtUiNQJfM6CWtRm7gxe2ZGacA6LGlsDOMMSvTmDo8Vn"
-ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRjNTA3MGI0LWU2NjAtNDYxZS04MTRiLTkwMDdhZWZkNWM4ODo6JGFhY2hfMTIyYzZhY2ItMmFhYi00M2ZiLTgwMmUtZWUyNmQ0MmE4YTg5"
+ADVBOX_TOKEN = "<TOKEN_REMOVIDO>"
+ASAAS_TOKEN = "<TOKEN_REMOVIDO>"
 ```
 
 **Risk Assessment:**
@@ -127,8 +127,8 @@ ASAAS_TOKEN = os.environ.get("ASAAS_TOKEN", "")
 
 **Insecure Pattern (analise_completa.py - BEFORE):**
 ```python
-ADVBOX_TOKEN = "FN01fkXyKtolS8GJMdtUiNQJfM6CWtRm7gxe2ZGacA6LGlsDOMMSvTmDo8Vn"
-ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWY2OGM3MWRl..."
+ADVBOX_TOKEN = "<TOKEN_REMOVIDO>"
+ASAAS_TOKEN = "<TOKEN_REMOVIDO>..."
 ```
 
 ### 7. Retry Logic Analysis
