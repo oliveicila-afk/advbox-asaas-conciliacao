@@ -98,38 +98,6 @@ def recebimentos_asaas() -> list[dict]:
     return todos
 
 
-PALAVRAS_PAGAMENTO = re.compile(
-    r"ca[ií]u|pagament|pago|recebid|dep[oó]sit|transfer|\bTED\b|\bPIX\b|alvar|honor[aá]ri|[eê]xito|valor", re.IGNORECASE)
-
-
-def ler_tarefas(lawsuit_id) -> list[tuple[str, list[str]]]:
-    """Lê histórico e publicações do processo (somente GET). Devolve (data, palavras) só
-    dos registros com termo de pagamento. O texto das tarefas não é impresso."""
-    headers = {"Authorization": f"Bearer {ADVBOX_TOKEN}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
-    registros = []
-    for caminho, params in (
-        (f"/history/{lawsuit_id}", {"limit": 1000}),
-        ("/posts", {"lawsuits_id": lawsuit_id, "limit": 1000}),
-    ):
-        try:
-            r = requests.get(f"{ADVBOX_BASE}{caminho}", headers=headers, params=params, timeout=60)
-            time.sleep(2.2)
-            if r.status_code != 200:
-                continue
-            dados = r.json().get("data", []) if isinstance(r.json(), dict) else []
-        except (requests.RequestException, ValueError):
-            continue
-        for reg in dados:
-            if caminho.startswith("/posts") and str(reg.get("lawsuits_id")) != str(lawsuit_id):
-                continue
-            texto = f"{reg.get('task') or ''} {reg.get('comments') or ''} {reg.get('notes') or ''}"
-            achados = sorted({m.group(0).lower() for m in PALAVRAS_PAGAMENTO.finditer(texto)})
-            if achados:
-                data = str(reg.get("created_at") or reg.get("date") or "")[:10]
-                registros.append((data, achados))
-    return registros
-
-
 def main() -> int:
     if not c.ADVBOX_TOKEN or not c.ASAAS_TOKEN:
         print("ERRO: ADVBOX_TOKEN e/ou ASAAS_TOKEN não configurados.")
@@ -170,17 +138,6 @@ def main() -> int:
           f"sem recebimento no Asaas: {len(sem_receb)}")
     for linha in sem_receb[:60]:
         print("  SEM RECEBIMENTO", linha)
-
-    print("\nLEITURA DAS TAREFAS (palavras de pagamento, sem o texto):")
-    for l in vencidos:
-        if not l.get("lawsuit_id"):
-            continue
-        achados = ler_tarefas(l["lawsuit_id"])
-        if achados:
-            resumo = "; ".join(f"{d} {', '.join(w)}" for d, w in achados[:6])
-            print(f"  TAREFA {mascarar(l.get('process_number') or '')} venc {(l.get('date_due') or '')[:10]}: {len(achados)} registro(s) -> {resumo}")
-        else:
-            print(f"  TAREFA {mascarar(l.get('process_number') or '')} venc {(l.get('date_due') or '')[:10]}: nenhum registro com termo de pagamento")
     return 0
 
 
