@@ -39,7 +39,7 @@ jobs:
       - name: Checar recebimentos de êxito
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
-          ASAAS_TOKEN: ${{ secrets.ASAAS_API_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
           TIMEZONE: "America/Cuiaba"
           TARGET_DATE: ${{ github.event.inputs.target_date }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
