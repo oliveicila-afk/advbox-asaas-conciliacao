@@ -38,13 +38,25 @@ def ler_todos():
     return todos
 
 
+def nome(obj):
+    if isinstance(obj, str) and obj.strip():
+        return obj.strip()
+    if isinstance(obj, dict):
+        for k in ("name", "title", "description"):
+            if obj.get(k):
+                return str(obj[k]).strip()
+    return None
+
+
 def mapear(todos):
     cats, ccs = {}, {}
     for t in todos:
-        if t.get("categories_id") and isinstance(t.get("category"), str):
-            cats.setdefault(t["category"].strip(), t["categories_id"])
-        if t.get("cost_centers_id") and isinstance(t.get("cost_center"), str):
-            ccs.setdefault(t["cost_center"].strip(), t["cost_centers_id"])
+        n = nome(t.get("category"))
+        if n and t.get("categories_id"):
+            cats.setdefault(n, t["categories_id"])
+        n = nome(t.get("cost_center"))
+        if n and t.get("cost_centers_id"):
+            ccs.setdefault(n, t["cost_centers_id"])
     return cats, ccs
 
 
@@ -99,7 +111,8 @@ def main() -> int:
     todos = ler_todos()
     cats, ccs = mapear(todos)
     print(f"Nomes lidos: {len(cats)} categorias, {len(ccs)} centros")
-    id_pm = achar(ccs, [norm(CENTRO_PM_AM_TRAFEGO)], "centro PM/AM-TRÁFEGO PAGO") if norm(CENTRO_PM_AM_TRAFEGO) in map(norm, ccs) else None
+    id_pm = next((i for n, i in ccs.items() if norm(n) == norm(CENTRO_PM_AM_TRAFEGO)), None)
+    print(f"centro PM/AM-TRÁFEGO PAGO: id {id_pm}")
     if not id_pm:
         print("ERRO: centro PM/AM-TRÁFEGO PAGO não encontrado; nada foi gravado.")
         return 1
