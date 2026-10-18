@@ -1,30 +1,26 @@
-"""Somente leitura: lista os responsáveis das tarefas (nomes de equipe, sem clientes) e seus ids."""
-from collections import Counter
+"""Somente leitura: procura o id da Gabi em caminhos de usuários/equipe. Imprime status e ids, não dados."""
 import conferir_pendentes as cp
+
+CAMINHOS = ["/users", "/users/", "/settings/users", "/settings/team", "/team", "/employees", "/settings/employees", "/collaborators"]
 
 
 def main():
-    todos, offset = [], 0
-    while offset < 1000:
-        r = cp._get(f"{cp.ADVBOX_BASE}/posts", cp._advbox_headers(), {"limit": 100, "offset": offset})
+    for c in CAMINHOS:
+        r = cp._get(f"{cp.ADVBOX_BASE}{c}", cp._advbox_headers(), {"limit": 200})
+        print(f"CAMINHO {c} -> {r.status_code}")
         if r.status_code != 200:
-            print("posts ->", r.status_code)
-            break
-        pag = r.json()
-        dados = pag.get("data", pag) if isinstance(pag, dict) else pag
-        if not dados:
-            break
-        todos += dados
-        offset += len(dados)
-    cont, ids = Counter(), {}
-    for p in todos:
-        for u in p.get("users") or []:
-            nome = str(u.get("name") or "").strip()
-            ids[nome] = u.get("user_id")
-            cont[nome] += 1
-    print("Responsáveis distintos:", len(cont))
-    for nome, n in cont.most_common(30):
-        print(f"RESPONSAVEL {nome.split(' ')[0] if nome else '(vazio)'} user_id={ids.get(nome)} tarefas={n}")
+            continue
+        corpo = r.json()
+        lista = corpo.get("data", corpo) if isinstance(corpo, dict) else corpo
+        if not isinstance(lista, list):
+            print("  formato não é lista")
+            continue
+        print(f"  itens: {len(lista)} | chaves: {sorted(lista[0].keys()) if lista and isinstance(lista[0], dict) else '-'}")
+        for u in lista:
+            if isinstance(u, dict):
+                nome = str(u.get("name") or u.get("nome") or "").lower()
+                if nome.startswith(("gabi", "gabr")):
+                    print(f"  ID ENCONTRADO: {u.get('id')}")
     return 0
 
 
