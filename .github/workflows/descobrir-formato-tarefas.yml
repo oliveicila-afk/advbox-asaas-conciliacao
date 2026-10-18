@@ -17,4 +17,4 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
         working-directory: checagem-exito
-        run: python verificar_caso_pendente.py
+        run: python auditar_gravados.py
