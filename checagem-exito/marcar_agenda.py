@@ -1,16 +1,12 @@
-"""Recria a tarefa de cobrança do caso pendente com 'mostrar na agenda'. Cria a nova antes de apagar a antiga."""
+"""Cria a tarefa de cobrança do caso pendente com 'mostrar na agenda' (a antiga já foi apagada manualmente)."""
 import time
 import requests
 import aplicar_regra_liquido as a
 import conferir_pendentes as cp
 
 TX = "16912661"
-POST_ANTIGO = 288487801
-
 det = a.detalhe(TX)
 lid = cp.id_processo(det)
-bruto = float(det.get("amount") or 0)
-print(f"lancamento valor_atual={det.get('amount')} data={str(det.get('date_payment'))[:10]}")
 comentario = (
     "Pagamento recebido em 17/09/2026 com valor a menor. "
     "Valor bruto no Advbox: R$ 2640,05. "
@@ -29,15 +25,6 @@ payload = {
     "urgent": False,
     "display_schedule": True,
 }
-d = requests.delete(f"{cp.ADVBOX_BASE}/posts/{POST_ANTIGO}", headers=a.headers(), timeout=30)
-print(f"ANTIGA apagada: status {d.status_code} | {d.text[:150]}")
-time.sleep(2.2)
-if d.status_code not in (200, 204):
-    raise SystemExit("não consegui apagar a tarefa antiga; nada foi criado")
 r = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=payload, timeout=30)
-print(f"NOVA tarefa criada: status {r.status_code} | {r.text[:200]}")
+print(f"NOVA tarefa com agenda: status {r.status_code} | {r.text[:200]}")
 time.sleep(2.2)
-if r.status_code not in (200, 201):
-    fallback = {k: v for k, v in payload.items() if k != "display_schedule"}
-    r2 = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=fallback, timeout=30)
-    print(f"FALLBACK sem agenda: status {r2.status_code}")
