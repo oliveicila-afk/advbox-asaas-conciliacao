@@ -1,4 +1,5 @@
-"""Somente leitura: como as tarefas guardam responsável e prazo. Não imprime textos nem nomes de clientes."""
+"""Somente leitura: lista os responsáveis das tarefas (nomes de equipe, sem clientes) e seus ids."""
+from collections import Counter
 import conferir_pendentes as cp
 
 
@@ -15,26 +16,15 @@ def main():
             break
         todos += dados
         offset += len(dados)
-    print("Tarefas lidas:", len(todos))
-    com_prazo = [p for p in todos if p.get("date_deadline")]
-    print("Com prazo (date_deadline):", len(com_prazo))
-    if com_prazo:
-        print("Formato do prazo (exemplo, só o tipo):", str(com_prazo[0]["date_deadline"])[:4] + "-xx-xx" if str(com_prazo[0]["date_deadline"])[:4].isdigit() else "outro")
-    exemplo = next((p for p in todos if p.get("users")), None)
-    if exemplo:
-        print("Tipo de 'users':", type(exemplo["users"]).__name__, "| primeiro item:", type(exemplo["users"][0]).__name__)
-        if isinstance(exemplo["users"][0], dict):
-            print("Chaves do usuário na tarefa:", sorted(exemplo["users"][0].keys()))
-    ids = {}
+    cont, ids = Counter(), {}
     for p in todos:
         for u in p.get("users") or []:
-            if isinstance(u, dict):
-                nome = str(u.get("name") or "")
-                if nome.lower().startswith(("gabi", "gabr")):
-                    pass
-                if nome.lower().startswith(("gabi", "gabr")):
-                    ids[u.get("id")] = True
-    print("IDs de usuário com nome Gabi/Gabriele:", list(ids.keys()))
+            nome = str(u.get("name") or "").strip()
+            ids[nome] = u.get("user_id")
+            cont[nome] += 1
+    print("Responsáveis distintos:", len(cont))
+    for nome, n in cont.most_common(30):
+        print(f"RESPONSAVEL {nome.split(' ')[0] if nome else '(vazio)'} user_id={ids.get(nome)} tarefas={n}")
     return 0
 
 
