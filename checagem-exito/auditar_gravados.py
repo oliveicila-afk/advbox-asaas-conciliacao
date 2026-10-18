@@ -1,6 +1,7 @@
 """Somente leitura (diagnóstico): compara a categoria e o centro de custo dos lançamentos gravados
 pela automação com os recebimentos de êxito da CONTADORIA já baixados.
 Imprime nomes de categoria e centro (cadastro do escritório), nunca nome de cliente, descrição ou processo."""
+import time
 import unicodedata
 from collections import Counter, defaultdict
 
@@ -16,6 +17,8 @@ def norm(s) -> str:
 
 
 def nome(obj):
+    if isinstance(obj, str) and obj.strip():
+        return obj.strip()
     if isinstance(obj, dict):
         for k in ("name", "title", "description"):
             if obj.get(k):
@@ -50,8 +53,7 @@ def main():
         off += len(lote)
         if not lote or off >= int(pag.get("totalCount", off)) or off > 20000:
             break
-        time_sleep = __import__("time").sleep
-        time_sleep(2.2)
+        time.sleep(2.2)
     print(f"Receitas lidas: {len(todos)} de {pag.get('totalCount')}")
     if todos:
         print("Campos de uma receita (só nomes):", sorted(todos[0].keys()))
