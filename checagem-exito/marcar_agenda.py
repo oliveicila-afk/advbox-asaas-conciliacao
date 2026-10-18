@@ -29,10 +29,15 @@ payload = {
     "urgent": False,
     "display_schedule": True,
 }
-r = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=payload, timeout=30)
-print(f"NOVA tarefa criada: status {r.status_code} | erro: {r.text[:300]}")
+d = requests.delete(f"{cp.ADVBOX_BASE}/posts/{POST_ANTIGO}", headers=a.headers(), timeout=30)
+print(f"ANTIGA apagada: status {d.status_code} | {d.text[:150]}")
 time.sleep(2.2)
-if r.status_code in (200, 201):
-    d = requests.delete(f"{cp.ADVBOX_BASE}/posts/{POST_ANTIGO}", headers=a.headers(), timeout=30)
-    print(f"ANTIGA apagada: status {d.status_code}")
-    time.sleep(2.2)
+if d.status_code not in (200, 204):
+    raise SystemExit("não consegui apagar a tarefa antiga; nada foi criado")
+r = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=payload, timeout=30)
+print(f"NOVA tarefa criada: status {r.status_code} | {r.text[:200]}")
+time.sleep(2.2)
+if r.status_code not in (200, 201):
+    fallback = {k: v for k, v in payload.items() if k != "display_schedule"}
+    r2 = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=fallback, timeout=30)
+    print(f"FALLBACK sem agenda: status {r2.status_code}")
