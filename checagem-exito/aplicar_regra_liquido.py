@@ -20,7 +20,7 @@ import conferir_pendentes as cp
 
 APLICAR = os.environ.get("APLICAR", "false").strip().lower() == "true"
 IDS = {i.strip() for i in os.environ.get("IDS", "").split(",") if i.strip()}
-TOLERANCIA = 100.0
+TOLERANCIA = 110.0  # margem combinada: R$ 110
 USERS_ID_PADRAO = 65747  # mesmo padrão do conciliador existente
 
 SEGMENTO_LIQUIDO = re.compile(r"l[ií]quid|alvar[áa]", re.IGNORECASE)
