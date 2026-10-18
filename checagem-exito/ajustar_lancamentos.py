@@ -14,9 +14,8 @@ import aplicar_regra_liquido as a
 
 APLICAR = os.environ.get("APLICAR", "false").strip().lower() == "true"
 CENTRO_PM_AM_TRAFEGO = "PM/AM-TRÁFEGO PAGO"
-SUCUMBENCIAL_ITEM_B = ["sucumbenc", "item b"]
 GRATIFICACAO = ["15071196", "15193032", "15399873"]  # centro -> PM/AM-TRÁFEGO PAGO
-SOMENTE_CATEGORIA = ["16912661"]  # sucumbencial item B, se a descrição for 100%
+SOMENTE_CATEGORIA = ["16912661"]  # categoria -> sucumbencial item B, se a descrição for 100%
 PERCENTUAL = re.compile(r"(\d{1,3}(?:[.,]\d+)?)\s?%")
 
 
@@ -24,56 +23,22 @@ def norm(s) -> str:
     return unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode().lower().strip()
 
 
-def ler_todos():
-    todos, off = [], 0
-    while True:
-        rr = cp._get(f"{cp.ADVBOX_BASE}/transactions", a.headers(), {"entry_type": "income", "limit": 500, "offset": off})
-        pag = rr.json()
-        lote = pag.get("data") or []
-        todos += lote
-        off += len(lote)
-        if not lote or off >= int(pag.get("totalCount", off)) or off > 20000:
-            break
-        time.sleep(2.2)
-    return todos
+def achar_no_cadastro(itens, criterio, rotulo):
+    achados = []
+    for c in itens or []:
+        textos = [v for v in c.values() if isinstance(v, str)]
+        if any(criterio(norm(t)) for t in textos):
+            achados.append((c.get("id"), next(t for t in textos if criterio(norm(t)))))
+    print(f"{rotulo}: {len(achados)} encontrado(s)")
+    return achados
 
 
-def nome(obj):
-    if isinstance(obj, str) and obj.strip():
-        return obj.strip()
-    if isinstance(obj, dict):
-        for k in ("name", "title", "description"):
-            if obj.get(k):
-                return str(obj[k]).strip()
-    return None
-
-
-def mapear(todos):
-    cats, ccs = {}, {}
-    for t in todos:
-        n = nome(t.get("category"))
-        if n and t.get("categories_id"):
-            cats.setdefault(n, t["categories_id"])
-        n = nome(t.get("cost_center"))
-        if n and t.get("cost_centers_id"):
-            ccs.setdefault(n, t["cost_centers_id"])
-    return cats, ccs
-
-
-def achar(mapa, termos, rotulo):
-    cand = [n for n in mapa if all(t in norm(n) for t in termos)]
-    if len(cand) != 1:
-        print(f"{rotulo}: {len(cand)} candidatos {cand[:6]} -> abortado")
-        return None
-    print(f"{rotulo}: '{cand[0]}' (id {mapa[cand[0]]})")
-    return mapa[cand[0]]
-
-
-def gravar(tx, nome_cat, id_cat, nome_cc, id_cc, bruto_esperado=None):
+def gravar(tx, nome_cat, id_cat, nome_cc, id_cc):
     antes = a.detalhe(tx)
     bruto = float(antes.get("amount") or 0)
     if not APLICAR:
-        print(f"SIMULAÇÃO {tx}: categoria -> {nome_cat} | centro -> {nome_cc} | valor {bruto:.2f} mantido")
+        print(f"SIMULAÇÃO {tx}: categoria -> {nome_cat or 'sem mudança'} | "
+              f"centro -> {nome_cc or 'sem mudança'} | valor {bruto:.2f} mantido")
         return
     payload = {
         "entry_type": antes.get("entry_type") or "income",
@@ -100,7 +65,8 @@ def gravar(tx, nome_cat, id_cat, nome_cc, id_cc, bruto_esperado=None):
         and str(depois.get("date_payment"))[:10] == str(antes.get("date_payment"))[:10]
     )
     print(f"GRAVADO {tx}: {'CONFERIDO' if ok else 'NÃO CONFERIU (HTTP ' + str(resp.status_code) + ')'} | "
-          f"categoria -> {nome_cat} | centro -> {nome_cc} | valor {bruto:.2f} | data pagamento preservada")
+          f"categoria -> {nome_cat or 'sem mudança'} | centro -> {nome_cc or 'sem mudança'} | "
+          f"valor {bruto:.2f} e data de pagamento preservados")
 
 
 def main() -> int:
@@ -108,22 +74,23 @@ def main() -> int:
         print("ERRO: ADVBOX_TOKEN não configurado.")
         return 1
     print("Modo:", "GRAVAÇÃO" if APLICAR else "SIMULAÇÃO")
-    todos = ler_todos()
-    cats, ccs = mapear(todos)
-    print(f"Nomes lidos: {len(cats)} categorias, {len(ccs)} centros")
-    id_pm = next((i for n, i in ccs.items() if norm(n) == norm(CENTRO_PM_AM_TRAFEGO)), None)
-    print(f"centro PM/AM-TRÁFEGO PAGO: id {id_pm}")
-    if not id_pm:
-        print("ERRO: centro PM/AM-TRÁFEGO PAGO não encontrado; nada foi gravado.")
+    r = cp._get(f"{cp.ADVBOX_BASE}/settings", a.headers())
+    dados = r.json().get("data", r.json())
+    fin = dados.get("financial") or {}
+    print("Chaves de uma categoria do cadastro:", sorted(fin["categories"][0].keys()) if fin.get("categories") else "-")
+
+    ccs = achar_no_cadastro(fin.get("cost_centers"), lambda t: t == norm(CENTRO_PM_AM_TRAFEGO), "centro PM/AM-TRÁFEGO PAGO")
+    cats = achar_no_cadastro(fin.get("categories"), lambda t: "sucumbenc" in t and "item b" in t,
+                             "categoria sucumbencial item B")
+    if len(ccs) != 1 or len(cats) != 1:
+        print("ERRO: cadastro ambíguo ou não encontrado; nada foi gravado.")
         return 1
-    id_suc = achar(cats, SUCUMBENCIAL_ITEM_B, "categoria sucumbencial item B")
-    if not id_suc:
-        print("ERRO: categoria sucumbencial item B não encontrada de forma única; nada foi gravado.")
-        return 1
-    nome_suc = next(n for n, i in cats.items() if i == id_suc)
+    id_pm, nome_pm = ccs[0]
+    id_suc, nome_suc = cats[0]
+    print(f"Usando: centro id {id_pm} | categoria id {id_suc}")
 
     for tx in GRATIFICACAO:
-        gravar(tx, None, None, CENTRO_PM_AM_TRAFEGO, id_pm)
+        gravar(tx, None, None, nome_pm, id_pm)
 
     for tx in SOMENTE_CATEGORIA:
         det = a.detalhe(tx)
