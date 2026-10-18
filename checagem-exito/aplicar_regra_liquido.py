@@ -145,6 +145,7 @@ def criar_tarefa(lawsuit_id, comentario: str, inicio: str) -> bool:
         "comments": comentario,
         "important": True,
         "urgent": False,
+        "display_schedule": True,  # mostrar na agenda
     }
     resp = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=headers(), json=payload, timeout=30)
     time.sleep(2.2)
@@ -243,3 +244,11 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def marcar_agenda_tarefa_existente(post_id: int) -> None:
+    """Marca 'mostrar na agenda' numa tarefa já criada (somente a flag)."""
+    resp = requests.put(f"{cp.ADVBOX_BASE}/posts/{post_id}", headers=headers(),
+                        json={"display_schedule": True}, timeout=30)
+    time.sleep(2.2)
+    print(f"AGENDA tarefa {post_id}: status {resp.status_code}")
