@@ -129,7 +129,7 @@ def verificar_tarefa(lawsuit_id) -> bool:
     lista = corpo.get("data", corpo) if isinstance(corpo, dict) else corpo
     hoje = date.today().isoformat()
     for p in lista or []:
-        if str(p.get("created_at") or "")[:10] == hoje and any(
+        if str(p.get("lawsuits_id") or "") == str(lawsuit_id) and str(p.get("created_at") or "")[:10] == hoje and any(
                 (u or {}).get("user_id") == GABI_ID for u in (p.get("users") or [])):
             return True
     return False
