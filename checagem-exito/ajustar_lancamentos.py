@@ -15,6 +15,7 @@ import aplicar_regra_liquido as a
 APLICAR = os.environ.get("APLICAR", "false").strip().lower() == "true"
 CENTRO_PM_AM_TRAFEGO = "PM/AM-TRÁFEGO PAGO"
 GRATIFICACAO = ["15071196", "15193032", "15399873"]  # centro -> PM/AM-TRÁFEGO PAGO
+ESCALONAMENTO = ["15116112"]  # centro -> ESCALONAMENTO PC/AM-TRÁFEGO PAGO
 SOMENTE_CATEGORIA = ["16912661"]  # categoria -> sucumbencial item B, se a descrição for 100%
 PERCENTUAL = re.compile(r"(\d{1,3}(?:[.,]\d+)?)\s?%")
 
@@ -88,9 +89,18 @@ def main() -> int:
     id_pm, nome_pm = ccs[0]
     id_suc, nome_suc = cats[0]
     print(f"Usando: centro id {id_pm} | categoria id {id_suc}")
+    esc = achar_no_cadastro(fin.get("cost_centers"), lambda t: t == norm("ESCALONAMENTO PC/AM-TRÁFEGO PAGO"),
+                            "centro ESCALONAMENTO PC/AM-TRÁFEGO PAGO")
+    if len(esc) != 1:
+        print("ERRO: centro de escalonamento ambíguo ou não encontrado; nada foi gravado.")
+        return 1
+    id_esc, nome_esc = esc[0]
 
     for tx in GRATIFICACAO:
         gravar(tx, None, None, nome_pm, id_pm)
+
+    for tx in ESCALONAMENTO:
+        gravar(tx, None, None, nome_esc, id_esc)
 
     for tx in SOMENTE_CATEGORIA:
         det = a.detalhe(tx)
