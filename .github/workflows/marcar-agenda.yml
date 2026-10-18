@@ -1,0 +1,20 @@
+name: Marcar tarefa na agenda (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  marcar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Marcar na agenda
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        working-directory: checagem-exito
+        run: python marcar_agenda.py
