@@ -17,4 +17,4 @@ jobs:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
         working-directory: checagem-exito
-        run: python descobrir_formato_tarefas.py
+        run: python descobrir_responsaveis.py
