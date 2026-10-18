@@ -30,9 +30,11 @@ def main():
         for u in p.get("users") or []:
             if isinstance(u, dict):
                 nome = str(u.get("name") or "")
-                if nome.lower().startswith("gabi"):
+                if nome.lower().startswith(("gabi", "gabr")):
+                    pass
+                if nome.lower().startswith(("gabi", "gabr")):
                     ids[u.get("id")] = True
-    print("IDs de usuário com nome começando por 'Gabi':", list(ids.keys()))
+    print("IDs de usuário com nome Gabi/Gabriele:", list(ids.keys()))
     return 0
 
 
