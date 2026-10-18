@@ -25,6 +25,8 @@ import conferir_pendentes as cp
 
 APLICAR = os.environ.get("APLICAR", "false").strip().lower() == "true"
 IDS = {i.strip() for i in os.environ.get("IDS", "").split(",") if i.strip()}
+TODOS = "*" in IDS  # modo automático: qualquer caso que se enquadre
+MAX_GRAVACOES = int(os.environ.get("MAX_GRAVACOES", "25"))  # trava de segurança por execução
 TOLERANCIA = 110.0
 PRISCILA_ID = 65747
 GABI_ID = 178866
@@ -118,6 +120,21 @@ def salvar(det: dict, data_pagamento: str, novo_valor: float | None = None) -> b
     return resp.status_code in (200, 204)
 
 
+def verificar_tarefa(lawsuit_id) -> bool:
+    """Confere se existe uma tarefa criada hoje para o processo, atribuída à Gabi (sem ler o texto)."""
+    resp = cp._get(f"{cp.ADVBOX_BASE}/posts", headers(), {"lawsuits_id": lawsuit_id, "limit": 100})
+    if resp.status_code != 200:
+        return False
+    corpo = resp.json()
+    lista = corpo.get("data", corpo) if isinstance(corpo, dict) else corpo
+    hoje = date.today().isoformat()
+    for p in lista or []:
+        if str(p.get("created_at") or "")[:10] == hoje and any(
+                (u or {}).get("user_id") == GABI_ID for u in (p.get("users") or [])):
+            return True
+    return False
+
+
 def criar_tarefa(lawsuit_id, comentario: str, inicio: str) -> bool:
     payload = {
         "from": PRISCILA_ID,
@@ -131,8 +148,11 @@ def criar_tarefa(lawsuit_id, comentario: str, inicio: str) -> bool:
     }
     resp = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=headers(), json=payload, timeout=30)
     time.sleep(2.2)
-    print(f"  tarefa criada: {'OK' if resp.status_code in (200, 201) else 'FALHOU ' + str(resp.status_code)}")
-    return resp.status_code in (200, 201)
+    ok = resp.status_code in (200, 201)
+    print(f"  tarefa criada: {'OK' if ok else 'FALHOU ' + str(resp.status_code)}")
+    if ok:
+        print(f"  tarefa verificada no Advbox: {'SIM' if verificar_tarefa(lawsuit_id) else 'NÃO ENCONTRADA'}")
+    return ok
 
 
 def prazo_30_dias(data_recebimento: str) -> str:
@@ -167,6 +187,7 @@ def main() -> int:
             casos.append((l, proc, casados))
     print(f"Casos com recebimento no Asaas: {len(casos)}")
 
+    gravacoes = 0
     for l, proc, casados in casos:
         tx_id = str(l.get("id"))
         r = casados[0]
@@ -183,7 +204,10 @@ def main() -> int:
             print(f"  movimentações pendentes: {len(pend)} | palavras: {sorted({k for _, s in pend for k in s})}")
         print(f"  decisão: {decisao}")
 
-        if not (APLICAR and tx_id in IDS):
+        if not (APLICAR and (TODOS or tx_id in IDS)):
+            continue
+        if gravacoes >= MAX_GRAVACOES:
+            print(f"  limite de {MAX_GRAVACOES} gravações nesta execução atingido; caso fica para a próxima")
             continue
         det = detalhe(tx_id)
         if float(det.get("amount") or 0) != bruto:
@@ -193,11 +217,13 @@ def main() -> int:
         if decisao == "ENQUADRA":
             ok = salvar(det, data_asaas)
             depois = detalhe(tx_id)
+            gravacoes += 1
             print(f"  GRAVAÇÃO data: {'OK' if ok else 'FALHOU'} | data={str(depois.get('date_payment'))[:10]} "
                   f"| bruto mantido={float(depois.get('amount') or 0) == bruto}")
         elif decisao == "PENDENTE":
             ok = salvar(det, data_asaas, novo_valor=valor_asaas)
             depois = detalhe(tx_id)
+            gravacoes += 1
             print(f"  GRAVAÇÃO pendente: {'OK' if ok else 'FALHOU'} | data={str(depois.get('date_payment'))[:10]} "
                   f"| valor agora={float(depois.get('amount') or 0):.2f}")
             if ok and lid:
@@ -211,6 +237,7 @@ def main() -> int:
                 criar_tarefa(lid, comentario, prazo_30_dias(data_asaas))
         else:
             print("  não gravado: não enquadra")
+    print(f"\nResumo: gravações nesta execução = {gravacoes}")
     return 0
 
 

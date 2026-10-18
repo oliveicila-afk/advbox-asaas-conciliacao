@@ -1,21 +1,17 @@
-name: Checagem de recebimento de êxito (Asaas -> Advbox)
+name: Checagem de recebimento de êxito (regra do líquido, tolerância R$110)
 
 on:
-  schedule:
-    # A cada 30 min entre 8h e 19h30 de Cuiabá (UTC-4) = 12h às 23h30 UTC
-    - cron: '*/30 12-23 * * *'
   workflow_dispatch:
     inputs:
-      target_date:
-        description: "Dia a checar (AAAA-MM-DD). Em branco = hoje."
+      aplicar:
+        description: "false = só simula; true = grava (data e, no caso pendente, valor e tarefa)"
+        required: true
+        default: "false"
+      ids:
+        description: "ids específicos ou * para todos os que se enquadram"
         required: false
-        default: ""
-      dry_run:
-        description: "true = só simula, não grava no Advbox"
-        required: false
-        default: "true"
+        default: "*"
 
-# Nunca duas checagens ao mesmo tempo sobre os mesmos lançamentos
 concurrency:
   group: checagem-exito
   cancel-in-progress: false
@@ -23,24 +19,18 @@ concurrency:
 jobs:
   checar:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - name: Baixar o código do repositório
-        uses: actions/checkout@v4
-
-      - name: Preparar Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-
-      - name: Instalar dependências
-        run: pip install requests
-
-      - name: Checar recebimentos de êxito
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Aplicar regra do líquido
         env:
           ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
           ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
-          TIMEZONE: "America/Cuiaba"
-          TARGET_DATE: ${{ github.event.inputs.target_date }}
-          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-        run: python checagem-exito/checar_recebimento_exito.py
+          APLICAR: ${{ github.event.inputs.aplicar || 'false' }}
+          IDS: ${{ github.event.inputs.ids || '*' }}
+        working-directory: checagem-exito
+        run: python aplicar_regra_liquido.py
