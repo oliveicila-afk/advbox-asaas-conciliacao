@@ -1,0 +1,47 @@
+name: Corrigir data de baixa em lote (id:data)
+on:
+  workflow_dispatch:
+    inputs:
+      pares: {description: "id:YYYY-MM-DD separados por vírgula", required: true}
+permissions:
+  contents: write
+jobs:
+  b:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          PARES: ${{ github.event.inputs.pares }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json","Content-Type":"application/json"}
+          res=[]
+          for par in os.environ["PARES"].split(","):
+              partes=par.strip().split(":"); tid,data=partes[0],partes[1]; modelo=partes[2] if len(partes)>2 else None
+              u=f"https://app.advbox.com.br/api/v1/transactions/{tid}"
+              d=requests.get(u,headers=hb,timeout=30).json()
+              if d.get("entry_type")!="income" or str(d.get("date_payment") or "")[:10] not in ("2026-10-13",data):
+                  res.append({"id":tid,"acao":"pulado","tipo":d.get("entry_type"),"due":str(d.get("date_due")),"pago":str(d.get("date_payment"))}); continue
+              p={"entry_type":"income","users_id":d.get("users_id") or 65747,"debit_account":193264,"categories_id":d.get("categories_id"),
+                 "cost_centers_id":d.get("cost_centers_id"),"customers_id":d.get("customers_id"),"lawsuits_id":d.get("lawsuits_id"),
+                 "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],"date_payment":data,"description":d.get("description") or ""}
+              if modelo:
+                  m=requests.get(f"https://app.advbox.com.br/api/v1/transactions/{modelo}",headers=hb,timeout=30).json()
+                  p["categories_id"]=m.get("categories_id"); res.append({"modelo_categoria":m.get("category")})
+              p={k:v for k,v in p.items() if v is not None}
+              r=requests.put(u,headers=hb,json=p,timeout=30)
+              n=requests.get(u,headers=hb,timeout=30).json()
+              res.append({"id":tid,"antes":str(d.get("date_payment"))[:10],"http":r.status_code,"resp":r.text[:300],"enviado":{k:p[k] for k in p if k!="description"},"depois":str(n.get("date_payment"))[:10],"banco":n.get("bank")})
+              time.sleep(2.2)
+          json.dump(res,open("baixa_lote.json","w"),indent=1,default=str); print(res)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f baixa_lote.json; git commit -m "baixa lote" || true
+          git pull --rebase origin main || true; git push || true

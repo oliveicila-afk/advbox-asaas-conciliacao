@@ -1,0 +1,35 @@
+name: Revisar Reconciliação - 01 a 09 de Setembro
+
+on:
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Revisar Reconciliação (01-09 Setembro)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TIMEZONE: America/Manaus
+        run: |
+          python revisar_reconciliacao_01_09.py 2>&1 | tee revisar_output.txt
+          echo "Exit code: $?" >> revisar_output.txt
+
+      - name: Upload Output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: revisar-reconciliacao-output
+          path: revisar_output.txt
+          retention-days: 7

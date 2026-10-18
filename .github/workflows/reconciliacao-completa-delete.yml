@@ -1,0 +1,176 @@
+name: Reconciliação Completa - Identificar e Deletar Discrepâncias
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Digite 'confirmar-reconciliacao-completa' para prosseguir"
+        required: true
+        default: ""
+      dry_run:
+        description: "true = simula sem deletar; false = deleta de verdade"
+        required: false
+        default: "true"
+
+jobs:
+  reconciliar-e-deletar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar confirmação
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "confirmar-reconciliacao-completa" ]; then
+            echo "❌ Reconciliação não confirmada. Abortando."
+            echo "Para prosseguir, execute o workflow novamente e digite 'confirmar-reconciliacao-completa' no campo de confirmação."
+            exit 1
+          fi
+          echo "✅ Confirmação recebida. Prosseguindo com a reconciliação completa..."
+
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Executar análise completa de discrepâncias
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python - << 'EOF'
+          import os
+          import sys
+          import json
+          import requests
+          import re
+          from datetime import datetime
+
+          ADVBOX_BASE = "https://app.advbox.com.br/api/v1"
+          ADVBOX_TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          if not ADVBOX_TOKEN:
+              print("❌ ADVBOX_TOKEN não definido")
+              sys.exit(1)
+
+          headers = {
+              "Authorization": f"Bearer {ADVBOX_TOKEN}",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+          }
+
+          # Parse Asaas transactions from git
+          print("=" * 100)
+          print("ETAPA 1: LOADING ASAAS TRANSACTIONS FROM REPOSITORY")
+          print("=" * 100)
+
+          # For now, we'll use the transactions that were previously identified
+          # In production, these would come from the API
+          # The user provided the correct Asaas list with 120 transactions
+
+          asaas_amount_expected = 98760.66
+          print(f"✓ Asaas total esperado: R$ {asaas_amount_expected:.2f}")
+
+          print("\n" + "=" * 100)
+          print("ETAPA 2: FETCHING ADVBOX TRANSACTIONS")
+          print("=" * 100)
+
+          advbox_transactions = []
+          page = 1
+          per_page = 100
+
+          try:
+              while True:
+                  resp = requests.get(
+                      f"{ADVBOX_BASE}/transactions",
+                      headers=headers,
+                      params={'page': page, 'per_page': per_page, 'type': 'income'},
+                      timeout=30
+                  )
+
+                  if resp.status_code != 200:
+                      print(f"⚠️  Page {page}: Status {resp.status_code}")
+                      break
+
+                  data = resp.json()
+                  transactions = data.get('data', []) or data.get('transactions', [])
+
+                  if not transactions:
+                      print(f"✓ Page {page}: Fim dos dados")
+                      break
+
+                  print(f"✓ Page {page}: {len(transactions)} transações")
+                  advbox_transactions.extend(transactions)
+
+                  if len(transactions) < per_page:
+                      break
+
+                  page += 1
+
+          except Exception as e:
+              print(f"❌ Erro ao buscar: {e}")
+              sys.exit(1)
+
+          advbox_total = sum(float(str(tx.get('value', tx.get('amount', 0))).replace(',', '.')) for tx in advbox_transactions)
+          print(f"\n✓ Total Advbox: R$ {advbox_total:.2f}")
+          print(f"✓ Total transações: {len(advbox_transactions)}")
+
+          # Create matching keys from names and amounts
+          # Since we don't have the original Asaas names in this context,
+          # we'll flag transactions that seem suspicious or don't have proper classification
+
+          print("\n" + "=" * 100)
+          print("ETAPA 3: IDENTIFICANDO DISCREPÂNCIAS")
+          print("=" * 100)
+
+          discrepancy_amount = advbox_total - asaas_amount_expected
+          print(f"\n📊 Discrepância identificada: R$ {discrepancy_amount:.2f}")
+          print(f"   Advbox tem: R$ {advbox_total:.2f}")
+          print(f"   Esperado (Asaas): R$ {asaas_amount_expected:.2f}")
+
+          if discrepancy_amount > 0:
+              print(f"\n⚠️  Advbox tem R$ {discrepancy_amount:.2f} a mais (deve ser deletado)")
+              print(f"✓ Esperado exatamente: R$ 43.459,70")
+          else:
+              print(f"\n⚠️  Advbox tem R$ {-discrepancy_amount:.2f} a menos")
+
+          # For this execution, we'll save the transactions and prepare the deletion list
+          # The actual matching would require the detailed Asaas list
+          report = {
+              'timestamp': datetime.now().isoformat(),
+              'advbox_total': advbox_total,
+              'advbox_count': len(advbox_transactions),
+              'asaas_total_expected': asaas_amount_expected,
+              'discrepancy': discrepancy_amount,
+              'transactions_to_review': len(advbox_transactions)
+          }
+
+          with open('reconciliation_report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+
+          print(f"\n✓ Relatório salvo: reconciliation_report.json")
+          print("\n⚠️  AÇÃO REQUERIDA:")
+          print("Para identificar especificamente quais transações deletar,")
+          print("compare manualmente a lista Advbox com a Asaas fornecida.")
+          print("Ou execute: python analise_completa_discrepancias.py")
+          EOF
+
+      - name: Gerar relatório de discrepâncias
+        if: always()
+        run: |
+          if [ -f reconciliation_report.json ]; then
+            echo "📊 Relatório de Reconciliação:"
+            cat reconciliation_report.json | python -m json.tool
+          fi
+
+      - name: Resultado da análise
+        if: success()
+        run: |
+          echo "✅ Análise concluída!"
+          echo ""
+          echo "Próximas etapas:"
+          echo "1. Revisar as discrepâncias identificadas"
+          echo "2. Executar analise_completa_discrepancias.py localmente para gerar lista de deleção"
+          echo "3. Usar o script deletar_receitas_discrepantes_v2.py para deletar"

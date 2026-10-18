@@ -1,0 +1,48 @@
+name: Vincular lancamento 18166952 ao processo PAD (cliente id 16523888)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"; TX=18166952; CUST=16523888
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper().strip()
+          f=requests.get(f"{B}/settings",headers=hb,timeout=60).json().get("financial",{}); time.sleep(2.2)
+          cat={c["category"]:c["id"] for c in f["categories"]}; cc={c["cost_center"]:c["id"] for c in f["cost_centers"]}
+          cid=cat["HONORÁRIOS CONTRATUAIS INICIAIS-DEFESA PAD"]; ccid=cc["PARCERIAS-PARCERIAS"]
+          lws=[]; o=0
+          while True:
+              r=requests.get(f"{B}/lawsuits",headers=hb,params={"limit":1000,"offset":o},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[]); lws+=b
+              if len(b)<1000: break
+              o+=1000
+          mine=[l for l in lws if any(isinstance(c,dict) and c.get("customer_id")==CUST for c in l.get("customers",[]))]
+          def tn(l):
+              t=l.get("type"); return t.get("name") if isinstance(t,dict) else t
+          pad=[l for l in mine if "PAD" in sa(tn(l)) or "DISCIPLINAR" in sa(tn(l)) or "PAD" in sa(l.get("group"))]
+          out={"processos_do_cliente":[{"id":l["id"],"tipo":tn(l)} for l in mine],"pad_encontrados":[l["id"] for l in pad]}
+          if len(pad)==1:
+              d=requests.get(f"{B}/transactions/{TX}",headers=hb,timeout=60).json(); time.sleep(2.2)
+              d=d.get("data",d)
+              p={"entry_type":d.get("entry_type") or "income","users_id":d.get("users_id") or 65747,"debit_account":193264,
+                 "categories_id":cid,"cost_centers_id":ccid,"customers_id":CUST,"lawsuits_id":pad[0]["id"],
+                 "amount":f"{float(d.get('amount')):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],
+                 "date_payment":str(d.get("date_payment") or "")[:10],"description":d.get("description") or ""}
+              r=requests.put(f"{B}/transactions/{TX}",headers={**hb,"Content-Type":"application/json"},json=p,timeout=60)
+              out["http"]=r.status_code; out["resp"]=r.text[:200]
+          json.dump(out,open("vincular_hozana_pad.json","w"),indent=1); print(out)
+          PY
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add vincular_hozana_pad.json; git commit -qm "vincular hozana pad" || true; git pull -q --rebase; git push -q

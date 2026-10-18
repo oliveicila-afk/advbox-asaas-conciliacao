@@ -1,0 +1,26 @@
+name: Debug - Analisar tipos de transações Asaas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Debug - Estrutura e tipos de transações
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: "America/Manaus"
+        run: python3 debug_asaas_completo.py

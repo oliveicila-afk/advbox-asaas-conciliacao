@@ -1,0 +1,46 @@
+name: Ver lançamentos de consultoria (somente leitura)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  c:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          from collections import Counter
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          ini=lambda s:" ".join(p[0] for p in unicodedata.normalize("NFKD",str(s or "")).encode("ascii","ignore").decode().upper().split()) or "-"
+          todas=[]; off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2)
+              b=r.json().get("data",[]); todas+=b
+              if len(b)<1000: break
+              off+=1000
+          cons=[t for t in todas if t.get("entry_type")=="income" and "CONSULTORIA" in str(t.get("category") or "").upper()]
+          cont=Counter((t.get("category"),t.get("cost_center"),bool(t.get("date_payment"))) for t in cons)
+          set_=[{"id":t["id"],"cli":ini(t.get("name")),"valor":t.get("amount"),"due":str(t.get("date_due"))[:10],"pago":str(t.get("date_payment") or "")[:10],"cat":t.get("category"),"cc":t.get("cost_center"),"lawsuit":t.get("lawsuit_id")}
+                for t in cons if str(t.get("date_payment") or "")[:7]=="2026-09" or str(t.get("date_due"))[:7]=="2026-09"]
+          d=requests.get(f"{B}/transactions/14258561",headers=hb,timeout=30).json()
+          out={"contagem":[{"categoria":k[0],"centro":k[1],"pago":k[2],"n":v} for k,v in sorted(cont.items(),key=lambda x:-x[1])],
+               "setembro":set_,"exemplo_14258561":{k:d.get(k) for k in ("category","categories_id","cost_center","date_due","date_payment","amount","customers_id","lawsuits_id")}}
+          json.dump(out,open("ver_consultorias.json","w"),ensure_ascii=False,indent=1,default=str)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f ver_consultorias.json; git commit -m "ver consultorias" || true
+          git pull --rebase origin main || true; git push || true

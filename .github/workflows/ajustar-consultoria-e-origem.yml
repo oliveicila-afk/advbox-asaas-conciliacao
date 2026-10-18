@@ -1,0 +1,157 @@
+name: Ajustar consultoria (categoria) e centro de custo pela origem
+on:
+  workflow_dispatch:
+    inputs:
+      modo: {description: "plano (não grava) ou executar", required: true, default: "plano"}
+      inicio: {description: "pagos desde (centro de custo)", required: true, default: "2026-09-01"}
+      fim: {description: "pagos até (centro de custo)", required: true, default: "2026-10-13"}
+permissions:
+  contents: write
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          MODO: ${{ github.event.inputs.modo }}
+          INI: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+        run: |
+          python3 - <<'PY'
+          import os, re, json, time, unicodedata, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json","Content-Type":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          executar=os.environ["MODO"].strip().lower()=="executar"
+          INI,FIM=os.environ["INI"],os.environ["FIM"]
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper().strip()
+          ini=lambda s:" ".join(p[0] for p in sa(s).split()) or "-"
+          def get(path,params=None):
+              for _ in range(6):
+                  r=requests.get(f"{B}/{path}",headers=hb,params=params,timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); return r
+          def paginar(path):
+              out,off=[],0
+              while True:
+                  r=get(path,{"limit":1000,"offset":off}); b=r.json().get("data",[]); out+=b
+                  if len(b)<1000: break
+                  off+=1000
+              return out
+          st=get("settings").json().get("financial",{})
+          CAT={c["category"]:c["id"] for c in st.get("categories",[])}; CC={c["cost_center"]:c["id"] for c in st.get("cost_centers",[])}
+          cat_cons=[(n,i) for n,i in CAT.items() if sa(n).endswith("HONORARIOS CONTRATUAIS INICIAIS-CONSULTORIA")]
+          assert len(cat_cons)==1, "categoria de consultoria de cliente não encontrada/ambígua"
+          CAT_CONS=cat_cons[0]
+          nome_ = lambda x: x.get("name") if isinstance(x,dict) else x
+
+          def centro_por_origem(origem,grupo,tipo):
+              o,g,t=sa(origem),sa(grupo),sa(tipo)
+              if any(k in o for k in ("TRAFEGO","ANUNCIO","FACEBOOK","GOOGLE")): canal="TRAFEGO PAGO"
+              elif "INDICACAO" in o: canal="INDICACAO"
+              elif "ORGANICO" in o or "SITE DO ESCRITORIO" in o: canal="ORGANICO"
+              elif "PROSPECCAO" in o: canal="PROSPECCAO ATIVA"
+              elif "INSTAGRAM" in o: canal="INSTAGRAM / MIDIA SOCIAL"
+              else: return None,"origem do cliente sem canal reconhecido"
+              if "PROFESSOR" in o or "PEDAGOGO" in o: area="PROFESSOR/PEDAGOGO"
+              elif any(k in o for k in ("GRUPO DE APOIO","MERENDEIRA","VIGIA","ASSISTENTE","AUXILIAR DE SERVICOS")): area="GRUPO DE APOIO"
+              elif "SOLDADO" in o or "ANULACAO DE QUESTAO" in t or "PM/AM" in t: area="PM/AM"
+              elif "CONSUMIDOR" in g: area="CONSUMIDOR"
+              elif "CONCURSO" in g: area="CONCURSO"
+              elif "SERVIDOR" in g: area="SERVIDOR PUBLICO"
+              else: return None,"sem profissão na origem e sem processo/grupo para definir a área"
+              ach=[(n,i) for n,i in CC.items() if sa(n)==f"{area}-{canal}"]
+              return (ach[0],None) if len(ach)==1 else (None,f"centro {area}-{canal} não existe")
+
+          def centro_por_tese(tipo,categoria):
+              t=sa(str(tipo or "")+" "+(str(categoria or "").split("-",1)[1] if "-" in str(categoria or "") else ""))
+              if "PARCERIA" in t: alvo="PARCERIAS"
+              elif "CONCURSO" in t or "ITEM B" in t or "ANULACAO DE QUESTAO" in t: alvo="CONCURSO-TRAFEGO PAGO"
+              elif "PEDAGOGO" in t or "FERIAS" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+              elif "DEFESA PAD" in t or t.startswith("PAD ") or "PROCESSO ADMINISTRATIVO DISCIPLINAR" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
+              elif "DEMANDA CIVIL" in t: alvo="OUTROS-TRAFEGO PAGO"
+              elif "PLANEJAMENTO PREVIDENCIARIO" in t: alvo="SERVIDOR PUBLICO-TRAFEGO PAGO"
+              elif ("RETROATIVO" in t and "PROMOCAO" in t) or "ABONO PERMANENCIA" in t or "REVISAO DE APOSENTADORIA" in t: alvo="PROFESSOR/PEDAGOGO-TRAFEGO PAGO"
+              else: return None
+              ach=[(n,i) for n,i in CC.items() if sa(n)==alvo]
+              return ach[0] if len(ach)==1 else None
+          trs=paginar("transactions")
+          lawsuits={l["id"]:l for l in paginar("lawsuits")}
+          print("lançamentos:",len(trs),"| processos:",len(lawsuits))
+          ase=[t for t in trs if t.get("entry_type")=="income" and str(t.get("debit_bank") or "").upper()=="ASAAS"]
+          sem_cc=[t for t in ase if (not t.get("cost_center") or t.get("cost_center")=="GERAL") and INI<=str(t.get("date_payment") or "")[:10]<=FIM]
+          cons=[t for t in ase if sa(t.get("category"))==sa("HONORÁRIOS CONSULTORIAS") and t.get("cost_center") not in (None,"","GERAL","PARCERIAS")]
+          ids_cons={t["id"] for t in cons}
+          alvo=[]; seen=set()
+          for t in sem_cc+cons:
+              if t["id"] not in seen: seen.add(t["id"]); alvo.append(t)
+          print("sem centro/GERAL no período:",len(sem_cc),"| consultoria de cliente:",len(cons))
+          orig_cache={}
+          def origem(cid):
+              if cid not in orig_cache:
+                  d=get(f"customers/{cid}").json(); o=d.get("origin"); orig_cache[cid]=(nome_(o) or "", d.get("name") or "")
+              return orig_cache[cid]
+          mudou=[]; pendente=[]; erros=[]
+          for t in alvo:
+              tid=t["id"]; precisa_cc=t in sem_cc; precisa_cat=tid in ids_cons
+              if not executar and not precisa_cc:
+                  mudou.append({"id":tid,"acao":"categoria consultoria"}); continue
+              d=get(f"transactions/{tid}").json()
+              cid=d.get("customers_id"); novo_cc=None; motivo=None; org=""; nome=""
+              cc_final=t.get("cost_center")
+              if precisa_cc:
+                  if not cid: motivo="lançamento sem pessoa"
+                  else:
+                      org,nome=origem(cid)
+                      l=lawsuits.get(d.get("lawsuits_id")) or {}
+                      tipo=nome_(l.get("type")); grupo=nome_(l.get("group"))
+                      novo_cc,motivo=centro_por_origem(org,grupo,tipo)
+                      if not novo_cc and sa(org)=="ESCRITORIO":
+                          ach=[(n,i) for n,i in CC.items() if sa(n)=="ESCRITORIO-INDICACAO"]; novo_cc=ach[0] if len(ach)==1 else None
+                      if not novo_cc:
+                          novo_cc=centro_por_tese(tipo,t.get("category")); motivo=None if novo_cc else motivo
+                      if novo_cc: cc_final=novo_cc[0]
+                  if not novo_cc:
+                      pendente.append({"id":tid,"nome":nome or t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"origem":org,"motivo":motivo}); 
+                      if not precisa_cat: continue
+              nova_cat=None
+              if sa(t.get("category"))==sa("HONORÁRIOS CONSULTORIAS") and cc_final not in (None,"","GERAL","PARCERIAS"): nova_cat=CAT_CONS
+              if not novo_cc and not nova_cat: continue
+              acao={"id":tid,"cc":novo_cc[0] if novo_cc else None,"cat":nova_cat[0] if nova_cat else None}
+              if executar:
+                  p={"entry_type":"income","users_id":d.get("users_id") or 65747,"debit_account":193264,
+                     "categories_id":nova_cat[1] if nova_cat else d.get("categories_id"),
+                     "cost_centers_id":novo_cc[1] if novo_cc else d.get("cost_centers_id"),
+                     "customers_id":cid,"lawsuits_id":d.get("lawsuits_id"),
+                     "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],
+                     "description":d.get("description") or ""}
+                  if d.get("date_payment"): p["date_payment"]=str(d["date_payment"])[:10]
+                  p={k:v for k,v in p.items() if v is not None}
+                  r=requests.put(f"{B}/transactions/{tid}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+                  if r.status_code==422 and "categories_id" in r.text and round(float(d["amount"]),2) in (67.0,497.0,597.0):
+                      ph=[(n,i) for n,i in CAT.items() if sa(n).endswith("INICIAIS-PROMOCAO HORIZONTAL")]
+                      if len(ph)==1:
+                          p["categories_id"]=ph[0][1]; acao["cat"]=ph[0][0]+" (categoria antiga inválida; regra 67/497/597)"
+                          r=requests.put(f"{B}/transactions/{tid}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+                  acao["http"]=r.status_code
+                  if r.status_code not in (200,204):
+                      erros.append({"id":tid,"http":r.status_code,"valor":d.get("amount")})
+                      pendente.append({"id":tid,"nome":nome or t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"origem":org,"motivo":"categoria gravada no lançamento não existe mais e o valor não é 67/497/597"})
+              mudou.append(acao)
+          publico={"modo":"executar" if executar else "plano","alvos":len(alvo),"alterados":len(mudou),"pendentes_centro":len(pendente),"erros":erros,"ids_alterados":[m["id"] for m in mudou]}
+          json.dump(publico,open("ajuste_consultoria_origem.json","w"),indent=1)
+          json.dump({"pendentes":pendente},open("pendentes_centro_custo.json","w"),ensure_ascii=False)
+          print(json.dumps({k:v for k,v in publico.items() if k!="ids_alterados"}))
+          PY
+          openssl cms -encrypt -binary -aes-256-cbc -in pendentes_centro_custo.json -out pendentes_centro_custo.enc -outform DER .github/relatorio-publico.pem
+          rm -f pendentes_centro_custo.json
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f ajuste_consultoria_origem.json pendentes_centro_custo.enc; git commit -m "ajuste consultoria/origem" || true
+          git pull --rebase origin main || true; git push || true

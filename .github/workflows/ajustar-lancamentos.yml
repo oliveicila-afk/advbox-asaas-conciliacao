@@ -1,0 +1,31 @@
+name: Ajuste de categoria e centro de custo (lançamentos gravados)
+
+on:
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "true = grava no Advbox; false = simulação"
+        required: true
+        default: "false"
+
+concurrency:
+  group: checagem-exito
+  cancel-in-progress: false
+
+jobs:
+  ajustar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Executar ajuste
+        working-directory: checagem-exito
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          APLICAR: ${{ github.event.inputs.aplicar }}
+        run: python ajustar_lancamentos.py

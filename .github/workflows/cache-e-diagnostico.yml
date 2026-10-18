@@ -1,0 +1,56 @@
+name: Cache de Dados + Diagnóstico Offline
+
+on:
+  workflow_dispatch:
+    inputs:
+      atualizar_cache:
+        description: 'Atualizar cache de transações?'
+        required: true
+        type: choice
+        options:
+          - 'sim'
+          - 'não'
+        default: 'sim'
+      dia_diagnostico:
+        description: 'Data para diagnóstico (YYYY-MM-DD, ex: 2026-09-08)'
+        required: false
+        type: string
+        default: '2026-09-08'
+
+jobs:
+  cache-and-diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Atualizar Cache de Transações
+        if: ${{ inputs.atualizar_cache == 'sim' }}
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: "America/Manaus"
+        run: python3 cache_transactions.py
+
+      - name: Upload Cache como Artefato
+        if: ${{ inputs.atualizar_cache == 'sim' && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: transactions-cache
+          path: transactions_cache.json
+          retention-days: 30
+
+      - name: Diagnóstico Offline
+        env:
+          DIA_ALVO: ${{ inputs.dia_diagnostico }}
+          CACHE_FILE: transactions_cache.json
+          TIMEZONE: "America/Manaus"
+        run: python3 diagnostico_transacoes_offline.py

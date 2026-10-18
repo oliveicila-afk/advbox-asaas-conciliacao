@@ -1,0 +1,45 @@
+name: Mapear categoria e centro de custo por processo (somente leitura, sem nomes)
+on:
+  workflow_dispatch:
+    inputs:
+      ids: {description: "lawsuits_id", required: true, default: "7470600"}
+permissions:
+  contents: write
+jobs:
+  m:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - <<'PY'
+          import os, time, json, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          ids={int(x) for x in os.environ["IDS"].split(",") if x.strip()}
+          st=requests.get(f"{B}/settings",headers=hb,timeout=60).json(); time.sleep(2.2)
+          f=st.get("financial",{})
+          cats=sorted(c["category"] for c in f.get("categories",[]) if "ÊXITO" in c["category"].upper() and "HONOR" in c["category"].upper())
+          ccs=sorted(c["cost_center"] for c in f.get("cost_centers",[]))
+          out={"categorias_exito":cats,"centros_custo":ccs,"origens":[o.get("origin",o) if isinstance(o,dict) else o for o in st.get("origins",[])][:60],"processos":{}}
+          lw=[]; off=0
+          while True:
+              r=requests.get(f"{B}/lawsuits",headers=hb,params={"limit":1000,"offset":off},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[]); lw+=[l for l in b if l.get("id") in ids]
+              if len(b)<1000: break
+              off+=1000
+          for l in lw:
+              out["processos"][l["id"]]={k:(v if not isinstance(v,(dict,list)) else "<obj>") for k,v in l.items() if k not in ("process_number","protocol_number","customers","name")}
+              out["processos"][l["id"]]["tipo"]=l.get("type"); out["processos"][l["id"]]["origens_clientes"]=[c.get("origin") for c in l.get("customers",[]) if isinstance(c,dict)]; out["processos"][l["id"]]["chaves_cliente"]=[sorted(c.keys()) for c in l.get("customers",[]) if isinstance(c,dict)][:1]
+          json.dump(out,open("mapa_categoria_custo.json","w"),ensure_ascii=False,indent=1,default=str)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f mapa_categoria_custo.json; git commit -m "mapa categoria custo" || true
+          git pull --rebase origin main || true; git push || true

@@ -1,0 +1,72 @@
+name: Criar categoria Desbloqueio de Saldo ASAAS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  criar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, json, requests
+
+          token = os.environ["ADVBOX_TOKEN"].strip()
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "User-Agent": "Mozilla/5.0"
+          }
+          base = "https://app.advbox.com.br/api/v1"
+
+          # 1. Listar categorias existentes para não duplicar
+          r = requests.get(f"{base}/settings", headers=headers, timeout=30)
+          if r.status_code != 200:
+              print(f"ERRO ao buscar settings: {r.status_code} - {r.text[:300]}")
+              exit(1)
+
+          financial = r.json().get("financial", {})
+          categorias = {c["category"]: c["id"] for c in financial.get("categories", [])}
+          centros = {c["cost_center"]: c["id"] for c in financial.get("cost_centers", [])}
+
+          NOME_CATEGORIA = "DESBLOQUEIO DE SALDO ASAAS"
+          SUGESTAO_CENTRO = "RECEITAS NÃO IDENTIFICADAS"
+
+          print(f"\n=== Categorias existentes ({len(categorias)}) ===")
+          for n in sorted(categorias):
+              print(f"  {n} (id={categorias[n]})")
+
+          print(f"\n=== Centros de custo existentes ({len(centros)}) ===")
+          for n in sorted(centros):
+              print(f"  {n} (id={centros[n]})")
+
+          # 2. Verificar se categoria já existe
+          if NOME_CATEGORIA in categorias:
+              print(f"\n✅ Categoria '{NOME_CATEGORIA}' já existe (id={categorias[NOME_CATEGORIA]})")
+          else:
+              # Criar categoria
+              payload = {"category": NOME_CATEGORIA, "entry_type": "income"}
+              r2 = requests.post(f"{base}/settings/categories", headers=headers, json=payload, timeout=30)
+              if r2.status_code in (200, 201):
+                  novo_id = r2.json().get("id") or r2.json()
+                  print(f"\n✅ Categoria '{NOME_CATEGORIA}' criada com sucesso! id={novo_id}")
+              else:
+                  print(f"\n❌ ERRO ao criar categoria: {r2.status_code} - {r2.text[:500]}")
+
+          # 3. Sugerir centro de custo (não criar automaticamente — aguardar decisão)
+          if SUGESTAO_CENTRO in centros:
+              print(f"\n✅ Centro de custo '{SUGESTAO_CENTRO}' já existe (id={centros[SUGESTAO_CENTRO]})")
+          else:
+              print(f"\n💡 SUGESTÃO de centro de custo: '{SUGESTAO_CENTRO}'")
+              print(f"   Não criado automaticamente — confirme o nome antes de criar.")
+              print(f"   Centros de custo disponíveis para usar como referência:")
+              for n in sorted(centros):
+                  print(f"     {n}")
+          PY

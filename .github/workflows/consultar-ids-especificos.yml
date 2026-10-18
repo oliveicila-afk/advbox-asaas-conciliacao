@@ -1,0 +1,71 @@
+name: Consultar IDs específicos Advbox
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "IDs separados por vírgula"
+        required: true
+        default: "17456672,17456673"
+permissions:
+  contents: write
+
+jobs:
+  consultar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Consultar e salvar resultado
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, requests, json
+          token = os.environ["ADVBOX_TOKEN"]
+          ids = os.environ["IDS"].split(",")
+          headers = {"Authorization": f"Bearer {token}", "User-Agent": "Mozilla/5.0", "Accept": "application/json"}
+          resultado = []
+          for tid in ids:
+              tid = tid.strip()
+              r = requests.get(f"https://app.advbox.com.br/api/v1/transactions/{tid}", headers=headers, timeout=30)
+              t = r.json()
+              nome = t.get("name","")
+              partes = nome.split()
+              mask = (partes[0]+" "+partes[-1][0]+".") if len(partes)>=2 else nome[:20]
+              cat = t.get("category_name") or t.get("category") or t.get("category_id") or ""
+              cat_id = t.get("category_id","")
+              val = t.get("value") or t.get("amount")
+              paid = t.get("date_payment","")
+              desc = t.get("description","")
+              resultado.append({
+                  "id": tid,
+                  "valor": val,
+                  "cliente_mask": mask,
+                  "categoria": cat,
+                  "categoria_id": cat_id,
+                  "pago": bool(paid),
+                  "descricao": desc[:80] if desc else ""
+              })
+              print(f"ID {tid}: R${val} | {mask} | CAT: {cat} (id={cat_id}) | pago={bool(paid)}")
+          import datetime
+          ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+          fname = f"consulta_ids_{ts}.json"
+          with open(fname,"w") as f:
+              json.dump(resultado, f, ensure_ascii=False, indent=2)
+          # symlink para nome fixo
+          import shutil; shutil.copy(fname, "consulta_ids_resultado.json")
+          PYEOF
+
+      - name: Commit resultado
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f consulta_ids_*.json || true
+          git diff --cached --quiet || git commit -m "resultado: consulta IDs específicos Advbox"
+          git push || echo "Push failed"

@@ -1,0 +1,46 @@
+name: Corrigir classificação (tese) dos lançamentos criados
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Data (AAAA-MM-DD) ou TODAS"
+        required: true
+      dry_run:
+        description: "true = só simular"
+        required: false
+        default: "true"
+
+      regras_manuais:
+        description: "Opcional. Ex: 4000=NOME DA CATEGORIA (só no modo de um dia)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  corrigir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Corrigir
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          TARGET_DATE: ${{ github.event.inputs.target_date }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          REGRAS_MANUAIS: ${{ github.event.inputs.regras_manuais }}
+        run: python3 corrigir_classificacao.py
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f correcao_classificacao.json
+          git commit -m "Correção de classificação (${{ github.event.inputs.target_date }})" || exit 0
+          git pull --rebase origin main || true
+          git push

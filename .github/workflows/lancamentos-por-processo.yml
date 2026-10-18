@@ -1,0 +1,44 @@
+name: Lançamentos por processo (somente leitura)
+on:
+  workflow_dispatch:
+    inputs:
+      ids: {description: "lawsuits_id separados por vírgula", required: true, default: "7000508"}
+permissions:
+  contents: write
+jobs:
+  l:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          IDS: ${{ github.event.inputs.ids }}
+        run: |
+          python3 - <<'PY'
+          import os, time, json, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          ids={int(x) for x in os.environ["IDS"].split(",") if x.strip()}
+          out={i:[] for i in ids}; off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); b=r.json().get("data",[])
+              for t in b:
+                  if t.get("lawsuit_id") in ids:
+                      out[t["lawsuit_id"]].append({"id":t["id"],"tipo":t.get("entry_type"),"valor":t.get("amount"),"cat":t.get("category"),
+                        "pago":str(t.get("date_payment") or "")[:10],"venc":str(t.get("date_due") or "")[:10],"banco":t.get("debit_bank") or t.get("credit_bank")})
+              if len(b)<1000: break
+              off+=1000
+          json.dump(out,open("lancamentos_por_processo.json","w"),ensure_ascii=False,indent=1)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f lancamentos_por_processo.json; git commit -m "lancamentos por processo" || true
+          git pull --rebase origin main || true; git push || true

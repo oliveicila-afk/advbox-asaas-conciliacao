@@ -1,0 +1,34 @@
+name: Diagnóstico - Buscar Estornos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Diagnostic
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: python3 diagnosticar-estornos.py
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🔍 Resultado da Busca por Estornos"
+          echo ""
+          echo "Conta ASAAS: 193264"
+          echo "Período: Setembro 2026 (01-30)"
+          echo ""
+          echo "Se estornos foram encontrados, próximo passo é deletá-los."

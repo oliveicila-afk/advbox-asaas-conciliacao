@@ -1,0 +1,33 @@
+name: Diagnóstico - Transações de um dia específico
+
+on:
+  workflow_dispatch:
+    inputs:
+      dia:
+        description: 'Data no formato YYYY-MM-DD (ex: 2026-09-04)'
+        required: true
+        type: string
+        default: '2026-09-04'
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Diagnóstico detalhado
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TIMEZONE: "America/Manaus"
+          DIA_ALVO: ${{ inputs.dia }}
+        run: python3 diagnostico_transacoes_dia.py

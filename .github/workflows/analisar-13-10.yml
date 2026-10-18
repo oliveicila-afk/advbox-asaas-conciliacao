@@ -1,0 +1,86 @@
+name: Analisar 13/10 - Liquidações de Antecipação
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, re, json, requests
+          from collections import defaultdict
+
+          ha = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          A = "https://api.asaas.com/v3"
+
+          target_date = "2026-10-13"
+          off = 0
+          all_13_10 = []
+          while True:
+              r = requests.get(f"{A}/financialTransactions",
+                               headers=ha,
+                               params={"startDate": target_date, "finishDate": target_date, "limit": 100, "offset": off},
+                               timeout=30)
+              data = r.json().get("data", [])
+              all_13_10.extend(data)
+              if not r.json().get("hasMore") or not data:
+                  break
+              off += 100
+
+          # Categorize by type
+          by_type = defaultdict(list)
+          for t in all_13_10:
+              by_type[t.get("type")].append(t)
+
+          nr = lambda t: (re.search(r"fatura nr\.\s*(\d+)", str(t.get("description") or "")) or [None, None])[1]
+
+          payment_received = by_type.get("PAYMENT_RECEIVED", [])
+          antic_debit = by_type.get("RECEIVABLE_ANTICIPATION_DEBIT", [])
+
+          matches = 0
+          no_match = []
+
+          for pr in payment_received:
+              pr_nr = nr(pr)
+              pr_val = round(float(pr.get("value", 0)), 2)
+
+              found = False
+              for ad in antic_debit:
+                  ad_nr = nr(ad)
+                  ad_val = round(float(ad.get("value", 0)), 2)
+                  if pr_nr == ad_nr and pr_val == ad_val:
+                      found = True
+                      matches += 1
+                      break
+
+              if not found:
+                  no_match.append({"invoice": pr_nr, "value": pr_val})
+
+          result = {
+              "data": target_date,
+              "total_txs": len(all_13_10),
+              "payment_received": len(payment_received),
+              "anticipation_debit": len(antic_debit),
+              "payment_received_with_matching_debit": matches,
+              "payment_received_without_debit": no_match,
+              "detail": {
+                  "payment_received_with_debit": matches,
+                  "payment_received_only": len(no_match)
+              }
+          }
+
+          json.dump(result, open("analise_13_10.json", "w"), ensure_ascii=False, indent=2)
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f analise_13_10.json; git commit -m "análise 13/10" || true
+          git pull --rebase origin main || true; git push || true

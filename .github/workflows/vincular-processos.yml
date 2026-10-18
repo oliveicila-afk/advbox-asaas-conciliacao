@@ -1,0 +1,89 @@
+name: Vincular processo aos lançamentos de receita sem processo
+on:
+  workflow_dispatch:
+    inputs:
+      modo: {description: "plano ou executar", required: true, default: "plano"}
+      inicio: {description: "pagos desde", required: true, default: "2026-09-01"}
+      fim: {description: "pagos até", required: true, default: "2026-09-30"}
+permissions:
+  contents: write
+jobs:
+  v:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          MODO: ${{ github.event.inputs.modo }}
+          INI: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          from collections import Counter, defaultdict
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json","Content-Type":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          executar=os.environ["MODO"].strip().lower()=="executar"; INI,FIM=os.environ["INI"],os.environ["FIM"]
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper().strip()
+          nm=lambda x: x.get("name") if isinstance(x,dict) else x
+          def get(p,params=None):
+              for _ in range(6):
+                  r=requests.get(f"{B}/{p}",headers=hb,params=params,timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); return r
+          def pag(p):
+              out,off=[],0
+              while True:
+                  b=get(p,{"limit":1000,"offset":off}).json().get("data",[]); out+=b
+                  if len(b)<1000: break
+                  off+=1000
+              return out
+          trs=pag("transactions"); lws=pag("lawsuits")
+          por_cli=defaultdict(dict)
+          for l in lws:
+              for c in (l.get("customers") or []):
+                  if isinstance(c,dict) and c.get("customer_id"): por_cli[c["customer_id"]][l["id"]]=l
+          alvo=[t for t in trs if t.get("entry_type")=="income" and str(t.get("debit_bank") or "").upper()=="ASAAS" and not t.get("lawsuit_id") and INI<=str(t.get("date_payment") or "")[:10]<=FIM]
+          print("alvos:",len(alvo))
+          feitos=[]; pend=[]; erros=[]; motivos=Counter()
+          for t in alvo:
+              d=get(f"transactions/{t['id']}").json(); cid=d.get("customers_id")
+              if not cid: motivos["sem cliente"]+=1; pend.append({"id":t["id"],"nome":t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"motivo":"lançamento sem cliente"}); continue
+              procs=list(por_cli.get(cid,{}).values()); cat=sa(t.get("category")); suf=cat.split("-",1)[1] if "-" in cat else ""
+              esc=None
+              if "CONSULTORIA" in cat:
+                  c=[l for l in procs if "CONSULTORIA" in sa(nm(l.get("type")))]
+                  esc=c[0] if len(c)==1 else None
+              if esc is None and suf:
+                  c=[l for l in procs if suf==sa(nm(l.get("type"))) or suf in sa(nm(l.get("type"))) or sa(nm(l.get("type"))) in suf and len(sa(nm(l.get("type"))))>6]
+                  esc=c[0] if len(c)==1 else None
+              if esc is None and len(procs)==1: esc=procs[0]
+              if esc is None:
+                  motivos["cliente com 0 ou vários processos sem tese correspondente" if procs else "cliente sem processo"]+=1
+                  pend.append({"id":t["id"],"nome":t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":t.get("category"),"motivo":"cliente sem processo" if not procs else f"cliente com {len(procs)} processos e nenhum bate com a categoria"}); continue
+              if executar:
+                  p={"entry_type":"income","users_id":d.get("users_id") or 65747,"debit_account":193264,"categories_id":d.get("categories_id"),
+                     "cost_centers_id":d.get("cost_centers_id"),"customers_id":cid,"lawsuits_id":esc["id"],
+                     "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],
+                     "date_payment":str(d.get("date_payment") or "")[:10],"description":d.get("description") or ""}
+                  p={k:v for k,v in p.items() if v is not None}
+                  r=requests.put(f"{B}/transactions/{t['id']}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+                  if r.status_code not in (200,204): erros.append({"id":t["id"],"http":r.status_code,"resp":r.text[:100]}); continue
+              feitos.append(t["id"])
+          pub={"modo":"executar" if executar else "plano","alvos":len(alvo),"vinculados":len(feitos),"pendentes":len(pend),"motivos":dict(motivos),"erros":erros}
+          json.dump(pub,open("vincular_processos.json","w"),ensure_ascii=False,indent=1)
+          json.dump({"pendentes":pend},open("vincular_pendentes.json","w"),ensure_ascii=False)
+          print(json.dumps(pub,ensure_ascii=False))
+          PY
+          openssl cms -encrypt -binary -aes-256-cbc -in vincular_pendentes.json -out vincular_pendentes.enc -outform DER .github/relatorio-publico.pem
+          rm -f vincular_pendentes.json
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f vincular_processos.json vincular_pendentes.enc; git commit -m "vincular processos" || true
+          git pull --rebase origin main || true; git push || true

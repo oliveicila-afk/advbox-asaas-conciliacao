@@ -1,0 +1,76 @@
+name: Verificar Reconciliação
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Verificar Status da Reconciliação
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          mkdir -p output
+
+          # Validate token is set
+          if [ -z "$ADVBOX_TOKEN" ]; then
+            echo "❌ ADVBOX_TOKEN não está definido no workflow"
+            exit 1
+          fi
+
+          echo "✓ Token recebido no workflow: ${#ADVBOX_TOKEN} caracteres"
+          export ADVBOX_TOKEN="$ADVBOX_TOKEN"
+
+          python3 -m pip install requests --quiet 2>/dev/null || true
+          python3 debug_transacoes.py 2>&1 | tee output/debug_output.txt
+
+          echo ""
+          echo "=== Files in output directory ==="
+          ls -lh output/ || echo "No files in output"
+
+      - name: Gerar Relatório de Verificação
+        if: always()
+        run: |
+          {
+            echo "# Relatório de Verificação da Reconciliação"
+            echo ""
+            echo "## Data da Verificação"
+            date
+            echo ""
+            echo "## Objetivo"
+            echo "Verificar se os chargebacks foram removidos da conta ASAAS (ID: 193264):"
+            echo "- 09/04: -R\$ 11.133,35 ❓"
+            echo "- 09/08: -R\$ 17.558,66 ❓"
+            echo ""
+            echo "## Resultado da Verificação"
+            if [ -f output/debug_output.txt ]; then
+              echo "### Debug Output"
+              echo '```'
+              cat output/debug_output.txt
+              echo '```'
+            else
+              echo "⚠️ Debug output file not found"
+            fi
+            echo ""
+            echo "## Status Esperado"
+            echo "- **Receitas:** 5 transações = R\$ 14.393,44"
+            echo "- **Chargebacks:** 0 (nenhum)"
+            echo "- **Saldo Final:** R\$ 14.393,44"
+          } | tee output/verification_report.md
+
+      - name: Upload Verification Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report
+          path: output/
+          retention-days: 7

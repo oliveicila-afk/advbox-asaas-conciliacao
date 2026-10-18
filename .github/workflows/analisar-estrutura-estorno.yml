@@ -1,0 +1,37 @@
+name: Analyze - Estorno Structure
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Analyze Estorno Structure
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: python analisar_estrutura_estorno.py
+
+      - name: Save Output
+        if: always()
+        run: |
+          python analisar_estrutura_estorno.py > estorno_analysis.txt 2>&1
+          echo "Analysis saved"
+
+      - name: Upload Analysis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: estorno-analysis
+          path: estorno_analysis.txt

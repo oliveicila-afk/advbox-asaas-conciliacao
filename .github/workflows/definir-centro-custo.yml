@@ -1,0 +1,55 @@
+name: Definir centro de custo de lançamentos (id|centro)
+on:
+  workflow_dispatch:
+    inputs:
+      itens: {description: "id|CENTRO DE CUSTO separados por ;", required: true}
+permissions:
+  contents: write
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ITENS: ${{ github.event.inputs.itens }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json","Content-Type":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper().strip()
+          g=lambda p: (time.sleep(2.2), requests.get(f"{B}/{p}",headers=hb,timeout=30))[1]
+          st=g("settings").json().get("financial",{})
+          CC={sa(c["cost_center"]):(c["cost_center"],c["id"]) for c in st["cost_centers"]}
+          CAT={c["id"]:c["category"] for c in st["categories"]}; CATN={sa(c["category"]):(c["category"],c["id"]) for c in st["categories"]}
+          res=[]
+          for it in os.environ["ITENS"].split(";"):
+              tid,centro=[x.strip() for x in it.split("|")]
+              if sa(centro) not in CC: res.append({"id":tid,"erro":"centro não existe"}); continue
+              d=g(f"transactions/{tid}").json()
+              cat_id=d.get("categories_id"); nota=None
+              if cat_id not in CAT:
+                  # categoria gravada não existe mais: tenta INICIAIS-<tese do processo>
+                  lw=(g(f"lawsuits/{d['lawsuits_id']}").json() if d.get("lawsuits_id") else {})
+                  tipo=lw.get("type"); tipo=tipo.get("name") if isinstance(tipo,dict) else tipo
+                  alvo=sa("HONORÁRIOS CONTRATUAIS INICIAIS-"+str(tipo or ""))
+                  if tipo and alvo in CATN: cat_id=CATN[alvo][1]; nota=f"categoria pela tese: {CATN[alvo][0]}"
+                  else: res.append({"id":tid,"erro":"categoria inválida e tese do processo não achada","tese":tipo}); continue
+              p={"entry_type":d["entry_type"],"users_id":d.get("users_id") or 65747,"debit_account":193264,"categories_id":cat_id,
+                 "cost_centers_id":CC[sa(centro)][1],"customers_id":d.get("customers_id"),"lawsuits_id":d.get("lawsuits_id"),
+                 "amount":f"{float(d['amount']):.2f}".replace(".",","),"date_due":str(d.get("date_due"))[:10],"description":d.get("description") or ""}
+              if d.get("date_payment"): p["date_payment"]=str(d["date_payment"])[:10]
+              p={k:v for k,v in p.items() if v is not None}
+              r=requests.put(f"{B}/transactions/{tid}",headers=hb,json=p,timeout=30); time.sleep(2.2)
+              res.append({"id":tid,"http":r.status_code,"centro":CC[sa(centro)][0],"nota":nota,"resp":r.text[:150] if r.status_code not in (200,204) else ""})
+          json.dump(res,open("definir_centro_resultado.json","w"),ensure_ascii=False,indent=1); print(res)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f definir_centro_resultado.json; git commit -m "definir centro" || true
+          git pull --rebase origin main || true; git push || true

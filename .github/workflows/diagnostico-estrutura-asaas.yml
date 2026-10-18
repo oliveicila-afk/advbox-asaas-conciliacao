@@ -1,0 +1,57 @@
+name: Diagnóstico estrutura Asaas (sem dados sensíveis)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  estrutura:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Descobrir campos (somente nomes de campos, sem valores)
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, requests, json
+          h = {"access_token": os.environ["ASAAS_TOKEN"].strip()}
+          B = "https://api.asaas.com/v3"
+          out = {}
+          r = requests.get(f"{B}/financialTransactions", headers=h,
+                           params={"startDate":"2026-09-01","finishDate":"2026-09-01","limit":100}, timeout=30).json()
+          rec = [t for t in r["data"] if t.get("type") in ("PAYMENT_RECEIVED","RECEIVABLE_ANTICIPATION_GROSS_CREDIT")]
+          out["campos_financialTransaction"] = sorted(rec[0].keys())
+          out["tipos"] = {}
+          for t in rec:
+              k = t["type"]; out["tipos"][k] = out["tipos"].get(k,0)+1
+          out["com_paymentId"] = sum(1 for t in rec if t.get("paymentId"))
+          out["sem_paymentId"] = sum(1 for t in rec if not t.get("paymentId"))
+          out["exemplo_description_formato"] = [
+              "".join("9" if c.isdigit() else ("a" if c.isalpha() else c) for c in (t.get("description") or ""))[:80] for t in rec[:5]]
+          p = next((t for t in rec if t.get("paymentId")), None)
+          if p:
+              pay = requests.get(f"{B}/payments/{p['paymentId']}", headers=h, timeout=30).json()
+              out["campos_payment"] = sorted(pay.keys())
+              out["customer_e_id_ou_objeto"] = type(pay.get("customer")).__name__
+              if pay.get("customer"):
+                  c = requests.get(f"{B}/customers/{pay['customer']}", headers=h, timeout=30).json()
+                  out["campos_customer"] = sorted(c.keys())
+                  out["customer_tem_name"] = bool(c.get("name"))
+          json.dump(out, open("estrutura_asaas.json","w"), indent=2, ensure_ascii=False)
+          print(json.dumps(out, indent=2, ensure_ascii=False))
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f estrutura_asaas.json
+          git commit -m "Estrutura Asaas (diagnóstico)" || exit 0
+          git pull --rebase origin main || true
+          git push

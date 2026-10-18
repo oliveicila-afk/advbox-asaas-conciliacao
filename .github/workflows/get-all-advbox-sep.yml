@@ -1,0 +1,148 @@
+name: Get All Advbox Sep Transactions
+
+on:
+  workflow_dispatch:
+
+jobs:
+  all:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests -q
+
+      - name: Get ALL September transactions
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, requests
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          from collections import Counter
+
+          TOKEN = os.environ.get("ADVBOX_TOKEN", "").strip()
+
+          if not TOKEN:
+              print("NO TOKEN")
+              exit(1)
+
+          tz = ZoneInfo("America/Manaus")
+          headers = {
+              "Authorization": f"Bearer {TOKEN}",
+              "User-Agent": "Mozilla/5.0",
+              "Accept": "application/json"
+          }
+
+          print("=" * 80)
+          print("GETTING ALL ADVBOX SEPTEMBER TRANSACTIONS (ANY TYPE)")
+          print("=" * 80)
+
+          all_data = []
+          offset = 0
+
+          for page in range(10):
+              r = requests.get(
+                  "https://app.advbox.com.br/api/v1/transactions",
+                  headers=headers,
+                  params={"limit": 1000, "offset": offset},
+                  timeout=30
+              )
+
+              if r.status_code != 200:
+                  break
+
+              data = r.json()
+              items = data if isinstance(data, list) else data.get("data", [])
+
+              if not items:
+                  break
+
+              all_data.extend(items)
+              offset += 1000
+
+              if len(items) < 1000:
+                  break
+
+          # Filter for ASAAS bank and September dates
+          start = datetime(2026, 9, 1, tzinfo=tz).date()
+          end = datetime(2026, 9, 10, tzinfo=tz).date()
+
+          filtered = []
+          for tx in all_data:
+              bank = (tx.get("debit_bank") or tx.get("bank") or "").upper()
+              if bank != "ASAAS":
+                  continue
+
+              date_str = tx.get("date_payment")
+              if date_str:
+                  try:
+                      tx_date = datetime.fromisoformat(date_str).date()
+                      if start <= tx_date <= end:
+                          filtered.append(tx)
+                  except:
+                      pass
+
+          # Group by type
+          by_type = {}
+          for tx in filtered:
+              etype = tx.get("entry_type", "unknown")
+              if etype not in by_type:
+                  by_type[etype] = []
+              by_type[etype].append(tx)
+
+          print(f"\nTOTAL SEPTEMBER (ASAAS): {len(filtered)} transactions\n")
+          print("BY TYPE:")
+          for etype, txs in sorted(by_type.items()):
+              total = sum(float(tx.get("amount", 0) or 0) for tx in txs)
+              print(f"\n  {etype}: {len(txs)} transactions, R$ {total:,.2f}")
+              for i, tx in enumerate(txs[:5], 1):
+                  amount = float(tx.get("amount", 0) or 0)
+                  date = tx.get("date_payment", "N/A")
+                  name = tx.get("name", "N/A")[:40]
+                  print(f"    {i}. {date} | R$ {amount:>10,.2f} | {name}")
+              if len(txs) > 5:
+                  print(f"    ... and {len(txs) - 5} more")
+
+          # Save all to JSON
+          result = []
+          for tx in filtered:
+              result.append({
+                  "id": tx.get("id"),
+                  "date": tx.get("date_payment"),
+                  "name": tx.get("name"),
+                  "amount": float(tx.get("amount", 0) or 0),
+                  "type": tx.get("entry_type"),
+                  "category": tx.get("category"),
+                  "description": tx.get("description")
+              })
+
+          with open("advbox_all_sep.json", "w") as f:
+              json.dump({"transactions": result, "count": len(result), "total": sum(r["amount"] for r in result)}, f, ensure_ascii=False, indent=2)
+
+          print(f"\n\nSaved {len(result)} transactions to advbox_all_sep.json")
+
+          PYEOF
+
+      - name: Save to repo
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f advbox_all_sep.json ]; then
+            git config user.name "actions"
+            git config user.email "actions@github.com"
+            cp advbox_all_sep.json advbox_all_sep_$(date +%Y%m%d_%H%M%S).json
+            git add advbox_all_sep_*.json
+            git commit -m "Save all Advbox September transactions" || true
+            git push
+          fi

@@ -1,0 +1,43 @@
+name: Investigar lancamento 3608,27 (somente leitura, sem nomes)
+on:
+  workflow_dispatch:
+    inputs:
+      valor: {description: "valor", required: true, default: "3608.27"}
+permissions:
+  contents: write
+jobs:
+  i:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          VALOR: ${{ github.event.inputs.valor }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          v=round(float(os.environ["VALOR"]),2); out=[]; off=0
+          while True:
+              r=requests.get(f"{B}/transactions",headers=hb,params={"limit":1000,"offset":off,"date_payment_start":"2026-09-01","date_payment_end":"2026-09-30"},timeout=90); time.sleep(2.2)
+              b=r.json().get("data",[])
+              for t in b:
+                  try: a=round(float(str(t.get("amount")).replace(",",".")),2)
+                  except: continue
+                  if a==v:
+                      d=requests.get(f"{B}/transactions/{t['id']}",headers=hb,timeout=60).json(); time.sleep(2.2)
+                      d=d.get("data",d) if isinstance(d,dict) else d
+                      out.append({"id":t["id"],"date_payment":t.get("date_payment"),"entry_type":t.get("entry_type"),"category":t.get("category"),"cost_center":t.get("cost_center"),
+                                  "tem_cliente":bool(d.get("customers_id")),"tem_processo":bool(d.get("lawsuits_id")),"customers_id":d.get("customers_id"),"lawsuits_id":d.get("lawsuits_id"),"debit_bank":t.get("debit_bank")})
+              if len(b)<1000: break
+              off+=1000
+          json.dump(out,open("investigar_3608.json","w"),indent=1)
+          print(json.dumps(out,indent=1))
+          PY
+      - run: |
+          git config user.name github-actions; git config user.email actions@github.com
+          git add investigar_3608.json; git commit -qm "investigar 3608" || true; git pull -q --rebase; git push -q

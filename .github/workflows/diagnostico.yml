@@ -1,0 +1,43 @@
+name: Diagnóstico Advbox (só-leitura)
+
+# Roda SÓ-LEITURA: descobre o endpoint certo de tarefas e os IDs das
+# categorias/centros de custo. Não lança, não edita, não cria nada.
+on:
+  workflow_dispatch:
+    inputs:
+      processo_exemplo:
+        description: "ID de um processo (lawsuit) para testar o caminho de tarefas."
+        required: false
+        default: "5836169"
+      processo_numero:
+        description: "Número do processo (CNJ) para ler o protocolo completo."
+        required: false
+        default: "0000929-79.2026.8.04.2800"
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar o diagnóstico Advbox (só-leitura)
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          PROCESSO_EXEMPLO: ${{ github.event.inputs.processo_exemplo }}
+          PROCESSO_NUMERO: ${{ github.event.inputs.processo_numero }}
+        run: python diagnostico_advbox.py
+
+      - name: Rodar o diagnóstico Asaas (só-leitura)
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          TARGET_DATE: "2026-09-28"
+        run: python diagnostico_asaas.py

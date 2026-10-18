@@ -1,0 +1,154 @@
+name: Lançar receita dos repasses da Caixa (processo → cliente → tese)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: "Datas separadas por vírgula"
+        required: true
+        default: "2026-09-14,2026-09-17,2026-09-18"
+      valores:
+        description: "Valores dos repasses a lançar, separados por vírgula"
+        required: true
+        default: "14444.24,4339.50,6435.01,11592.79,5522.98"
+      modo:
+        description: "plano (não grava nada) ou executar"
+        required: true
+        default: "plano"
+
+permissions:
+  contents: write
+
+jobs:
+  lancar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Montar plano e (se pedido) executar
+        env:
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          DIAS: ${{ github.event.inputs.dias }}
+          VALORES: ${{ github.event.inputs.valores }}
+          MODO: ${{ github.event.inputs.modo }}
+        run: |
+          python3 - <<'PY'
+          import os, re, time, json, unicodedata, requests
+
+          ha = {"access_token": os.environ["ASAAS_TOKEN"].strip(), "Accept": "application/json"}
+          hb = {"Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}", "User-Agent": "Mozilla/5.0",
+                "Accept": "application/json", "Content-Type": "application/json"}
+          A = "https://api.asaas.com/v3"; B = "https://app.advbox.com.br/api/v1"
+          dias = [d.strip() for d in os.environ["DIAS"].split(",") if d.strip()]
+          alvo = {round(float(v), 2) for v in os.environ["VALORES"].split(",") if v.strip()}
+          executar = os.environ["MODO"].strip().lower() == "executar"
+
+          def ini(s):
+              s = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+              return " ".join(p[0] for p in s.upper().split() if p) or "-"
+          dig = lambda s: re.sub(r"\D", "", str(s or ""))
+          def money(v): return f"{v:.2f}".replace(".", ",")
+          def paginar(path):
+              out, off = [], 0
+              while True:
+                  for _ in range(6):
+                      r = requests.get(f"{B}/{path}", headers=hb, params={"limit": 1000, "offset": off}, timeout=90)
+                      if r.status_code != 429: break
+                      time.sleep(30)
+                  time.sleep(2.2)
+                  if r.status_code != 200: print("ERRO", path, r.status_code); break
+                  b = r.json().get("data", []); out += b
+                  if len(b) < 1000: break
+                  off += 1000
+              return out
+
+          # 1) repasses da Caixa no Asaas (valor, dia, número do processo)
+          pagos, cache = [], {}
+          for dia in dias:
+              off, txs = 0, []
+              while True:
+                  r = requests.get(f"{A}/financialTransactions", headers=ha,
+                                   params={"startDate": dia, "finishDate": dia, "limit": 100, "offset": off}, timeout=30).json()
+                  txs += r.get("data", []); 
+                  if not r.get("hasMore") or not r.get("data"): break
+                  off += 100
+              for t in txs:
+                  if t.get("type") != "PAYMENT_RECEIVED" or not t.get("paymentId"): continue
+                  v = round(float(t.get("value", 0)), 2)
+                  if v not in alvo: continue
+                  p = requests.get(f"{A}/payments/{t['paymentId']}", headers=ha, timeout=30).json()
+                  cid = p.get("customer")
+                  if cid not in cache: cache[cid] = requests.get(f"{A}/customers/{cid}", headers=ha, timeout=30).json()
+                  if "CAIXA" not in unicodedata.normalize("NFKD", str((cache[cid] or {}).get("name"))).upper(): continue
+                  longas = [dig(x) for x in re.findall(r"\d[\d\-\.\/]{18,}\d", f"{p.get('description') or ''} | {p.get('externalReference') or ''}")]
+                  pagos.append({"dia": dia, "valor": v, "fatura_nr": p.get("invoiceNumber"), "longas": longas})
+          print("repasses encontrados:", len(pagos))
+
+          # 2) processos e lançamentos do Advbox
+          lw = paginar("lawsuits")
+          idx = {}
+          for l in lw:
+              for k in ("process_number", "protocol_number"):
+                  d = dig(l.get(k))
+                  if len(d) == 20: idx[d] = l
+          trs = paginar("transactions")
+          print("processos:", len(lw), "| lançamentos:", len(trs))
+          amostra = trs[0] if trs else {}
+
+          plano = []
+          for p in pagos:
+              lei = None
+              for ds in p["longas"]:
+                  for off in range(0, len(ds) - 19):
+                      if ds[off:off + 20] in idx: lei = idx[ds[off:off + 20]]; break
+                  if lei: break
+              item = {"dia": p["dia"], "valor": p["valor"], "fatura_nr": p["fatura_nr"], "processo_achado": bool(lei)}
+              if lei:
+                  cust_ids = [c.get("id") for c in (lei.get("customers") or []) if isinstance(c, dict)]
+                  item.update({"lawsuits_id": lei.get("id"), "tese": (lei.get("type") or {}).get("name") if isinstance(lei.get("type"), dict) else lei.get("type"),
+                               "clientes": [ini(c.get("name")) for c in (lei.get("customers") or []) if isinstance(c, dict)], "customers_ids": cust_ids})
+                  # modelo: lançamento de honorários já existente (pago no dia) desse processo; detalhe traz os ids
+                  fee = {7470600: 17774989, 7379574: 17774990, 7057435: 17774992, 5986292: 17774994, 12329227: 17774998, 5173864: 12139864, 7000508: 15116112, 7721868: 15408661, 15740961: 17475800}.get(lei.get("id"))
+                  item["modelos"] = []
+                  if fee:
+                      d = requests.get(f"{B}/transactions/{fee}", headers=hb, timeout=30).json()
+                      if d.get("lawsuits_id") == lei.get("id") and (str(d.get("date_payment") or "")[:10] == p["dia"] or not d.get("date_payment")):
+                          item["modelos"].append({"id": d.get("id"), "valor": d.get("amount"), "categories_id": d.get("categories_id"),
+                              "cost_centers_id": d.get("cost_centers_id"), "customers_id": d.get("customers_id"),
+                              "lawsuits_id": d.get("lawsuits_id"), "categoria": d.get("category"), "pago": bool(d.get("date_payment"))})
+              plano.append(item)
+
+          resultado = {"modo": "executar" if executar else "plano", "campos_lancamento": sorted(amostra.keys()), "itens": plano, "execucao": []}
+          if executar:
+              for it in plano:
+                  if not it.get("processo_achado") or len(it.get("modelos", [])) != 1:
+                      resultado["execucao"].append({"valor": it["valor"], "acao": "pulado", "motivo": "processo não achado ou modelo não único"}); continue
+                  m = it["modelos"][0]
+                  payload = {"users_id": 65747, "entry_type": "income", "debit_account": 193264,
+                             "categories_id": m["categories_id"], "cost_centers_id": m["cost_centers_id"],
+                             "customers_id": m["customers_id"], "amount": money(it["valor"]),
+                             "date_due": it["dia"], "date_payment": it["dia"],
+                             "description": f"Repasse Caixa (êxito) - fatura {it['fatura_nr']}"}
+                  if m.get("lawsuits_id"): payload["lawsuits_id"] = m["lawsuits_id"]
+                  r = requests.post(f"{B}/transactions", headers=hb, json=payload, timeout=30)
+                  ok = r.status_code in (200, 201)
+                  ex = {"valor": it["valor"], "criado": ok, "http": r.status_code, "resp": r.text[:200]}
+                  if ok and m.get("pago"):
+                      u = requests.put(f"{B}/transactions/{m['id']}", headers=hb, json={"date_payment": ""}, timeout=30)
+                      ex.update({"desmarcado_modelo_id": m["id"], "desmarcado_http": u.status_code})
+                  resultado["execucao"].append(ex)
+          json.dump(resultado, open("lancar_receita_caixa.json", "w"), ensure_ascii=False, indent=1)
+          print(json.dumps(resultado, ensure_ascii=False)[:1500])
+          PY
+      - name: Commit resultado
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f lancar_receita_caixa.json
+          git diff --cached --quiet || git commit -m "Lançamento de receita dos repasses da Caixa (${{ github.event.inputs.modo }})"
+          git pull --rebase origin main || true
+          git push || echo "Push falhou"

@@ -1,0 +1,69 @@
+name: Auditar campos obrigatórios das receitas (somente leitura)
+on:
+  workflow_dispatch:
+    inputs:
+      inicio: {description: "pagos desde", required: true, default: "2026-09-01"}
+      fim: {description: "pagos até", required: true, default: "2026-09-30"}
+permissions:
+  contents: write
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          INI: ${{ github.event.inputs.inicio }}
+          FIM: ${{ github.event.inputs.fim }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, requests
+          from collections import Counter
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          INI,FIM=os.environ["INI"],os.environ["FIM"]
+          def get(p,params=None):
+              for _ in range(6):
+                  r=requests.get(f"{B}/{p}",headers=hb,params=params,timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); return r
+          st=get("settings").json().get("financial",{})
+          CATS={c["category"] for c in st["categories"]}; CCS={c["cost_center"] for c in st["cost_centers"]}
+          trs=[]; off=0
+          while True:
+              b=get("transactions",{"limit":1000,"offset":off}).json().get("data",[]); trs+=b
+              if len(b)<1000: break
+              off+=1000
+          GEN={"HONORÁRIOS INICIAIS","HONORÁRIOS FINAIS","HONORÁRIOS DE SUCUMBÊNCIA","HONORÁRIOS POR MENSALIDADE","HONORÁRIOS CONTRATUAIS"}
+          mes=[t for t in trs if t.get("entry_type")=="income" and str(t.get("debit_bank") or "").upper()=="ASAAS" and INI<=str(t.get("date_payment") or "")[:10]<=FIM]
+          flags=Counter(); lista=[]
+          for t in mes:
+              f=[]
+              cat=t.get("category"); cc=t.get("cost_center")
+              if not cat: f.append("sem categoria")
+              elif cat in GEN or cat not in CATS: f.append("categoria genérica/inválida")
+              if not cc: f.append("sem centro de custo")
+              elif cc=="GERAL": f.append("centro de custo GERAL")
+              elif cc not in CCS: f.append("centro de custo inválido")
+              if not str(t.get("name") or "").strip(): f.append("sem cliente")
+              if not t.get("lawsuit_id"): f.append("sem processo")
+              for x in f: flags[x]+=1
+              if f: lista.append({"id":t["id"],"nome":t.get("name"),"valor":t.get("amount"),"pago":str(t.get("date_payment"))[:10],"categoria":cat,"centro":cc,"problemas":f,"processo":t.get("lawsuit_id")})
+          sem_proc_cat=Counter(("consultoria" if "CONSULTORIA" in str(l["categoria"]).upper() else "êxito" if "ÊXITO" in str(l["categoria"]).upper() or "EXITO" in str(l["categoria"]).upper() else "iniciais/outras") for l in lista if "sem processo" in l["problemas"])
+          pub={"periodo":[INI,FIM],"receitas_asaas_pagas":len(mes),"com_algum_problema":len(lista),"por_problema":dict(flags),"sem_processo_por_tipo":dict(sem_proc_cat),
+               "problemas_sem_contar_processo":sum(1 for l in lista if [p for p in l["problemas"] if p!="sem processo"])}
+          json.dump(pub,open("auditoria_campos.json","w"),ensure_ascii=False,indent=1)
+          json.dump({"itens":lista},open("auditoria_campos_itens.json","w"),ensure_ascii=False)
+          print(json.dumps(pub,ensure_ascii=False))
+          PY
+          openssl cms -encrypt -binary -aes-256-cbc -in auditoria_campos_itens.json -out auditoria_campos_itens.enc -outform DER .github/relatorio-publico.pem
+          rm -f auditoria_campos_itens.json
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f auditoria_campos.json auditoria_campos_itens.enc; git commit -m "auditoria campos" || true
+          git pull --rebase origin main || true; git push || true

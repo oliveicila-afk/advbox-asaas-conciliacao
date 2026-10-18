@@ -1,0 +1,51 @@
+name: Reverter unpay — lançamentos Bemol 08/09/2026
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - name: Verificar e remarcar como pago
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, requests, json
+
+          headers = {
+              "Authorization": f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}",
+              "User-Agent": "Mozilla/5.0",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+          }
+
+          ids_valores = {
+              "18166951": "3760,00",
+              "18166952": "3985,60",
+              "18166953": "495,38",
+          }
+
+          for tx_id, valor in ids_valores.items():
+              url = f"https://app.advbox.com.br/api/v1/transactions/{tx_id}"
+              r = requests.get(url, headers=headers, timeout=30)
+              if r.status_code == 200:
+                  tx = r.json()
+                  dp = tx.get("date_payment", "")
+                  print(f"ID {tx_id}: date_payment atual = '{dp}'")
+                  if not dp:
+                      rp = requests.put(url, headers=headers, json={"date_payment": "2026-09-08"}, timeout=30)
+                      print(f"  → remarcado como pago: HTTP {rp.status_code} | {rp.text[:200]}")
+                  else:
+                      print(f"  → já está pago, nada a fazer")
+              else:
+                  print(f"ID {tx_id}: erro HTTP {r.status_code} | {r.text[:200]}")
+          PY

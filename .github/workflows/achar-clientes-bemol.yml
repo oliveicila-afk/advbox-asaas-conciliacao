@@ -1,0 +1,48 @@
+name: Achar clientes e processos por nome (somente leitura, sem nomes)
+on:
+  workflow_dispatch:
+    inputs:
+      nomes: {description: "trechos de nome separados por ;", required: true, default: "HOZANA;FLAVIA PINHEIRO"}
+permissions:
+  contents: write
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install requests -q
+      - env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          NOMES: ${{ github.event.inputs.nomes }}
+        run: |
+          python3 - <<'PY'
+          import os, json, time, unicodedata, requests
+          hb={"Authorization":f"Bearer {os.environ['ADVBOX_TOKEN'].strip()}","User-Agent":"Mozilla/5.0","Accept":"application/json"}
+          B="https://app.advbox.com.br/api/v1"
+          sa=lambda t: unicodedata.normalize("NFKD",str(t or "")).encode("ascii","ignore").decode().upper()
+          ini=lambda s:" ".join(p[0] for p in sa(s).split()) or "-"
+          nm=lambda x: x.get("name") if isinstance(x,dict) else x
+          lws=[]; off=0
+          while True:
+              for _ in range(6):
+                  r=requests.get(f"{B}/lawsuits",headers=hb,params={"limit":1000,"offset":off},timeout=90)
+                  if r.status_code!=429: break
+                  time.sleep(30)
+              time.sleep(2.2); b=r.json().get("data",[]); lws+=b
+              if len(b)<1000: break
+              off+=1000
+          out=[]
+          for n in [x.strip() for x in os.environ["NOMES"].split(";") if x.strip()]:
+              for l in lws:
+                  for c in (l.get("customers") or []):
+                      if isinstance(c,dict) and n in sa(c.get("name")):
+                          out.append({"busca":n[:6],"cliente":ini(c.get("name")),"customer_id":c.get("customer_id"),"origem":c.get("origin"),"lawsuit_id":l.get("id"),"tese":nm(l.get("type")),"grupo":nm(l.get("group")),"etapa":l.get("stage")})
+          json.dump(out,open("achar_clientes_bemol.json","w"),ensure_ascii=False,indent=1)
+          PY
+      - if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f achar_clientes_bemol.json; git commit -m "achar clientes" || true
+          git pull --rebase origin main || true; git push || true
