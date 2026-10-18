@@ -1,0 +1,31 @@
+name: Checagem - aplicar regra do líquido (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      aplicar:
+        description: "true grava a data de pagamento nos ids informados; false só simula"
+        required: true
+        default: "false"
+      ids:
+        description: "ids internos dos lançamentos a gravar (separados por vírgula)"
+        required: false
+        default: ""
+
+jobs:
+  aplicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Aplicar regra do líquido
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_TOKEN: ${{ secrets.ASAAS_TOKEN }}
+          APLICAR: ${{ github.event.inputs.aplicar }}
+          IDS: ${{ github.event.inputs.ids }}
+        working-directory: checagem-exito
+        run: python aplicar_regra_liquido.py
