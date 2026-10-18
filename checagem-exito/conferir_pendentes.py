@@ -184,7 +184,7 @@ def main() -> int:
                   f"Advbox {l.get('amount')} | Asaas {[(x.get('date'), x.get('value')) for x in casados][:3]}")
         else:
             sem_receb.append(l)
-            print(f"  SEM RECEBIMENTO {mascarar(proc)} venc {str(l.get('date_due'))[:10]} valor {l.get('amount')}")
+            print(f"  SEM RECEBIMENTO id={l.get('id')} {mascarar(proc)} venc {str(l.get('date_due'))[:10]} valor {l.get('amount')}")
 
     print(f"\nResumo vencidos: {len(vencidos)} | sem número de processo: {sem_proc} | "
           f"com processo: {len(com_proc)} | recebimento no Asaas: {achados} | "
