@@ -22,14 +22,15 @@ def main():
     cats = {str(c.get("id")): c.get("name") or c.get("title") for c in fin.get("categories") or []}
     ccs = {str(c.get("id")): c.get("name") or c.get("title") for c in fin.get("cost_centers") or []}
     print(f"CATEGORIAS cadastradas: {len(cats)} | CENTROS cadastrados: {len(ccs)}")
-    print("CATEGORIAS com 'exito' no nome:", [(k, v) for k, v in cats.items() if "exit" in norm(v)])
-    print("CENTROS cadastrados (nomes):", sorted(str(v) for v in ccs.values()))
+    print("CATEGORIAS com 'exito' no nome:", [v for k, v in cats.items() if "exit" in norm(v)][:10])
 
     for tx, tipo in GRAVADOS.items():
         d = a.detalhe(tx)
-        print(f"LANÇAMENTO {tx} ({tipo}): categories_id={d.get('categories_id')} "
-              f"cost_centers_id={d.get('cost_centers_id')} "
-              f"campos_relacionados={sorted(k for k in d if 'categor' in k or 'cost' in k or 'center' in k)}")
+        cat_obj = d.get("category") if isinstance(d.get("category"), dict) else {}
+        cc_obj = d.get("cost_center") if isinstance(d.get("cost_center"), dict) else {}
+        print(f"LANÇAMENTO {tx} ({tipo}): categoria={cat_obj.get('name') or cat_obj.get('title') or d.get('category')} "
+              f"| centro_de_custo={cc_obj.get('name') or cc_obj.get('title') or d.get('cost_center')} "
+              f"| chaves_centro={sorted(cc_obj.keys())[:8]}")
 
     todos, off = [], 0
     while off < 5000:
@@ -41,7 +42,8 @@ def main():
         off += len(dados)
         if not dados or off >= int(pag.get("totalCount", off)):
             break
-    print(f"Receitas lidas no Advbox: {len(todos)}")
+    print(f"Receitas lidas no Advbox: {len(todos)} de {pag.get('totalCount')}")
+    print("Contas (debit_bank) mais frequentes:", Counter(str(t.get("debit_bank")) for t in todos).most_common(6))
     contexto = [t for t in todos if (t.get("debit_bank") or "").upper() == "CONTADORIA" and t.get("date_payment")]
     print(f"Receitas da CONTADORIA já baixadas: {len(contexto)}")
     if contexto:
