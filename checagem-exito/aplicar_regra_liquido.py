@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from datetime import date, datetime, timedelta
 
 import requests
@@ -31,6 +32,9 @@ TOLERANCIA = 110.0
 PRISCILA_ID = 65747
 GABI_ID = 178866
 TIPO_TAREFA_COBRANCA_EXITO = 9829684  # COMUNIC. FINANCEIRO - COBRANÇA DE ÊXITO
+CENTRO_PM_AM_TRAFEGO = "PM/AM-TRÁFEGO PAGO"  # gratificação de curso
+CENTRO_ESCALONAMENTO = "ESCALONAMENTO PC/AM-TRÁFEGO PAGO"  # escalonamento
+PERCENTUAL = re.compile(r"(\d{1,3}(?:[.,]\d+)?)\s?%")
 
 SEGMENTO_LIQUIDO = re.compile(r"l[ií]quid|alvar[áa]", re.IGNORECASE)
 VALOR_RS = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+,\d{2})")
@@ -98,14 +102,15 @@ def detalhe(tx_id) -> dict:
     return corpo.get("data", corpo) if isinstance(corpo, dict) else corpo
 
 
-def salvar(det: dict, data_pagamento: str, novo_valor: float | None = None) -> bool:
+def salvar(det: dict, data_pagamento: str, novo_valor: float | None = None,
+           categories_id=None, cost_centers_id=None) -> bool:
     valor = novo_valor if novo_valor is not None else float(det.get("amount") or 0)
     payload = {
         "entry_type": det.get("entry_type") or "income",
         "users_id": det.get("users_id") or PRISCILA_ID,
         "debit_account": det.get("debit_account"),
-        "categories_id": det.get("categories_id"),
-        "cost_centers_id": det.get("cost_centers_id"),
+        "categories_id": categories_id or det.get("categories_id"),
+        "cost_centers_id": cost_centers_id or det.get("cost_centers_id"),
         "customers_id": det.get("customers_id"),
         "lawsuits_id": det.get("lawsuits_id"),
         "amount": valor_advbox(valor),
@@ -164,6 +169,61 @@ def prazo_30_dias(data_recebimento: str) -> str:
     return alvo.isoformat()
 
 
+def norm(s) -> str:
+    return unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode().lower().strip()
+
+
+def cadastro_ids() -> dict:
+    """IDs do cadastro do Advbox usados pelas regras de categoria e centro de custo."""
+    r = cp._get(f"{cp.ADVBOX_BASE}/settings", headers())
+    dados = r.json().get("data", r.json())
+    fin = dados.get("financial") or {}
+
+    def unico(itens, criterio):
+        achados = [c.get("id") for c in itens or []
+                   if any(criterio(norm(v)) for v in c.values() if isinstance(v, str))]
+        return achados[0] if len(achados) == 1 else None
+
+    return {
+        "pm": unico(fin.get("cost_centers"), lambda t: t == norm(CENTRO_PM_AM_TRAFEGO)),
+        "esc": unico(fin.get("cost_centers"), lambda t: t == norm(CENTRO_ESCALONAMENTO)),
+        "suc": unico(fin.get("categories"), lambda t: "sucumbenc" in t and "item b" in t),
+    }
+
+
+def tese_do_processo(lawsuit_id) -> str:
+    if not lawsuit_id:
+        return ""
+    rl = cp._get(f"{cp.ADVBOX_BASE}/lawsuits/{lawsuit_id}", headers())
+    if rl.status_code != 200:
+        return ""
+    corpo = rl.json()
+    L = corpo.get("data", corpo) if isinstance(corpo, dict) else {}
+    t = L.get("type")
+    return str((t.get("name") if isinstance(t, dict) else t) or L.get("lawsuit_type") or "")
+
+
+def ajustes_de_classificacao(det: dict, tese: str, ids: dict):
+    """Regras combinadas: devolve (categories_id, cost_centers_id) novos, ou None quando não muda.
+    - gratificação de curso -> centro PM/AM-TRÁFEGO PAGO
+    - escalonamento -> centro ESCALONAMENTO PC/AM-TRÁFEGO PAGO
+    - anulação de questão / discursiva com descrição 100% -> categoria SUCUMBENCIAL ITEM B
+    """
+    nova_cat = nova_cc = None
+    t = norm(tese)
+    if "gratificac" in t and "curso" in t and ids.get("pm"):
+        if str(det.get("cost_centers_id")) != str(ids["pm"]):
+            nova_cc = ids["pm"]
+    if "escalonamento" in t and ids.get("esc"):
+        if str(det.get("cost_centers_id")) != str(ids["esc"]):
+            nova_cc = ids["esc"]
+    if ("anulac" in t or "discursiv" in t) and ids.get("suc"):
+        pct = [float(p.replace(",", ".")) for p in PERCENTUAL.findall(str(det.get("description") or ""))]
+        if pct and all(p == 100 for p in pct) and str(det.get("categories_id")) != str(ids["suc"]):
+            nova_cat = ids["suc"]
+    return nova_cat, nova_cc
+
+
 def main() -> int:
     if not cp.ADVBOX_TOKEN or not cp.ASAAS_TOKEN:
         print("ERRO: tokens não configurados.")
@@ -172,6 +232,9 @@ def main() -> int:
     lancs = cp.advbox_contadoria_sem_pagamento()
     vencidos = [l for l in lancs if (l.get("date_due") or "9999")[:10] < cp.HOJE]
     recebs = cp.recebimentos_asaas()
+    CADASTRO = cadastro_ids()
+    if not all(CADASTRO.values()):
+        print(f"AVISO: cadastro incompleto para as regras de classificação: {CADASTRO}")
     por_digitos = {}
     for r in recebs:
         ref = cp.digitos(r.get("externalReference"))
@@ -215,14 +278,21 @@ def main() -> int:
             print("  ABORTADO: valor do lançamento mudou antes da gravação")
             continue
 
+        nova_cat = nova_cc = None
+        if decisao in ("ENQUADRA", "PENDENTE"):
+            nova_cat, nova_cc = ajustes_de_classificacao(det, tese_do_processo(lid), CADASTRO)
+            if nova_cat or nova_cc:
+                print(f"  classificação: categoria {'muda' if nova_cat else 'mantida'} | "
+                      f"centro {'muda' if nova_cc else 'mantido'}")
+
         if decisao == "ENQUADRA":
-            ok = salvar(det, data_asaas)
+            ok = salvar(det, data_asaas, categories_id=nova_cat, cost_centers_id=nova_cc)
             depois = detalhe(tx_id)
             gravacoes += 1
             print(f"  GRAVAÇÃO data: {'OK' if ok else 'FALHOU'} | data={str(depois.get('date_payment'))[:10]} "
                   f"| bruto mantido={float(depois.get('amount') or 0) == bruto}")
         elif decisao == "PENDENTE":
-            ok = salvar(det, data_asaas, novo_valor=valor_asaas)
+            ok = salvar(det, data_asaas, novo_valor=valor_asaas, categories_id=nova_cat, cost_centers_id=nova_cc)
             depois = detalhe(tx_id)
             gravacoes += 1
             print(f"  GRAVAÇÃO pendente: {'OK' if ok else 'FALHOU'} | data={str(depois.get('date_payment'))[:10]} "
