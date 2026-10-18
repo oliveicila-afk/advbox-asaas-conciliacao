@@ -30,7 +30,7 @@ payload = {
     "display_schedule": True,
 }
 r = requests.post(f"{cp.ADVBOX_BASE}/posts", headers=a.headers(), json=payload, timeout=30)
-print(f"NOVA tarefa criada: status {r.status_code}")
+print(f"NOVA tarefa criada: status {r.status_code} | erro: {r.text[:300]}")
 time.sleep(2.2)
 if r.status_code in (200, 201):
     d = requests.delete(f"{cp.ADVBOX_BASE}/posts/{POST_ANTIGO}", headers=a.headers(), timeout=30)
