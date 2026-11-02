@@ -40,18 +40,25 @@ class AsaasAPI:
         })
 
     def buscar_cobranca(self, numero_cobranca: str) -> Dict:
-        """Busca uma cobrança pelo número de referência"""
-        response = self.session.get(
-            f"{self.BASE_URL}/payments",
-            params={"reference": numero_cobranca}
-        )
-        try:
-            data = response.json() if response.text else {}
-            if data.get("data"):
-                return data["data"][0]  # Retorna primeira cobrança encontrada
-            return {}
-        except:
-            return {}
+        """Busca uma cobrança pelo número de referência com retry"""
+        for tentativa in range(3):  # 3 tentativas
+            try:
+                response = self.session.get(
+                    f"{self.BASE_URL}/payments",
+                    params={"reference": numero_cobranca},
+                    timeout=30
+                )
+                data = response.json() if response.text else {}
+                if data.get("data"):
+                    return data["data"][0]  # Retorna primeira cobrança encontrada
+                return {}
+            except Exception as e:
+                if tentativa < 2:
+                    print(f"      ⚠️  Erro na tentativa {tentativa+1}, retentando...")
+                    time.sleep(5)  # Aguarda 5s antes de retry
+                else:
+                    return {}
+        return {}
 
 
 class AdvboxAPI:
@@ -93,7 +100,7 @@ class AdvboxAPI:
 
             processos.extend(data)
             offset += 1000
-            time.sleep(2.2)
+            time.sleep(5)
 
         # Cria cache indexado pelo número do processo
         for proc in processos:
@@ -132,7 +139,7 @@ class AdvboxAPI:
 
             transacoes.extend(data)
             offset += 1000
-            time.sleep(2.2)
+            time.sleep(5)
 
         return transacoes
 
@@ -387,7 +394,7 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
                 'erro': mensagem
             })
 
-        time.sleep(2.2)  # Rate limiting
+        time.sleep(5)  # Rate limiting - aumentado para evitar timeout
 
     # Resumo
     print("\n" + "=" * 60)
