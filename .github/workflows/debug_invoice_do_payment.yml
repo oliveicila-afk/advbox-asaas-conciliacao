@@ -1,0 +1,24 @@
+name: Debug Invoice do Payment
+
+on:
+  workflow_dispatch
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Debug Invoice
+        env:
+          ASAAS_CHAVE: ${{ secrets.ASAAS_CHAVE }}
+        run: python scripts/debug_invoice_do_payment.py
