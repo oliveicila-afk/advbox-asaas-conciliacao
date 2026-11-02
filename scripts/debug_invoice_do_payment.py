@@ -36,11 +36,11 @@ if __name__ == "__main__":
 
     asaas = AsaasAPI(asaas_key)
 
-    # Invoice ID do payment anterior
-    invoice_id = "6g5s17vhbgg4jbu2"
-    print(f"Buscando invoice: {invoice_id}\n")
+    # Invoice number do payment anterior
+    invoice_number = "956366146"
+    print(f"Buscando invoice: {invoice_number}\n")
 
-    result = asaas.buscar_invoice(invoice_id)
+    result = asaas.buscar_invoice(invoice_number)
 
     if result.get('id'):
         print("=" * 80)
