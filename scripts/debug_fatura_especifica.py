@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Debug: busca uma cobrança específica para ver todos os campos"""
+"""Debug: busca uma cobrança específica para ver TODOS os campos incluindo customFields"""
 
 import os
 import json
@@ -44,7 +44,35 @@ if __name__ == "__main__":
 
     if result.get("data"):
         cobranca = result["data"][0]
+
+        print("=" * 80)
+        print("COBRANÇA ENCONTRADA - JSON COMPLETO:")
+        print("=" * 80)
         print(json.dumps(cobranca, indent=2, ensure_ascii=False))
+
+        print("\n" + "=" * 80)
+        print("CAMPOS IMPORTANTES EXTRAÍDOS:")
+        print("=" * 80)
+        print(f"ID: {cobranca.get('id')}")
+        print(f"Reference: {cobranca.get('reference')}")
+        print(f"Description: {cobranca.get('description')}")
+        print(f"ExternalReference: {cobranca.get('externalReference')}")
+        print(f"InvoiceNumber: {cobranca.get('invoiceNumber')}")
+        print(f"JudicialProcessNumber: {cobranca.get('judicialProcessNumber')}")
+        print(f"ExternalIdentifier: {cobranca.get('externalIdentifier')}")
+
+        print("\n" + "=" * 80)
+        print("CUSTOM FIELDS (se existentes):")
+        print("=" * 80)
+        if cobranca.get('customFields'):
+            print(json.dumps(cobranca.get('customFields'), indent=2, ensure_ascii=False))
+        else:
+            print("Nenhum customFields encontrado")
+
+        print("\n" + "=" * 80)
+        print("TODAS AS CHAVES DO OBJETO:")
+        print("=" * 80)
+        print(f"Chaves: {list(cobranca.keys())}")
     else:
         print(f"Nenhuma cobrança encontrada com reference '{numero}'")
         print(f"\nResposta completa da API:")
