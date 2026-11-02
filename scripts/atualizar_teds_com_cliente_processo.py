@@ -39,16 +39,16 @@ class AsaasAPI:
             "Content-Type": "application/json"
         })
 
-    def buscar_fatura(self, numero_fatura: str) -> Dict:
-        """Busca uma fatura pelo número de referência"""
+    def buscar_cobranca(self, numero_cobranca: str) -> Dict:
+        """Busca uma cobrança pelo número de referência"""
         response = self.session.get(
-            f"{self.BASE_URL}/invoices",
-            params={"reference": numero_fatura}
+            f"{self.BASE_URL}/payments",
+            params={"reference": numero_cobranca}
         )
         try:
             data = response.json() if response.text else {}
             if data.get("data"):
-                return data["data"][0]  # Retorna primeira fatura encontrada
+                return data["data"][0]  # Retorna primeira cobrança encontrada
             return {}
         except:
             return {}
@@ -154,37 +154,42 @@ class AdvboxAPI:
             return False, str(erro)
 
 
-def extrair_numero_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) -> str:
+def extrair_numero_processo_do_asaas(asaas_api: AsaasAPI, numero_cobranca: str) -> str:
     """
-    Extrai o número do processo da fatura no ASAAS
+    Extrai o número do processo da cobrança no ASAAS (payments, não invoices)
 
-    Procura em: judicialProcessNumber, lawNumber, externalIdentifier, identifier
+    Procura em: judicialProcessNumber, externalIdentifier, customFields
 
     Returns:
         Número do processo ou "" se não encontrar
     """
-    fatura = asaas_api.buscar_fatura(numero_fatura)
+    cobranca = asaas_api.buscar_cobranca(numero_cobranca)
 
-    if not fatura:
+    if not cobranca:
         return ""
 
-    # Tenta campos diretos (possíveis nomes na API)
+    # Tenta campos diretos da cobrança
     campos_processo = [
         'judicialProcessNumber',
-        'lawNumber',
         'externalIdentifier',
+        'lawNumber',
         'identifier',
         'processNumber',
         'numero_processo'
     ]
 
     for campo in campos_processo:
-        valor = fatura.get(campo, '').strip() if isinstance(fatura.get(campo), str) else ''
+        valor = cobranca.get(campo, '')
+        if isinstance(valor, str):
+            valor = valor.strip()
+        else:
+            valor = str(valor) if valor else ''
+
         if valor and valor != '0' * len(valor):  # Ignora campos com apenas zeros
             return valor
 
     # Fallback: procura nos customFields
-    for field in fatura.get('customFields', []):
+    for field in cobranca.get('customFields', []):
         field_name = field.get('name', '').lower()
         if field_name in ['processo', 'process', 'process_id', 'numero_processo', 'nº processo']:
             valor = field.get('value', '').strip()
