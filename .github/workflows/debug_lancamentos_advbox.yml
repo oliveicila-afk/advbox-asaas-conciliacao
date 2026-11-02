@@ -1,0 +1,24 @@
+name: Debug Lançamentos Advbox
+
+on:
+  workflow_dispatch
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Debug Lançamentos Advbox
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: python scripts/debug_lancamentos_advbox.py
