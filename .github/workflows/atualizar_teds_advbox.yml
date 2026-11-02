@@ -21,5 +21,8 @@ jobs:
           pip install requests
 
       - name: Atualizar TEDs
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+          ASAAS_CHAVE: ${{ secrets.ASAAS_CHAVE }}
         run: |
-          python scripts/atualizar_teds_com_cliente_processo.py "${{ secrets.ADVBOX_TOKEN }}" "${{ secrets.ASAAS_CHAVE }}"
+          python scripts/atualizar_teds_com_cliente_processo.py "$ADVBOX_TOKEN" "$ASAAS_CHAVE"
