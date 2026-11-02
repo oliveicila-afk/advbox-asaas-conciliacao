@@ -158,6 +158,8 @@ def extrair_numero_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) ->
     """
     Extrai o número do processo da fatura no ASAAS
 
+    Procura em: judicialProcessNumber, lawNumber, externalIdentifier, identifier
+
     Returns:
         Número do processo ou "" se não encontrar
     """
@@ -166,7 +168,22 @@ def extrair_numero_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) ->
     if not fatura:
         return ""
 
-    # Procura pelo número do processo nos customFields
+    # Tenta campos diretos (possíveis nomes na API)
+    campos_processo = [
+        'judicialProcessNumber',
+        'lawNumber',
+        'externalIdentifier',
+        'identifier',
+        'processNumber',
+        'numero_processo'
+    ]
+
+    for campo in campos_processo:
+        valor = fatura.get(campo, '').strip() if isinstance(fatura.get(campo), str) else ''
+        if valor and valor != '0' * len(valor):  # Ignora campos com apenas zeros
+            return valor
+
+    # Fallback: procura nos customFields
     for field in fatura.get('customFields', []):
         field_name = field.get('name', '').lower()
         if field_name in ['processo', 'process', 'process_id', 'numero_processo', 'nº processo']:
