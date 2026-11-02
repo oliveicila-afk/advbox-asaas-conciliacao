@@ -148,7 +148,7 @@ def encontrar_lancamento(transacoes: List[Dict], numero_fatura: str) -> Dict:
     descricao_esperada = f"TED recebida - Fatura {numero_fatura}"
 
     for t in transacoes:
-        desc = t.get('description', '')
+        desc = (t.get('description') or '')
         if descricao_esperada in desc or numero_fatura in desc:
             return t
 
