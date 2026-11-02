@@ -17,7 +17,7 @@ class AdvboxAPI:
         self.token = token
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": f"Bearer {token}",
+            "access_token": token,  # Advbox usa 'access_token', não 'Bearer'
             "Content-Type": "application/json"
         })
 
