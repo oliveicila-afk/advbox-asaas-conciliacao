@@ -2,29 +2,29 @@ name: Lançar TEDs no Advbox
 
 on:
   workflow_dispatch:
-      inputs:
-            api_key:
-                    description: 'Chave de API do Advbox'
-                            required: true
-                                    type: string
+    inputs:
+      api_key:
+        description: 'Chave de API do Advbox'
+        required: true
+        type: string
 
-                                    jobs:
-                                      lanca_teds:
-                                          runs-on: ubuntu-latest
-
-                                                  steps:
-                                                        - uses: actions/checkout@v3
-
-                                                                    - name: Set up Python
-                                                                            uses: actions/setup-python@v4
-                                                                                    with:
-                                                                                              python-version: '3.11'
-                                                                                                    
-                                                                                                          - name: Install dependencies
-                                                                                                                  run: |
-                                                                                                                            python -m pip install --upgrade pip
-                                                                                                                                      pip install requests
-                                                                                                                                            
-                                                                                                                                                  - name: Lançar TEDs
-                                                                                                                                                          run: |
-                                                                                                                                                                    python scripts/lanca_teds_advbox.py "${{ github.event.inputs.api_key }}"
+jobs:
+  lanca_teds:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+      
+      - name: Lançar TEDs
+        run: |
+          python scripts/lanca_teds_advbox.py "${{ github.event.inputs.api_key }}"
