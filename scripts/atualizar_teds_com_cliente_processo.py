@@ -94,12 +94,13 @@ class AdvboxAPI:
 
     def atualizar_transacao(self, transacao_id: int, dados: Dict) -> Tuple[bool, str]:
         """Atualiza uma transação com novos dados"""
-        response = self.session.patch(
+        # Tenta PUT primeiro (método padrão para atualização)
+        response = self.session.put(
             f"{self.BASE_URL}/transactions/{transacao_id}",
             json=dados
         )
 
-        if response.status_code == 200:
+        if response.status_code in [200, 201]:
             return True, "Atualizado"
         else:
             try:
