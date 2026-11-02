@@ -124,7 +124,7 @@ class AdvboxAPI:
             "cost_centers_id": cost_centers_id,
             "amount": valor_formatado,
             "date_due": data,
-            "payment_date": data,
+            "date_payment": data,
             "description": f"TED recebida - Fatura {numero_referencia}",
         }
 

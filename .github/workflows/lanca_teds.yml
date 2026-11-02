@@ -31,4 +31,4 @@ jobs:
 
       - name: Lançar TEDs
         run: |
-          python scripts/lanca_teds_advbox.py "${{ secrets.ADVBOX_TOKEN }}"
+          python scripts/lanca_teds_advbox.py "${{ secrets.ADVBOX_TOKEN }}" "${{ secrets.ASAAS_TOKEN }}"
