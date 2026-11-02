@@ -126,7 +126,10 @@ def extrair_cliente_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) -
 
     # Extrai customer_id
     if 'customer' in fatura and fatura['customer']:
-        customer_id = fatura['customer'].get('id', '')
+        if isinstance(fatura['customer'], dict):
+            customer_id = fatura['customer'].get('id', '')
+        elif isinstance(fatura['customer'], str):
+            customer_id = fatura['customer']
 
     # Extrai process_id dos customFields
     for field in fatura.get('customFields', []):
