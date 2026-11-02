@@ -26,7 +26,7 @@ TEDS = [
 class AdvboxAPI:
     """Cliente para a API do Advbox"""
 
-    BASE_URL = "https://app.advbox.com.br"
+    BASE_URL = "https://app.advbox.com.br/api/v1"
 
     def __init__(self, api_key: str):
         """
@@ -42,40 +42,52 @@ class AdvboxAPI:
             "Content-Type": "application/json"
         })
 
-    def criar_receita(
+    def obter_configuracoes(self) -> Dict:
+        """Obtém as configurações da conta (users, contas, categorias, etc)"""
+        response = self.session.get(f"{self.BASE_URL}/settings")
+        try:
+            return response.json() if response.text else {}
+        except:
+            return {"raw_response": response.text}
+
+    def criar_transacao(
         self,
         valor: float,
-        data_pagamento: str,
+        data: str,
         numero_referencia: str,
-        conta_id: int = 193264,
-        categoria_id: Optional[int] = None,
-        descricao: str = "TED recebida"
+        users_id: int,
+        debit_account: int,
+        categories_id: int,
+        cost_centers_id: int,
     ) -> Dict:
         """
-        Cria um lançamento de receita no Advbox
+        Cria um lançamento de transação no Advbox
 
         Args:
             valor: Valor da receita
-            data_pagamento: Data do pagamento (YYYY-MM-DD)
+            data: Data da transação (YYYY-MM-DD)
             numero_referencia: Número da fatura/referência
-            conta_id: ID da conta (padrão: ASAAS)
-            categoria_id: ID da categoria (opcional)
-            descricao: Descrição do lançamento
+            users_id: ID do usuário responsável
+            debit_account: ID da conta bancária
+            categories_id: ID da categoria
+            cost_centers_id: ID do centro de custo
 
         Returns:
             Resposta da API
         """
-        payload = {
-            "tipo": 2,
-            "valor": valor,
-            "data_pagamento": data_pagamento,
-            "descricao": f"{descricao} - Fatura {numero_referencia}",
-            "numero_referencia": numero_referencia,
-            "conta_id": conta_id,
-        }
+        # Formata o valor com vírgula (ex: 1.500,00)
+        valor_formatado = f"{valor:,.2f}".replace(",", "TEMP").replace(".", ",").replace("TEMP", ".")
 
-        if categoria_id:
-            payload["categoria_id"] = categoria_id
+        payload = {
+            "users_id": users_id,
+            "entry_type": "income",
+            "debit_account": debit_account,
+            "categories_id": categories_id,
+            "cost_centers_id": cost_centers_id,
+            "amount": valor_formatado,
+            "date_due": data,
+            "description": f"TED recebida - Fatura {numero_referencia}",
+        }
 
         response = self.session.post(
             f"{self.BASE_URL}/transactions",
@@ -92,22 +104,6 @@ class AdvboxAPI:
             "success": response.status_code in [200, 201],
             "data": data,
             "error": response.text if response.status_code not in [200, 201] else None
-        }
-
-    def listar_contas(self) -> Dict:
-        """Lista as contas cadastradas no Advbox"""
-        response = self.session.get(f"{self.BASE_URL}/accounts")
-        return {
-            "status_code": response.status_code,
-            "data": response.json() if response.text else []
-        }
-
-    def listar_categorias(self) -> Dict:
-        """Lista as categorias cadastradas no Advbox"""
-        response = self.session.get(f"{self.BASE_URL}/categories")
-        return {
-            "status_code": response.status_code,
-            "data": response.json() if response.text else []
         }
 
 
@@ -128,6 +124,35 @@ def lançar_teds(api_key: str) -> None:
 
     api = AdvboxAPI(api_key)
 
+    # Obter configurações
+    print("\n[*] Obtendo configurações da conta...")
+    config = api.obter_configuracoes()
+
+    # Extrair IDs da primeira opção de cada categoria
+    users_id = config.get("users", [{}])[0].get("id") if config.get("users") else None
+    debit_account = config.get("financial", {}).get("banks", [{}])[0].get("id") if config.get("financial", {}).get("banks") else None
+    categories_id = None
+    cost_centers_id = config.get("financial", {}).get("cost_centers", [{}])[0].get("id") if config.get("financial", {}).get("cost_centers") else None
+
+    # Procura por categoria de CRÉDITO
+    for cat in config.get("financial", {}).get("categories", []):
+        if cat.get("type") == "CRÉDITO":
+            categories_id = cat.get("id")
+            break
+
+    if not all([users_id, debit_account, categories_id, cost_centers_id]):
+        print("\n⚠️  Aviso: Não foi possível obter todos os IDs automaticamente:")
+        print(f"  users_id: {users_id}")
+        print(f"  debit_account: {debit_account}")
+        print(f"  categories_id: {categories_id}")
+        print(f"  cost_centers_id: {cost_centers_id}")
+        print("\nContinuando com os IDs obtidos...")
+
+    print(f"  users_id: {users_id}")
+    print(f"  debit_account: {debit_account}")
+    print(f"  categories_id: {categories_id}")
+    print(f"  cost_centers_id: {cost_centers_id}")
+
     resultados = {
         "sucesso": [],
         "erro": []
@@ -138,18 +163,21 @@ def lançar_teds(api_key: str) -> None:
         print(f"  Valor: R$ {ted['valor']:,.2f}")
         print(f"  Data: {ted['data']}")
 
-        resultado = api.criar_receita(
+        resultado = api.criar_transacao(
             valor=ted['valor'],
-            data_pagamento=ted['data'],
+            data=ted['data'],
             numero_referencia=ted['numero_fatura'],
-            descricao="TED recebida"
+            users_id=users_id,
+            debit_account=debit_account,
+            categories_id=categories_id,
+            cost_centers_id=cost_centers_id,
         )
 
         if resultado['success']:
-            print(f"  Sucesso!")
+            print(f"  ✓ Sucesso!")
             resultados['sucesso'].append(ted)
         else:
-            print(f"  Erro: {resultado['error']}")
+            print(f"  ✗ Erro: {resultado['error']}")
             resultados['erro'].append({
                 **ted,
                 "erro": resultado['error']
@@ -159,8 +187,11 @@ def lançar_teds(api_key: str) -> None:
     print("\n" + "=" * 60)
     print("RESUMO DO LANÇAMENTO")
     print("=" * 60)
-    print(f"Lançados com sucesso: {len(resultados['sucesso'])}")
-    print(f"Com erro: {len(resultados['erro'])}")
+    print(f"Lançados com sucesso: {len(resultados['sucesso'])}/{len(TEDS)}")
+    print(f"Com erro: {len(resultados['erro'])}/{len(TEDS)}")
+
+    if resultados['sucesso']:
+        print(f"\nTotal lançado: R$ {sum(t['valor'] for t in resultados['sucesso']):,.2f}")
 
     if resultados['erro']:
         print("\nTEDs com erro:")
@@ -187,4 +218,6 @@ if __name__ == "__main__":
         lançar_teds(api_key)
     except Exception as e:
         print(f"\nErro ao executar script: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
