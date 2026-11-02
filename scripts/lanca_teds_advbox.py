@@ -26,7 +26,7 @@ TEDS = [
 class AdvboxAPI:
     """Cliente para a API do Advbox"""
 
-    BASE_URL = "https://api.advbox.com.br/v1"
+    BASE_URL = "https://app.advbox.com.br"
 
     def __init__(self, api_key: str):
         """
