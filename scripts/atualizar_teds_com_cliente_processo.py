@@ -259,19 +259,25 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
 
 if __name__ == "__main__":
     # Obter as chaves de API
+    print(f"[DEBUG] sys.argv length: {len(sys.argv)}")
+
     if len(sys.argv) > 1:
-        advbox_api_key = sys.argv[1]
+        advbox_api_key = sys.argv[1].strip()
     else:
-        advbox_api_key = input("Digite a chave de API do Advbox: ")
+        advbox_api_key = input("Digite a chave de API do Advbox: ").strip()
 
     if not advbox_api_key:
         print("Erro: Chave de API do Advbox não fornecida")
         sys.exit(1)
 
+    print(f"[DEBUG] Advbox OK")
+
     if len(sys.argv) > 2:
-        asaas_api_key = sys.argv[2]
+        asaas_api_key = sys.argv[2].strip()
     else:
-        asaas_api_key = input("Digite a chave de API do ASAAS: ")
+        asaas_api_key = input("Digite a chave de API do ASAAS: ").strip()
+
+    print(f"[DEBUG] ASAAS token received, length: {len(asaas_api_key)}")
 
     if not asaas_api_key:
         print("Erro: Chave de API do ASAAS não fornecida")
