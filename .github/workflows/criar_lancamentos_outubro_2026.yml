@@ -1,0 +1,24 @@
+name: Criar Lançamentos Outubro 2026
+
+on:
+  workflow_dispatch
+
+jobs:
+  criar_lancamentos:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Criar lançamentos no Advbox
+        env:
+          ADVBOX_TOKEN: ${{ secrets.ADVBOX_TOKEN }}
+        run: python scripts/criar_lancamentos_outubro_2026.py
