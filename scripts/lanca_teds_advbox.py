@@ -82,10 +82,15 @@ class AdvboxAPI:
             json=payload
         )
 
+        try:
+            data = response.json() if response.text else {}
+        except:
+            data = {"raw_response": response.text}
+
         return {
             "status_code": response.status_code,
             "success": response.status_code in [200, 201],
-            "data": response.json() if response.text else {},
+            "data": data,
             "error": response.text if response.status_code not in [200, 201] else None
         }
 
