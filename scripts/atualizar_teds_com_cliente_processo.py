@@ -66,6 +66,50 @@ class AdvboxAPI:
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         })
+        self.processos_cache = {}
+        self.categorias_cache = {}
+
+    def buscar_processos(self) -> Dict:
+        """Busca todos os processos e cria cache por número de processo"""
+        if self.processos_cache:
+            return self.processos_cache
+
+        processos = []
+        offset = 0
+
+        while True:
+            response = self.session.get(
+                f"{self.BASE_URL}/lawsuits",
+                params={"limit": 1000, "offset": offset}
+            )
+
+            if response.status_code != 200:
+                print(f"  ⚠️  Erro ao buscar processos: {response.status_code}")
+                break
+
+            data = response.json().get("data", [])
+            if not data:
+                break
+
+            processos.extend(data)
+            offset += 1000
+            time.sleep(2.2)
+
+        # Cria cache indexado pelo número do processo
+        for proc in processos:
+            numero = proc.get("number", "").strip()
+            if numero:
+                self.processos_cache[numero] = proc
+
+        return self.processos_cache
+
+    def obter_configuracoes(self) -> Dict:
+        """Obtém as configurações da conta (categories, etc)"""
+        response = self.session.get(f"{self.BASE_URL}/settings")
+        try:
+            return response.json() if response.text else {}
+        except:
+            return {}
 
     def buscar_transacoes(self) -> List[Dict]:
         """Busca todas as transações"""
@@ -110,35 +154,79 @@ class AdvboxAPI:
             return False, str(erro)
 
 
-def extrair_cliente_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) -> Tuple[str, str]:
+def extrair_numero_processo_do_asaas(asaas_api: AsaasAPI, numero_fatura: str) -> str:
     """
-    Extrai customer_id e process_id da fatura no ASAAS
+    Extrai o número do processo da fatura no ASAAS
 
     Returns:
-        Tupla (customer_id, process_id) ou ("", "") se não encontrar
+        Número do processo ou "" se não encontrar
     """
     fatura = asaas_api.buscar_fatura(numero_fatura)
 
     if not fatura:
-        return "", ""
+        return ""
 
-    customer_id = ""
-    process_id = ""
-
-    # Extrai customer_id
-    if 'customer' in fatura and fatura['customer']:
-        if isinstance(fatura['customer'], dict):
-            customer_id = fatura['customer'].get('id', '')
-        elif isinstance(fatura['customer'], str):
-            customer_id = fatura['customer']
-
-    # Extrai process_id dos customFields
+    # Procura pelo número do processo nos customFields
     for field in fatura.get('customFields', []):
-        if field.get('name', '').lower() in ['processo', 'process', 'process_id']:
-            process_id = field.get('value', '')
-            break
+        field_name = field.get('name', '').lower()
+        if field_name in ['processo', 'process', 'process_id', 'numero_processo', 'nº processo']:
+            valor = field.get('value', '').strip()
+            if valor:
+                return valor
 
-    return customer_id, process_id
+    return ""
+
+
+def extrair_dados_do_processo_advbox(advbox_api: AdvboxAPI, numero_processo: str) -> Dict:
+    """
+    Busca o processo no Advbox e extrai cliente, tipo de ação, etc.
+
+    Returns:
+        Dict com: customers_id, customer_name, lawsuit_type, lawsuit_id
+    """
+    processos = advbox_api.buscar_processos()
+
+    if numero_processo not in processos:
+        return {}
+
+    proc = processos[numero_processo]
+
+    return {
+        'lawsuit_id': proc.get('id', ''),
+        'lawsuit_number': proc.get('number', ''),
+        'lawsuit_type': proc.get('type', ''),  # Ex: "Ação Trabalhista | Reclamação"
+        'customers_id': proc.get('customers', [{}])[0].get('id', '') if proc.get('customers') else '',
+        'customer_name': proc.get('customers', [{}])[0].get('name', '') if proc.get('customers') else '',
+    }
+
+
+def extrair_categoria_por_tipo_acao(advbox_api: AdvboxAPI, lawsuit_type: str) -> str:
+    """
+    Mapeia o tipo de ação para a categoria correta no Advbox
+
+    Returns:
+        category_id ou "" se não encontrar
+    """
+    if not lawsuit_type:
+        return ""
+
+    config = advbox_api.obter_configuracoes()
+    categories = config.get('financial', {}).get('categories', [])
+
+    # Extrai a tese (parte após o |)
+    partes = lawsuit_type.split('|')
+    if len(partes) > 1:
+        tese = partes[1].strip().upper()
+    else:
+        tese = partes[0].strip().upper()
+
+    # Procura categoria que combine com a tese
+    for cat in categories:
+        category_name = cat.get('category', '').upper()
+        if tese in category_name or category_name in tese:
+            return str(cat.get('id', ''))
+
+    return ""
 
 
 def encontrar_lancamento(transacoes: List[Dict], numero_fatura: str) -> Dict:
@@ -159,7 +247,7 @@ def encontrar_lancamento(transacoes: List[Dict], numero_fatura: str) -> Dict:
 def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
     """Main function"""
     print("=" * 60)
-    print("Atualizando TEDs com cliente e processo do ASAAS")
+    print("Atualizando TEDs com cliente, processo e categoria do ASAAS")
     print("=" * 60)
 
     asaas = AsaasAPI(asaas_api_key)
@@ -170,6 +258,11 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
     transacoes = advbox.buscar_transacoes()
     print(f"    ✓ {len(transacoes)} transações encontradas")
 
+    # Pré-carrega todos os processos do Advbox
+    print("\n[*] Carregando processos do Advbox...")
+    processos = advbox.buscar_processos()
+    print(f"    ✓ {len(processos)} processos encontrados")
+
     # Processa cada TED
     resultados = {"sucesso": [], "erro": []}
 
@@ -177,19 +270,58 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
         numero_fatura = ted['numero_fatura']
         print(f"\n[{i}/{len(TEDS)}] Processando fatura {numero_fatura}...")
 
-        # Busca informações no ASAAS
-        print(f"  [*] Buscando no ASAAS...")
-        customer_id, process_id = extrair_cliente_processo_do_asaas(asaas, numero_fatura)
+        # Busca número do processo no ASAAS
+        print(f"  [*] Buscando informações no ASAAS...")
+        numero_processo_asaas = extrair_numero_processo_do_asaas(asaas, numero_fatura)
 
-        if customer_id:
-            print(f"      ✓ Cliente: {customer_id}")
-        else:
-            print(f"      ⚠️  Cliente não encontrado")
+        if not numero_processo_asaas:
+            print(f"      ⚠️  Número do processo não encontrado no ASAAS")
+            resultados['erro'].append({
+                'numero_fatura': numero_fatura,
+                'erro': 'Processo não encontrado no ASAAS'
+            })
+            continue
 
-        if process_id:
-            print(f"      ✓ Processo: {process_id}")
+        print(f"      ✓ Processo no ASAAS: {numero_processo_asaas}")
+
+        # Busca processo no Advbox
+        print(f"  [*] Procurando processo no Advbox...")
+        dados_processo = extrair_dados_do_processo_advbox(advbox, numero_processo_asaas)
+
+        if not dados_processo:
+            print(f"      ❌ Processo não encontrado no Advbox")
+            resultados['erro'].append({
+                'numero_fatura': numero_fatura,
+                'erro': f'Processo {numero_processo_asaas} não encontrado no Advbox'
+            })
+            continue
+
+        customers_id = dados_processo.get('customers_id', '')
+        customer_name = dados_processo.get('customer_name', '')
+        lawsuit_id = dados_processo.get('lawsuit_id', '')
+        lawsuit_type = dados_processo.get('lawsuit_type', '')
+
+        if customers_id:
+            print(f"      ✓ Cliente: {customer_name} (ID: {customers_id})")
         else:
-            print(f"      ⚠️  Processo não encontrado")
+            print(f"      ❌ Cliente não encontrado")
+            resultados['erro'].append({
+                'numero_fatura': numero_fatura,
+                'erro': 'Cliente não encontrado no processo'
+            })
+            continue
+
+        if lawsuit_id:
+            print(f"      ✓ Processo: {numero_processo_asaas} (ID: {lawsuit_id})")
+
+        print(f"      ✓ Tipo de ação: {lawsuit_type}")
+
+        # Extrai categoria baseada no tipo de ação
+        category_id = extrair_categoria_por_tipo_acao(advbox, lawsuit_type)
+        if category_id:
+            print(f"      ✓ Categoria encontrada: {category_id}")
+        else:
+            print(f"      ⚠️  Categoria não encontrada")
 
         # Encontra o lançamento no Advbox
         lancamento = encontrar_lancamento(transacoes, numero_fatura)
@@ -206,21 +338,13 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
         print(f"  [*] Atualizando lançamento (ID: {lancamento_id})...")
 
         # Prepara dados para atualização
-        dados_atualizacao = {}
+        dados_atualizacao = {
+            'customers_id': customers_id,
+            'lawsuits_id': lawsuit_id,
+        }
 
-        if customer_id:
-            dados_atualizacao['customers_id'] = customer_id
-
-        if process_id:
-            dados_atualizacao['lawsuits_id'] = process_id
-
-        if not dados_atualizacao:
-            print(f"  ⚠️  Nenhuma informação de cliente ou processo para atualizar")
-            resultados['erro'].append({
-                'numero_fatura': numero_fatura,
-                'erro': 'Sem cliente e processo'
-            })
-            continue
+        if category_id:
+            dados_atualizacao['categories_id'] = category_id
 
         # Atualiza no Advbox
         sucesso, mensagem = advbox.atualizar_transacao(lancamento_id, dados_atualizacao)
@@ -229,8 +353,10 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
             print(f"  ✓ Atualizado com sucesso")
             resultados['sucesso'].append({
                 'numero_fatura': numero_fatura,
-                'customer_id': customer_id,
-                'process_id': process_id
+                'customers_id': customers_id,
+                'customer_name': customer_name,
+                'lawsuit_id': lawsuit_id,
+                'category_id': category_id
             })
         else:
             print(f"  ❌ Erro na atualização: {mensagem}")
@@ -251,7 +377,10 @@ def atualizar_teds(advbox_api_key: str, asaas_api_key: str):
     if resultados['sucesso']:
         print("\nAtualizações bem-sucedidas:")
         for r in resultados['sucesso']:
-            print(f"  - {r['numero_fatura']}: cliente={r['customer_id']}, processo={r['process_id']}")
+            print(f"  - {r['numero_fatura']}")
+            print(f"    Cliente: {r['customer_name']} (ID: {r['customers_id']})")
+            print(f"    Processo: {r['lawsuit_id']}")
+            print(f"    Categoria: {r['category_id']}")
 
     if resultados['erro']:
         print("\nTEDs com erro:")
