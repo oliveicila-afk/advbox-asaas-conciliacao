@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from typing import Dict, List, Optional
 
-# Dados das TEDs a lançar
+# Dados das TEDs a lançar (será populado com dados do ASAAS)
 TEDS = [
     {"numero_fatura": "924908121", "valor": 27214.78, "data": "2026-10-01"},
     {"numero_fatura": "925258116", "valor": 6293.97, "data": "2026-10-02"},
@@ -22,6 +22,40 @@ TEDS = [
     {"numero_fatura": "930023237", "valor": 11988.57, "data": "2026-10-09"},
     {"numero_fatura": "932787371", "valor": 4363.11, "data": "2026-10-10"},
 ]
+
+class AsaasAPI:
+    """Cliente para a API do ASAAS (buscar dados de faturas)"""
+
+    BASE_URL = "https://api.asaas.com/v3"
+
+    def __init__(self, api_key: str):
+        """
+        Inicializa o cliente da API do ASAAS
+
+        Args:
+            api_key: Chave de API do ASAAS
+        """
+        self.api_key = api_key
+        self.session = requests.Session()
+        self.session.headers.update({
+            "access_token": api_key,
+            "Content-Type": "application/json"
+        })
+
+    def buscar_fatura(self, numero_fatura: str) -> Dict:
+        """Busca uma fatura pelo número de referência"""
+        response = self.session.get(
+            f"{self.BASE_URL}/invoices",
+            params={"reference": numero_fatura}
+        )
+        try:
+            data = response.json() if response.text else {}
+            if data.get("data"):
+                return data["data"][0]  # Retorna primeira fatura encontrada
+            return {}
+        except:
+            return {}
+
 
 class AdvboxAPI:
     """Cliente para a API do Advbox"""
@@ -59,6 +93,8 @@ class AdvboxAPI:
         debit_account: int,
         categories_id: int,
         cost_centers_id: int,
+        customer_id: Optional[str] = None,
+        process_id: Optional[str] = None,
     ) -> Dict:
         """
         Cria um lançamento de transação no Advbox
@@ -71,6 +107,8 @@ class AdvboxAPI:
             debit_account: ID da conta bancária
             categories_id: ID da categoria
             cost_centers_id: ID do centro de custo
+            customer_id: ID do cliente (opcional)
+            process_id: ID do processo (opcional)
 
         Returns:
             Resposta da API
@@ -86,8 +124,15 @@ class AdvboxAPI:
             "cost_centers_id": cost_centers_id,
             "amount": valor_formatado,
             "date_due": data,
+            "date_payment": data,
             "description": f"TED recebida - Fatura {numero_referencia}",
         }
+
+        # Adiciona cliente e processo se disponíveis
+        if customer_id:
+            payload["customer_id"] = customer_id
+        if process_id:
+            payload["process_id"] = process_id
 
         response = self.session.post(
             f"{self.BASE_URL}/transactions",
@@ -107,7 +152,47 @@ class AdvboxAPI:
         }
 
 
-def lançar_teds(api_key: str) -> None:
+def enriquecer_teds_com_asaas(teds: List[Dict], asaas_api_key: str) -> List[Dict]:
+    """
+    Enriquece os dados das TEDs com informações de cliente e processo do ASAAS
+
+    Args:
+        teds: Lista de TEDs
+        asaas_api_key: Chave de API do ASAAS
+
+    Returns:
+        Lista de TEDs enriquecida
+    """
+    print("\n[*] Buscando dados de cliente e processo no ASAAS...")
+    asaas = AsaasAPI(asaas_api_key)
+
+    teds_enriquecidas = []
+    for ted in teds:
+        ted_enriquecida = ted.copy()
+        fatura = asaas.buscar_fatura(ted['numero_fatura'])
+
+        if fatura:
+            # Extrai customer_id
+            if 'customer' in fatura and fatura['customer']:
+                ted_enriquecida['customer_id'] = fatura['customer'].get('id')
+                print(f"  ✓ {ted['numero_fatura']}: cliente={ted_enriquecida.get('customer_id')}")
+
+            # Extrai process_id (campo pode variar)
+            if 'customFields' in fatura:
+                for field in fatura.get('customFields', []):
+                    if field.get('name', '').lower() in ['processo', 'process', 'process_id']:
+                        ted_enriquecida['process_id'] = field.get('value')
+                        print(f"  ✓ {ted['numero_fatura']}: processo={ted_enriquecida.get('process_id')}")
+                        break
+        else:
+            print(f"  ⚠️  {ted['numero_fatura']}: não encontrada no ASAAS")
+
+        teds_enriquecidas.append(ted_enriquecida)
+
+    return teds_enriquecidas
+
+
+def lançar_teds(api_key: str, asaas_api_key: str = None) -> None:
     """
     Lança todas as 10 TEDs no Advbox
 
@@ -121,6 +206,11 @@ def lançar_teds(api_key: str) -> None:
     print(f"Período: 01-10 de outubro de 2026")
     print(f"Total a lançar: R$ {sum(ted['valor'] for ted in TEDS):,.2f}")
     print("=" * 60)
+
+    # Enriquecer dados das TEDs com informações do ASAAS
+    teds_processadas = TEDS
+    if asaas_api_key:
+        teds_processadas = enriquecer_teds_com_asaas(TEDS, asaas_api_key)
 
     api = AdvboxAPI(api_key)
 
@@ -158,10 +248,14 @@ def lançar_teds(api_key: str) -> None:
         "erro": []
     }
 
-    for i, ted in enumerate(TEDS, 1):
-        print(f"\n[{i}/{len(TEDS)}] Lançando TED {ted['numero_fatura']}...")
+    for i, ted in enumerate(teds_processadas, 1):
+        print(f"\n[{i}/{len(teds_processadas)}] Lançando TED {ted['numero_fatura']}...")
         print(f"  Valor: R$ {ted['valor']:,.2f}")
         print(f"  Data: {ted['data']}")
+        if ted.get('customer_id'):
+            print(f"  Cliente: {ted['customer_id']}")
+        if ted.get('process_id'):
+            print(f"  Processo: {ted['process_id']}")
 
         resultado = api.criar_transacao(
             valor=ted['valor'],
@@ -171,6 +265,8 @@ def lançar_teds(api_key: str) -> None:
             debit_account=debit_account,
             categories_id=categories_id,
             cost_centers_id=cost_centers_id,
+            customer_id=ted.get('customer_id'),
+            process_id=ted.get('process_id'),
         )
 
         if resultado['success']:
@@ -187,8 +283,8 @@ def lançar_teds(api_key: str) -> None:
     print("\n" + "=" * 60)
     print("RESUMO DO LANÇAMENTO")
     print("=" * 60)
-    print(f"Lançados com sucesso: {len(resultados['sucesso'])}/{len(TEDS)}")
-    print(f"Com erro: {len(resultados['erro'])}/{len(TEDS)}")
+    print(f"Lançados com sucesso: {len(resultados['sucesso'])}/{len(teds_processadas)}")
+    print(f"Com erro: {len(resultados['erro'])}/{len(teds_processadas)}")
 
     if resultados['sucesso']:
         print(f"\nTotal lançado: R$ {sum(t['valor'] for t in resultados['sucesso']):,.2f}")
@@ -204,18 +300,23 @@ def lançar_teds(api_key: str) -> None:
 if __name__ == "__main__":
     import sys
 
-    # Obter a chave de API
+    # Obter as chaves de API
     if len(sys.argv) > 1:
-        api_key = sys.argv[1]
+        advbox_api_key = sys.argv[1]
     else:
-        api_key = input("Digite a chave de API do Advbox (obtida em Settings > Integrações): ")
+        advbox_api_key = input("Digite a chave de API do Advbox: ")
 
-    if not api_key:
-        print("Erro: Chave de API não fornecida")
+    if not advbox_api_key:
+        print("Erro: Chave de API do Advbox não fornecida")
         sys.exit(1)
 
+    # ASAAS API key (opcional, para enriquecer dados)
+    asaas_api_key = None
+    if len(sys.argv) > 2:
+        asaas_api_key = sys.argv[2]
+
     try:
-        lançar_teds(api_key)
+        lançar_teds(advbox_api_key, asaas_api_key)
     except Exception as e:
         print(f"\nErro ao executar script: {e}")
         import traceback
