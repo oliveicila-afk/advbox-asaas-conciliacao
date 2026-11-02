@@ -22,4 +22,4 @@ jobs:
 
       - name: Atualizar TEDs
         run: |
-          python scripts/atualizar_teds_com_cliente_processo.py "${{ secrets.ADVBOX_TOKEN }}" "${{ secrets.ASAAS_TOKEN }}"
+          python scripts/atualizar_teds_com_cliente_processo.py "${{ secrets.ADVBOX_TOKEN }}" "${{ secrets.ASAAS_API_KEY }}"
